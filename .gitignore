@@ -19,6 +19,9 @@ check_env.ps1
 /SKILL.md
 /SKILL1.md
 
+# Copilot workspace instructions (internal authoring notes)
+.github/copilot-instructions.md
+
 # Tenant-specific examples (deploy scripts, flow definitions)
 skills/*/examples/
 
