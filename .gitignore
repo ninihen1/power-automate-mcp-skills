@@ -1,36 +1,21 @@
-# Temp analysis artifacts
-flow_*.json
-parent_flow.json
-connections_raw.json
-task_a_flows.json
-tmp_action.txt
+# Temp artifacts
+*.json
+!package.json
+!package-lock.json
+tmp_*
 
-# Temp scripts & logs from testing sessions
-build_def_test.ps1
-build_test_output.txt
-deploy_license_graph.ps1
-fix_flow.ps1
-fix_flow_output.txt
-run_tasks.ps1
-step1_get_flow.ps1
-check_env.ps1
-
-# Private / tenant-specific skill (not for public submission)
+# Private / workspace-specific files
 /SKILL.md
 /SKILL1.md
-
-# Copilot workspace instructions (internal authoring notes)
 .github/copilot-instructions.md
-
-# Tenant-specific examples (deploy scripts, flow definitions)
 skills/*/examples/
 
 # Secrets & virtual environments
-skills/.env.secret
-skills/.venv/
 .env
 .env.*
 *.secret
+.venv/
+**/.*venv/
 
 # OS
 Thumbs.db
