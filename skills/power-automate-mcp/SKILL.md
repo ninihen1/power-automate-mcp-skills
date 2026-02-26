@@ -18,7 +18,7 @@ no UI, no manual steps.
 
 > **Requires:** A [FlowStudio](https://flowstudio.app) MCP subscription (or
 > compatible Power Automate MCP server). You will need:
-> - MCP endpoint URL (e.g. `https://<your-host>/mcp`)
+> - MCP endpoint: `https://mcp.flowstudio.app/mcp` (same for all subscribers)
 > - API key / JWT token (`x-api-key` header — NOT Bearer)
 > - Power Platform environment name (e.g. `Default-<tenant-guid>`)
 
@@ -117,7 +117,7 @@ exactly which tool names are available (names may vary by server version):
 import json, urllib.request
 
 TOKEN = "<YOUR_JWT_TOKEN>"
-MCP   = "https://<YOUR_MCP_HOST>/mcp"
+MCP   = "https://mcp.flowstudio.app/mcp"
 
 def mcp_raw(method, params=None, cid=1):
     payload = {"jsonrpc": "2.0", "method": method, "id": cid}

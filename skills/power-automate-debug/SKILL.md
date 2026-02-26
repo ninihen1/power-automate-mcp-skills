@@ -25,7 +25,7 @@ Subscribe at https://flowstudio.app
 ```python
 import json, urllib.request
 
-MCP_URL   = "https://<YOUR_MCP_HOST>/mcp"
+MCP_URL   = "https://mcp.flowstudio.app/mcp"
 MCP_TOKEN = "<YOUR_JWT_TOKEN>"
 
 def mcp(tool, **kwargs):
