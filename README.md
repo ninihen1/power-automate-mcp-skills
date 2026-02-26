@@ -21,21 +21,19 @@ bundled `references/` assets, following the
 
 - A [FlowStudio](https://flowstudio.app) MCP subscription (or compatible
   Power Automate MCP server)
-- MCP endpoint URL (e.g. `https://<your-host>/mcp`)
+- MCP endpoint: `https://mcp.flowstudio.app/mcp` (same for all subscribers)
 - API key / JWT token (passed as `x-api-key` header — **not** Bearer)
 
 ## Quick Start
 
 1. Copy the skill folder(s) you need into your project's `.github/skills/` directory
    (or wherever your agent discovers skills)
-2. Configure your MCP server URL and JWT token
+2. Configure your JWT token (obtain from [flowstudio.app](https://flowstudio.app))
 3. Ask your AI agent to "list my Power Automate flows" — the skill will guide it
 
 ## Repository Structure
 
 ```
-.github/
-  copilot-instructions.md   ← authoring standards & submission checklist
 skills/
   power-automate-mcp/       ← core connection & operation skill
     SKILL.md
@@ -51,7 +49,9 @@ skills/
   power-automate-build/     ← build & deploy skill
     SKILL.md
     references/
-      ACTION-PATTERNS.md
+      ACTION-PATTERNS-CORE.md
+      ACTION-PATTERNS-DATA.md
+      ACTION-PATTERNS-CONNECTORS.md
       FLOW-SCHEMA.md
       TRIGGER-TYPES.md
 README.md                   ← this file
@@ -60,8 +60,8 @@ LICENSE                     ← MIT
 
 ## Contributing
 
-See [.github/copilot-instructions.md](.github/copilot-instructions.md) for
-authoring standards and the awesome-copilot submission checklist.
+Contributions welcome! Each skill folder must contain at minimum a `SKILL.md`
+with the required frontmatter format. See the existing skills for examples.
 
 ## License
 
