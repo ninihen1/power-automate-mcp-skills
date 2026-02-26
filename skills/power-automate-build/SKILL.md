@@ -33,7 +33,14 @@ def mcp(tool, **kwargs):
                           "params": {"name": tool, "arguments": kwargs}}).encode()
     req = urllib.request.Request(MCP_URL, data=payload,
         headers={"x-api-key": MCP_TOKEN, "Content-Type": "application/json"})
-    raw = json.loads(urllib.request.urlopen(req, timeout=120).read())
+    try:
+        resp = urllib.request.urlopen(req, timeout=120)
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"MCP HTTP {e.code}: {body[:200]}") from e
+    raw = json.loads(resp.read())
+    if "error" in raw:
+        raise RuntimeError(f"MCP error: {json.dumps(raw['error'])}")
     return json.loads(raw["result"]["content"][0]["text"])
 
 ENV = "<environment-id>"  # e.g. Default-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx

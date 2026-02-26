@@ -125,10 +125,16 @@ def mcp_raw(method, params=None, cid=1):
         payload["params"] = params
     req = urllib.request.Request(MCP, data=json.dumps(payload).encode(),
         headers={"x-api-key": TOKEN, "Content-Type": "application/json"})
-    return json.loads(urllib.request.urlopen(req, timeout=30).read())
+    try:
+        resp = urllib.request.urlopen(req, timeout=30)
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"MCP HTTP {e.code} — check token and endpoint") from e
+    return json.loads(resp.read())
 
-tools = mcp_raw("tools/list")["result"]["tools"]
-for t in tools:
+raw = mcp_raw("tools/list")
+if "error" in raw:
+    print("ERROR:", raw["error"]); raise SystemExit(1)
+for t in raw["result"]["tools"]:
     print(t["name"], "—", t["description"][:60])
 ```
 
@@ -150,10 +156,22 @@ def mcp(tool, args, cid=1):
     req = urllib.request.Request(MCP, data=json.dumps(payload).encode(),
         headers={"x-api-key": TOKEN, "Content-Type": "application/json",
                  "User-Agent": "MCP/1.0"})
-    raw  = json.loads(urllib.request.urlopen(req, timeout=120).read())
+    try:
+        resp = urllib.request.urlopen(req, timeout=120)
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"MCP HTTP {e.code}: {body[:200]}") from e
+    raw = json.loads(resp.read())
+    if "error" in raw:
+        raise RuntimeError(f"MCP error: {json.dumps(raw['error'])}")
     text = raw["result"]["content"][0]["text"]
     return json.loads(text)
 ```
+
+> **Common auth errors:**
+> - HTTP 401/403 → token is missing, expired, or malformed. Get a fresh JWT from [flowstudio.app](https://flowstudio.app).
+> - HTTP 400 → malformed JSON-RPC payload. Check `Content-Type: application/json` and body structure.
+> - `MCP error: {"code": -32602, ...}` → wrong or missing tool arguments.
 
 ---
 
