@@ -1,0 +1,3 @@
+STATUS: 200
+
+{"jsonrpc":"2.0","result":{"content":[{"type":"text","text":"{\n  \"error\": {\n    \"message\": \"environmentName is required\",\n    \"statusCode\": null,\n    \"data\": null,\n    \"code\": null\n  }\n}"}]},"id":1}

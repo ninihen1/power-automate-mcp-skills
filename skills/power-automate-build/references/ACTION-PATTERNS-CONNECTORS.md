@@ -470,7 +470,7 @@ For 1:1 ("Chat with Flow bot"), use `"location": "Chat with Flow bot"` and set
 >   "type": "OpenApiConnection",
 >   "inputs": {
 >     "host": { "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365users",
->               "operationId": "MyProfile_V2" },
+>               "operationId": "UserProfile_V2" },
 >     "parameters": { "id": "@{item()?['Email']}" }
 >   }
 > }

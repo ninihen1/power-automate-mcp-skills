@@ -7,7 +7,11 @@ description: >-
   trigger URL, validate a definition, monitor flow health, or any task that requires
   talking to the Power Automate API through an MCP tool. Also use for Power Platform
   environment discovery and connection management. Requires a FlowStudio MCP
-  subscription or compatible server — see https://flowstudio.app
+  subscription or compatible server — see https://mcp.flowstudio.app
+license: MIT
+compatibility: >-
+  Requires a FlowStudio MCP subscription (https://mcp.flowstudio.app).
+  Python 3.x for code examples. Network access to mcp.flowstudio.app.
 ---
 
 # Power Automate via FlowStudio MCP
@@ -150,9 +154,9 @@ import json, urllib.request
 TOKEN = "<YOUR_JWT_TOKEN>"
 MCP   = "https://mcp.flowstudio.app/mcp"
 
-def mcp(tool, args, cid=1):
-    payload = {"jsonrpc": "2.0", "method": "tools/call", "id": cid,
-               "params": {"name": tool, "arguments": args}}
+def mcp(tool, **kwargs):
+    payload = {"jsonrpc": "2.0", "method": "tools/call", "id": 1,
+               "params": {"name": tool, "arguments": kwargs}}
     req = urllib.request.Request(MCP, data=json.dumps(payload).encode(),
         headers={"x-api-key": TOKEN, "Content-Type": "application/json",
                  "User-Agent": "MCP/1.0"})
@@ -169,7 +173,7 @@ def mcp(tool, args, cid=1):
 ```
 
 > **Common auth errors:**
-> - HTTP 401/403 → token is missing, expired, or malformed. Get a fresh JWT from [flowstudio.app](https://flowstudio.app).
+> - HTTP 401/403 → token is missing, expired, or malformed. Get a fresh JWT from [mcp.flowstudio.app](https://mcp.flowstudio.app).
 > - HTTP 400 → malformed JSON-RPC payload. Check `Content-Type: application/json` and body structure.
 > - `MCP error: {"code": -32602, ...}` → wrong or missing tool arguments.
 
@@ -181,7 +185,7 @@ def mcp(tool, args, cid=1):
 ENV = "Default-<tenant-guid>"    # or "envId" prefix for store environments
 
 # All MCP subscribers — live from PA API
-flows = mcp("list_live_flows", {"environmentName": ENV})
+flows = mcp("list_live_flows", environmentName=ENV)
 # Returns direct array:
 # [{"id": "0757041a-...", "displayName": "My Flow", "state": "Started",
 #   "triggerType": "Request", "createdTime": "...", "owners": "<aad-oid>"}, ...]
@@ -190,7 +194,7 @@ for f in flows:
     print(FLOW_ID, "|", f["displayName"], "|", f["state"])
 
 # FlowStudio for Teams — from cache, includes run stats
-flows = mcp("list_store_flows", {"environmentName": ENV})
+flows = mcp("list_store_flows", environmentName=ENV)
 # Returns direct array:
 # [{"id": "3991358a-...b1ed.0757041a-...f371",   ← envId.flowId format!
 #   "displayName": "Admin | Sync Template v3",
@@ -201,7 +205,7 @@ for f in flows:
     print(FLOW_ID, "|", f["displayName"], "|", f.get("runPeriodTotal", 0), "runs")
 
 # Search by name
-flows = mcp("list_store_flows", {"environmentName": ENV, "searchTerm": "Invoice"})
+flows = mcp("list_store_flows", environmentName=ENV, searchTerm="Invoice")
 ```
 
 ---
@@ -211,7 +215,7 @@ flows = mcp("list_store_flows", {"environmentName": ENV, "searchTerm": "Invoice"
 ```python
 FLOW = "<flow-uuid>"
 
-flow = mcp("get_live_flow", {"environmentName": ENV, "flowName": FLOW})
+flow = mcp("get_live_flow", environmentName=ENV, flowName=FLOW)
 
 # Display name and state
 print(flow["properties"]["displayName"])
@@ -231,7 +235,7 @@ print(actions["Compose_Filter"]["inputs"])
 
 ```python
 # Most recent runs (newest first)
-runs = mcp("get_live_flow_runs", {"environmentName": ENV, "flowName": FLOW, "top": 5})
+runs = mcp("get_live_flow_runs", environmentName=ENV, flowName=FLOW, top=5)
 # Returns direct array:
 # [{"name": "08584296068667933411438594643CU15",
 #   "status": "Failed",
@@ -256,12 +260,12 @@ run_id = next(r["name"] for r in runs if r["status"] == "Failed", None)
 ```python
 run_id = runs[0]["name"]
 
-out = mcp("get_live_flow_run_action_outputs", {
-    "environmentName": ENV,
-    "flowName": FLOW,
-    "runName": run_id,
-    "actionName": "Get_Customer_Record"   # exact action name from the definition
-})
+out = mcp("get_live_flow_run_action_outputs",
+    environmentName=ENV,
+    flowName=FLOW,
+    runName=run_id,
+    actionName="Get_Customer_Record"   # exact action name from the definition
+)
 print(json.dumps(out, indent=2))
 ```
 
@@ -270,11 +274,11 @@ print(json.dumps(out, indent=2))
 ## Get a Run's Error
 
 ```python
-err = mcp("get_live_flow_run_error", {
-    "environmentName": ENV,
-    "flowName": FLOW,
-    "runName": run_id
-})
+err = mcp("get_live_flow_run_error",
+    environmentName=ENV,
+    flowName=FLOW,
+    runName=run_id
+)
 # Returns:
 # {"runName": "08584296068...",
 #  "failedActions": [
@@ -299,11 +303,11 @@ print(f"Root failure: {root['actionName']} → {root['code']}")
 ## Resubmit a Run
 
 ```python
-result = mcp("resubmit_live_flow_run", {
-    "environmentName": ENV,
-    "flowName": FLOW,
-    "runName": run_id
-})
+result = mcp("resubmit_live_flow_run",
+    environmentName=ENV,
+    flowName=FLOW,
+    runName=run_id
+)
 print(result)   # {"resubmitted": true, "triggerName": "..."}
 ```
 
@@ -312,11 +316,11 @@ print(result)   # {"resubmitted": true, "triggerName": "..."}
 ## Cancel a Running Run
 
 ```python
-mcp("cancel_live_flow_run", {
-    "environmentName": ENV,
-    "flowName": FLOW,
-    "runName": run_id
-})
+mcp("cancel_live_flow_run",
+    environmentName=ENV,
+    flowName=FLOW,
+    runName=run_id
+)
 ```
 
 > ⚠️ **Do NOT cancel a run that shows `Running` because it is waiting for an
@@ -329,31 +333,31 @@ mcp("cancel_live_flow_run", {
 
 ```python
 # ── 1. Find the flow ─────────────────────────────────────────────────────
-flows = mcp("list_live_flows", {"environmentName": ENV})
+flows = mcp("list_live_flows", environmentName=ENV)
 target = next(f for f in flows if "My Flow Name" in f["displayName"])
 FLOW_ID = target["id"]
 
 # ── 2. Get the most recent failed run ────────────────────────────────────
-runs = mcp("get_live_flow_runs", {"environmentName": ENV, "flowName": FLOW_ID, "top": 5})
+runs = mcp("get_live_flow_runs", environmentName=ENV, flowName=FLOW_ID, top=5)
 # [{"name": "08584296068...", "status": "Failed", ...}, ...]
 RUN_ID = next(r["name"] for r in runs if r["status"] == "Failed")
 
 # ── 3. Get per-action failure breakdown ──────────────────────────────────
-err = mcp("get_live_flow_run_error", {"environmentName": ENV, "flowName": FLOW_ID, "runName": RUN_ID})
+err = mcp("get_live_flow_run_error", environmentName=ENV, flowName=FLOW_ID, runName=RUN_ID)
 # {"failedActions": [{"actionName": "HTTP_find_AD_User_by_Name", "code": "NotSpecified",...}], ...}
 root_action = err["failedActions"][-1]["actionName"]
 print(f"Root failure: {root_action}")
 
 # ── 4. Read the definition and inspect the failing action's expression ───
-defn = mcp("get_live_flow", {"environmentName": ENV, "flowName": FLOW_ID})
+defn = mcp("get_live_flow", environmentName=ENV, flowName=FLOW_ID)
 acts = defn["properties"]["definition"]["actions"]
 print("Failing action inputs:", acts[root_action]["inputs"])
 
 # ── 5. Inspect the prior action's output to find the null ────────────────
-out = mcp("get_live_flow_run_action_outputs", {
-    "environmentName": ENV, "flowName": FLOW_ID,
-    "runName": RUN_ID, "actionName": "Compose_Names"
-})
+out = mcp("get_live_flow_run_action_outputs",
+    environmentName=ENV, flowName=FLOW_ID,
+    runName=RUN_ID, actionName="Compose_Names"
+)
 nulls = [x for x in out.get("body", []) if x.get("Name") is None]
 print(f"{len(nulls)} records with null Name")
 
@@ -362,19 +366,19 @@ acts[root_action]["inputs"]["parameters"]["searchName"] = \
     "@coalesce(item()?['Name'], '')"
 
 conn_refs = defn["properties"]["connectionReferences"]
-result = mcp("update_live_flow", {
-    "environmentName": ENV, "flowName": FLOW_ID,
-    "definition": defn["properties"]["definition"],
-    "connectionReferences": conn_refs
-})
+result = mcp("update_live_flow",
+    environmentName=ENV, flowName=FLOW_ID,
+    definition=defn["properties"]["definition"],
+    connectionReferences=conn_refs
+)
 assert result.get("error") is None, f"Deploy failed: {result['error']}"
 # ⚠️ error key is always present — only fail if it is NOT None
 
 # ── 7. Resubmit and verify ───────────────────────────────────────────────
-mcp("resubmit_live_flow_run", {"environmentName": ENV, "flowName": FLOW_ID, "runName": RUN_ID})
+mcp("resubmit_live_flow_run", environmentName=ENV, flowName=FLOW_ID, runName=RUN_ID)
 
 import time; time.sleep(30)
-new_runs = mcp("get_live_flow_runs", {"environmentName": ENV, "flowName": FLOW_ID, "top": 1})
+new_runs = mcp("get_live_flow_runs", environmentName=ENV, flowName=FLOW_ID, top=1)
 print(new_runs[0]["status"])   # Succeeded = done
 ```
 
