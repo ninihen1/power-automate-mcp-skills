@@ -18,14 +18,20 @@ Response: array of environments:
 ```json
 [
   {
-    "name": "Default-26e65220-5561-46ef-9783-ce5f20489241",
+    "id": "Default-26e65220-5561-46ef-9783-ce5f20489241",
     "displayName": "FlowStudio (default)",
-    "location": "australia"
+    "sku": "Production",
+    "location": "australia",
+    "state": "Enabled",
+    "isDefault": true,
+    "isAdmin": true,
+    "isMember": true,
+    "createdTime": "2023-08-18T00:41:05Z"
   }
 ]
 ```
 
-> Use the `name` value as `environmentName` in all other tools.
+> Use the `id` value as `environmentName` in all other tools.
 
 ---
 
@@ -96,21 +102,31 @@ List flows in an environment directly from the PA API (always current).
 |---|---|---|---|
 | `environmentName` | string | Yes | Environment ID |
 
-Response: direct array:
+Response: wrapper object:
 ```json
-[
-  {
-    "id": "0757041a-8ef2-cf74-ef06-06881916f371",
-    "displayName": "My Flow",
-    "state": "Started",
-    "triggerType": "Request",
-    "createdTime": "2023-08-18T01:18:17Z",
-    "owners": "<aad-object-id>"
-  }
-]
+{
+  "flows": [
+    {
+      "id": "0757041a-8ef2-cf74-ef06-06881916f371",
+      "displayName": "My Flow",
+      "state": "Started",
+      "triggerType": "Request",
+      "triggerKind": "Http",
+      "createdTime": "2023-08-18T01:18:17Z",
+      "lastModifiedTime": "2023-08-18T12:47:42Z",
+      "owners": "<aad-object-id>",
+      "definitionAvailable": true
+    }
+  ],
+  "totalCount": 100,
+  "userScopedCount": 80,
+  "adminScopedCount": 20,
+  "userScopedError": null,
+  "adminScopedError": null
+}
 ```
 
-> `id` is a plain UUID — use directly as `flowName` in other tools.
+> Access the flow list via `result["flows"]`. `id` is a plain UUID — use directly as `flowName` in other tools.
 
 ---
 
@@ -342,7 +358,7 @@ Resubmit a completed (Succeeded/Failed) run using its original trigger payload.
 | `flowName` | string | Yes | Flow GUID |
 | `runName` | string | Yes | Run ID to resubmit |
 
-Response: `{ resubmitted: true, triggerName: "..." }`
+Response: `{ flowKey, resubmitted: true, runName, triggerName }`
 
 ---
 
@@ -373,7 +389,23 @@ No test call is made — reads from the live definition.
 | `environmentName` | string | Yes | Environment ID |
 | `flowName` | string | Yes | Flow GUID |
 
+Response keys:
+```
+flowKey            – Flow GUID
+displayName        – Flow display name
+triggerName        – Trigger action name (e.g. "manual")
+triggerType        – Trigger type (e.g. "Request")
+triggerKind        – Trigger kind (e.g. "Http")
+requestMethod     – HTTP method (e.g. "POST")
+relativePath       – Relative path configured on the trigger (if any)
+requestSchema      – JSON schema the trigger expects as the POST body
+requestHeaders     – Headers the trigger expects
+responseSchemas    – Array of JSON schemas defined on Response action(s)
+responseSchemaCount – Number of Response actions that define output schemas
+```
+
 > Use before `trigger_live_flow` to understand what body to send.
+> The request body schema is in `requestSchema` (not `triggerSchema`).
 
 ---
 
@@ -400,6 +432,10 @@ authentication, the impersonated Bearer token is automatically included.
 | `body` | object | No | JSON body to POST. Omit for flows expecting an empty body |
 
 Response: `{ status, body, requiresAadAuth, authType }`
+
+> `status` is the HTTP status code from the flow trigger (e.g. `200`, `202`).
+> Response also includes `flowKey`, `triggerName`, and `triggerUrl`.
+> Full keys: `flowKey`, `triggerName`, `triggerUrl`, `requiresAadAuth`, `authType`, `responseStatus`, `responseBody`.
 
 > Only works for flows with a `Request` (HTTP) trigger type.
 

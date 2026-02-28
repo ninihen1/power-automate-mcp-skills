@@ -103,9 +103,11 @@ snapshot of your tenant's flows enriched with governance metadata and run statis
 | Any tier, need definition | `get_live_flow` | Definition is always fetched live — not cached |
 | Any tier, debugging a failure | `get_live_flow_runs` then `get_live_flow_run_error` | Live run data; store errors may be empty if monitoring isn't active |
 
-> ⚠️ **Critical: both list tools return a direct array** — not a wrapper object.
-> `list_store_flows` does NOT return `{"flows": [...], "totalCount": n}`.
-> Iterate the result directly.
+> ⚠️ **Critical: `list_live_flows` returns a wrapper object** — access the
+> array via `result["flows"]`. `list_store_flows` returns a **direct array**.
+> `list_store_flows` does NOT return `{"flows": [...], "totalCount": n}`
+> but `list_live_flows` DOES — iterate `result["flows"]` for live, or
+> iterate the result directly for store.
 
 > ⚠️ **Store flow IDs are `envId.flowId`** (e.g. `3991358a-...b1ed.0757041a-...f371`).
 > Strip the env prefix — pass only the UUID part as `flowName` to all other tools.
@@ -185,10 +187,14 @@ def mcp(tool, **kwargs):
 ENV = "Default-<tenant-guid>"    # or "envId" prefix for store environments
 
 # All MCP subscribers — live from PA API
-flows = mcp("list_live_flows", environmentName=ENV)
-# Returns direct array:
-# [{"id": "0757041a-...", "displayName": "My Flow", "state": "Started",
-#   "triggerType": "Request", "createdTime": "...", "owners": "<aad-oid>"}, ...]
+result = mcp("list_live_flows", environmentName=ENV)
+# Returns wrapper object:
+# {"flows": [{"id": "0757041a-...", "displayName": "My Flow", "state": "Started",
+#   "triggerType": "Request", "triggerKind": "Http",
+#   "createdTime": "...", "lastModifiedTime": "...", "owners": "<aad-oid>",
+#   "definitionAvailable": true}, ...],
+#  "totalCount": 100, "userScopedCount": 80, "adminScopedCount": 20}
+flows = result["flows"]   # extract the array from the wrapper
 for f in flows:
     FLOW_ID = f["id"]   # plain UUID — use directly as flowName
     print(FLOW_ID, "|", f["displayName"], "|", f["state"])
@@ -333,7 +339,8 @@ mcp("cancel_live_flow_run",
 
 ```python
 # ── 1. Find the flow ─────────────────────────────────────────────────────
-flows = mcp("list_live_flows", environmentName=ENV)
+result = mcp("list_live_flows", environmentName=ENV)
+flows = result["flows"]   # extract array from wrapper
 target = next(f for f in flows if "My Flow Name" in f["displayName"])
 FLOW_ID = target["id"]
 
@@ -354,11 +361,15 @@ acts = defn["properties"]["definition"]["actions"]
 print("Failing action inputs:", acts[root_action]["inputs"])
 
 # ── 5. Inspect the prior action's output to find the null ────────────────
-out = mcp("get_live_flow_run_action_outputs",
+actions_out = mcp("get_live_flow_run_action_outputs",
     environmentName=ENV, flowName=FLOW_ID,
     runName=RUN_ID, actionName="Compose_Names"
 )
-nulls = [x for x in out.get("body", []) if x.get("Name") is None]
+# Returns an array of action objects:
+# [{"actionName": "Compose_Names", "status": "Succeeded",
+#   "inputs": {...}, "outputs": {...}, "startTime": "...", "endTime": "..."}]
+action_out = actions_out[0]   # first (and usually only) entry
+nulls = [x for x in action_out.get("outputs", {}).get("body", []) if x.get("Name") is None]
 print(f"{len(nulls)} records with null Name")
 
 # ── 6. Apply the fix ─────────────────────────────────────────────────────

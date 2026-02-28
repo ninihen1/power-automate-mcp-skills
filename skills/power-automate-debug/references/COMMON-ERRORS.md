@@ -101,9 +101,10 @@ the user's credentials changed.
 
 **Diagnosis**:
 ```python
-out = mcp("get_live_flow_run_action_outputs", ..., actionName="HTTP_My_Call")
-print(out["outputs"]["statusCode"])   # 400, 401, 403, 500...
-print(out["outputs"]["body"])         # error details from target API
+actions_out = mcp("get_live_flow_run_action_outputs", ..., actionName="HTTP_My_Call")
+item = actions_out[0]   # first entry in the returned array
+print(item["outputs"]["statusCode"])   # 400, 401, 403, 500...
+print(item["outputs"]["body"])         # error details from target API
 ```
 
 **Common causes**:

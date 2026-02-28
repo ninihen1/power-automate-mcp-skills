@@ -356,7 +356,7 @@ Fire directly with a test payload:
 ```python
 schema = mcp("get_live_flow_http_schema",
     environmentName=ENV, flowName=FLOW_ID)
-print("Expected body:", schema.get("triggerSchema"))
+print("Expected body:", schema.get("requestSchema"))
 
 result = mcp("trigger_live_flow",
     environmentName=ENV, flowName=FLOW_ID,

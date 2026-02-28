@@ -130,10 +130,12 @@ actions = list(defn["properties"]["definition"]["actions"].keys())
 
 # 2. Check status of each action in the failed run
 for action in actions:
-    out = mcp("get_live_flow_run_action_outputs",
+    actions_out = mcp("get_live_flow_run_action_outputs",
         environmentName=ENV, flowName=FLOW_ID, runName=RUN_ID,
         actionName=action)
-    status = out.get("status", "unknown")
+    # Returns an array of action objects
+    item = actions_out[0] if actions_out else {}
+    status = item.get("status", "unknown")
     print(f"{action}: {status}")
 
 # 3. Find the boundary between Succeeded and Failed/Skipped
