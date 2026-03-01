@@ -6,7 +6,11 @@ description: >-
   deploy a flow definition, scaffold a Power Automate workflow, construct a flow
   JSON, update an existing flow's actions, patch a flow definition, add actions
   to a flow, wire up connections, or generate a workflow definition from scratch.
-  Requires a FlowStudio MCP subscription — see https://flowstudio.app
+  Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app
+license: MIT
+compatibility: >-
+  Requires a FlowStudio MCP subscription (https://mcp.flowstudio.app).
+  Python 3.x for code examples. Network access to mcp.flowstudio.app.
 ---
 
 # Build & Deploy Power Automate Flows with FlowStudio MCP
@@ -16,7 +20,7 @@ programmatically through the FlowStudio MCP server.
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
 See the `power-automate-mcp` skill for connection setup.  
-Subscribe at https://flowstudio.app
+Subscribe at https://mcp.flowstudio.app
 
 ---
 
@@ -352,7 +356,7 @@ Fire directly with a test payload:
 ```python
 schema = mcp("get_live_flow_http_schema",
     environmentName=ENV, flowName=FLOW_ID)
-print("Expected body:", schema.get("triggerSchema"))
+print("Expected body:", schema.get("requestSchema"))
 
 result = mcp("trigger_live_flow",
     environmentName=ENV, flowName=FLOW_ID,

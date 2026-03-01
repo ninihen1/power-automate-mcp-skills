@@ -6,7 +6,11 @@ description: >-
   this flow failing, inspect action outputs, find the root cause of a flow error,
   fix a broken Power Automate flow, diagnose a timeout, trace a DynamicOperationRequestFailure,
   check connector auth errors, read error details from a run, or troubleshoot
-  expression failures. Requires a FlowStudio MCP subscription — see https://flowstudio.app
+  expression failures. Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app
+license: MIT
+compatibility: >-
+  Requires a FlowStudio MCP subscription (https://mcp.flowstudio.app).
+  Python 3.x for code examples. Network access to mcp.flowstudio.app.
 ---
 
 # Power Automate Debugging with FlowStudio MCP
@@ -16,7 +20,7 @@ cloud flows through the FlowStudio MCP server.
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
 See the `power-automate-mcp` skill for connection setup.  
-Subscribe at https://flowstudio.app
+Subscribe at https://mcp.flowstudio.app
 
 ---
 
@@ -92,13 +96,15 @@ if record.get("runError"):
 
 ```python
 # All subscribers: search via live PA API
-flows = mcp("list_live_flows", environmentName=ENV)
+result = mcp("list_live_flows", environmentName=ENV)
+flows = result["flows"]   # extract array from wrapper object
 target = next(f for f in flows if "My Flow Name" in f["displayName"])
 FLOW_ID = target["id"]   # plain UUID — use directly as flowName
 
 # FlowStudio for Teams: search via cache
 flows = mcp("list_store_flows", environmentName=ENV)
-# Both return DIRECT ARRAYS — no {"flows": [...]} wrapper
+# list_live_flows returns a WRAPPER: {"flows": [...], "totalCount": N} — use result["flows"]
+# list_store_flows returns a DIRECT ARRAY — iterate directly
 # Store IDs are "envId.flowId" — extract the UUID part:
 # FLOW_ID = target["id"].split(".", 1)[1]
 print(FLOW_ID)
@@ -178,14 +184,16 @@ For each action **leading up to** the failure, inspect its runtime output:
 
 ```python
 for action_name in ["Compose_WeekEnd", "HTTP_Get_Data", "Parse_JSON"]:
-    out = mcp("get_live_flow_run_action_outputs",
+    actions_out = mcp("get_live_flow_run_action_outputs",
         environmentName=ENV,
         flowName=FLOW_ID,
         runName=RUN_ID,
         actionName=action_name)
-    # Check status + outputs
-    print(action_name, out.get("status"))
-    print(json.dumps(out.get("outputs", {}), indent=2)[:500])
+    # Returns an array of action objects (usually one per action):
+    # [{"actionName": "...", "status": "...", "inputs": {...}, "outputs": {...}}]
+    item = actions_out[0]   # first entry
+    print(action_name, item.get("status"))
+    print(json.dumps(item.get("outputs", {}), indent=2)[:500])
 ```
 
 > ⚠️ Output payloads from array-processing actions can be very large.
@@ -204,8 +212,9 @@ If the error mentions `InvalidTemplate` or a function name:
 ```python
 # Example: action uses split(item()?['Name'], ' ')
 # → null Name in the source data
-outputs = mcp("get_live_flow_run_action_outputs", ..., actionName="Compose_Names")
-names = outputs["outputs"]["body"]  # check for nulls in the body array
+actions_out = mcp("get_live_flow_run_action_outputs", ..., actionName="Compose_Names")
+item = actions_out[0]   # first entry in the returned array
+names = item["outputs"]["body"]  # check for nulls in the body array
 nulls = [x for x in names if x.get("Name") is None]
 print(f"{len(nulls)} records with null Name")
 ```
@@ -272,7 +281,7 @@ of `resubmit_live_flow_run` to test with custom payloads:
 # First inspect what the trigger expects
 schema = mcp("get_live_flow_http_schema",
     environmentName=ENV, flowName=FLOW_ID)
-print("Expected body schema:", schema.get("triggerSchema"))
+print("Expected body schema:", schema.get("requestSchema"))
 print("Response schemas:", schema.get("responseSchemas"))
 
 # Trigger with a test payload
