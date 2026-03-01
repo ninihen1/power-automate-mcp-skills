@@ -253,11 +253,23 @@ generated GUID via PUT. `definition` and `displayName` are required.
 
 *Required together when updating flow logic.
 
-Response: `{ created, updated: [...], state, error }` — flat dict, not nested.
+Response shape:
+```json
+{
+  "created": false,
+  "flowKey": "envId.flowId",
+  "updated": ["definition", "connectionReferences"],
+  "displayName": "My Flow",
+  "state": "Started",
+  "definition": { "...full definition..." },
+  "error": null
+}
+```
+
 `error` key is always present but may be `null` — check `result.get("error") is not None`.
 
-> When creating, the response includes `created: "<new-flow-guid>"` — use this
-> as `flowName` for all subsequent calls.
+> When creating, `created` is the new flow GUID (string) — use this
+> as `flowName` for all subsequent calls. When updating, `created` is `false`.
 
 ---
 
@@ -331,7 +343,7 @@ Response shape:
 ---
 
 ### `get_live_flow_run_action_outputs`
-Inspect the inputs, outputs, and status of a specific action within a run.
+Inspect the inputs, outputs, and status of actions within a run.
 **Most useful tool for diagnosing failures** — call this on the action
 immediately before the failing one to see what data it passed.
 
@@ -340,7 +352,22 @@ immediately before the failing one to see what data it passed.
 | `environmentName` | string | Yes | Environment ID |
 | `flowName` | string | Yes | Flow GUID |
 | `runName` | string | Yes | Run ID |
-| `actionName` | string | Yes | Exact action key from the definition (e.g. `Compose_WeekEnd_now`) |
+| `actionName` | string | No | Exact action key from the definition (e.g. `Compose_WeekEnd_now`). Omit to return all actions |
+
+Response: **array** of action objects (one per action, or single-element if `actionName` provided):
+```json
+[
+  {
+    "actionName": "Compose_WeekEnd_now",
+    "status": "Succeeded",
+    "startTime": "2026-02-25T06:13:52Z",
+    "endTime": "2026-02-25T06:13:52Z",
+    "error": null,
+    "inputs": "Mon, 25 Feb 2026 06:13:52 GMT",
+    "outputs": "Mon, 25 Feb 2026 06:13:52 GMT"
+  }
+]
+```
 
 > ⚠️ Outputs can be very large (50 MB+) for actions processing bulk data.
 > Use a 120 s+ timeout and store `.Content` to a variable before parsing.
