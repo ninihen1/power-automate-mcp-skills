@@ -7,7 +7,7 @@ description: >-
   trigger URL, validate a definition, monitor flow health, or any task that requires
   talking to the Power Automate API through an MCP tool. Also use for Power Platform
   environment discovery and connection management. Requires a FlowStudio MCP
-  subscription or compatible server — see https://flowstudio.app
+  subscription or compatible server — see https://mcp.flowstudio.app
 ---
 
 # Power Automate via FlowStudio MCP
@@ -16,7 +16,7 @@ This skill lets AI agents read, monitor, and operate Microsoft Power Automate
 cloud flows programmatically through a **FlowStudio MCP server** — no browser,
 no UI, no manual steps.
 
-> **Requires:** A [FlowStudio](https://flowstudio.app) MCP subscription (or
+> **Requires:** A [FlowStudio](https://mcp.flowstudio.app) MCP subscription (or
 > compatible Power Automate MCP server). You will need:
 > - MCP endpoint: `https://mcp.flowstudio.app/mcp` (same for all subscribers)
 > - API key / JWT token (`x-api-key` header — NOT Bearer)
@@ -169,7 +169,7 @@ def mcp(tool, args, cid=1):
 ```
 
 > **Common auth errors:**
-> - HTTP 401/403 → token is missing, expired, or malformed. Get a fresh JWT from [flowstudio.app](https://flowstudio.app).
+> - HTTP 401/403 → token is missing, expired, or malformed. Get a fresh JWT from [mcp.flowstudio.app](https://mcp.flowstudio.app).
 > - HTTP 400 → malformed JSON-RPC payload. Check `Content-Type: application/json` and body structure.
 > - `MCP error: {"code": -32602, ...}` → wrong or missing tool arguments.
 

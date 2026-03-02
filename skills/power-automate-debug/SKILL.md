@@ -6,7 +6,7 @@ description: >-
   this flow failing, inspect action outputs, find the root cause of a flow error,
   fix a broken Power Automate flow, diagnose a timeout, trace a DynamicOperationRequestFailure,
   check connector auth errors, read error details from a run, or troubleshoot
-  expression failures. Requires a FlowStudio MCP subscription — see https://flowstudio.app
+  expression failures. Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app
 ---
 
 # Power Automate Debugging with FlowStudio MCP
@@ -16,7 +16,7 @@ cloud flows through the FlowStudio MCP server.
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
 See the `power-automate-mcp` skill for connection setup.  
-Subscribe at https://flowstudio.app
+Subscribe at https://mcp.flowstudio.app
 
 ---
 

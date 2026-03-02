@@ -6,7 +6,7 @@ description: >-
   deploy a flow definition, scaffold a Power Automate workflow, construct a flow
   JSON, update an existing flow's actions, patch a flow definition, add actions
   to a flow, wire up connections, or generate a workflow definition from scratch.
-  Requires a FlowStudio MCP subscription — see https://flowstudio.app
+  Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app
 ---
 
 # Build & Deploy Power Automate Flows with FlowStudio MCP
@@ -16,7 +16,7 @@ programmatically through the FlowStudio MCP server.
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
 See the `power-automate-mcp` skill for connection setup.  
-Subscribe at https://flowstudio.app
+Subscribe at https://mcp.flowstudio.app
 
 ---
 
