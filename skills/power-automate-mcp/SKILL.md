@@ -411,6 +411,7 @@ print(new_runs[0]["status"])   # Succeeded = done
 
 ## Reference Files
 
+- [MCP-BOOTSTRAP.md](references/MCP-BOOTSTRAP.md) — endpoint, auth, request/response format (read this first)
 - [tool-reference.md](references/tool-reference.md) — response shapes and behavioral notes (parameters are in `tools/list`)
 - [action-types.md](references/action-types.md) — Power Automate action type patterns
 - [connection-references.md](references/connection-references.md) — connector reference guide
