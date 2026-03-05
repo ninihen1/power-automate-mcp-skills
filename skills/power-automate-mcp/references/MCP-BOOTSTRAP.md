@@ -26,21 +26,11 @@ POST {"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}
 Returns all tools with names, descriptions, and input schemas.
 Free — not counted against plan limits.
 
-## Step 2 — Find Your Environment
+## Step 2 — Call a Tool
 
 ```json
 POST {"jsonrpc":"2.0","id":1,"method":"tools/call",
-      "params":{"name":"get_live_environments","arguments":{}}}
-```
-
-Returns environment IDs (e.g. `Default-<tenant-guid>`).
-You need this for every subsequent tool call.
-
-## Step 3 — Call a Tool
-
-```json
-POST {"jsonrpc":"2.0","id":1,"method":"tools/call",
-      "params":{"name":"<tool_name>","arguments":{"environmentName":"Default-..."}}}
+      "params":{"name":"<tool_name>","arguments":{...}}}
 ```
 
 ## Response Shape
@@ -56,5 +46,8 @@ Always parse `result.content[0].text` as JSON to get the actual data.
 
 - Tool results are JSON strings inside the text field — **double-parse needed**
 - `"error"` field in parsed body: `null` = success, object = failure
-- `environmentName` is required for all `live/*` and `store/*` tools
-- Call `get_live_environments` first to discover available environments
+- `environmentName` is required for most tools, but **not** for:
+  `list_live_environments`, `list_live_connections`, `list_store_flows`,
+  `list_store_environments`, `list_store_makers`, `get_store_maker`,
+  `list_store_power_apps`, `list_store_connections`
+- When in doubt, check the `required` array in each tool's schema from `tools/list`
