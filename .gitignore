@@ -21,6 +21,9 @@ skills/*/examples/
 Thumbs.db
 .DS_Store
 
+# AI agent worktrees
+.claude/
+
 # Editor
 .vscode/*
 !.vscode/settings.json
