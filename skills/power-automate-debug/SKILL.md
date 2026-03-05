@@ -20,6 +20,16 @@ Subscribe at https://mcp.flowstudio.app
 
 ---
 
+## Source of Truth
+
+> **Always call `tools/list` first** to confirm available tool names and their
+> parameter schemas. Tool names and parameters may change between server versions.
+> This skill covers response shapes, behavioral notes, and diagnostic patterns —
+> things `tools/list` cannot tell you. If this document disagrees with `tools/list`
+> or a real API response, the API wins.
+
+---
+
 ## Python Helper
 
 ```python
@@ -154,7 +164,7 @@ root = err["failedActions"][-1]
 print(f"Root action: {root['actionName']} → code: {root.get('code')}")
 
 # allActions shows every action's status — useful for spotting what was Skipped
-# See COMMON-ERRORS.md to decode the error code.
+# See common-errors.md to decode the error code.
 ```
 
 ---
@@ -302,8 +312,8 @@ print(f"Status: {result['status']}, Body: {result.get('body')}")
 
 ## Reference Files
 
-- [COMMON-ERRORS.md](references/COMMON-ERRORS.md) — Error codes, likely causes, and fixes
-- [DEBUG-WORKFLOW.md](references/DEBUG-WORKFLOW.md) — Full decision tree for complex failures
+- [common-errors.md](references/common-errors.md) — Error codes, likely causes, and fixes
+- [debug-workflow.md](references/debug-workflow.md) — Full decision tree for complex failures
 
 ## Related Skills
 

@@ -20,6 +20,16 @@ Subscribe at https://mcp.flowstudio.app
 
 ---
 
+## Source of Truth
+
+> **Always call `tools/list` first** to confirm available tool names and their
+> parameter schemas. Tool names and parameters may change between server versions.
+> This skill covers response shapes, behavioral notes, and build patterns —
+> things `tools/list` cannot tell you. If this document disagrees with `tools/list`
+> or a real API response, the API wins.
+
+---
+
 ## Python Helper
 
 ```python
@@ -171,59 +181,30 @@ for connector in connectors_needed:
 > connection_references = ref_flow["properties"]["connectionReferences"]
 > ```
 
-See the `power-automate-mcp` skill's **CONNECTION-REFERENCES.md** reference
+See the `power-automate-mcp` skill's **connection-references.md** reference
 for the full connection reference structure.
 
 ---
 
 ## Step 3 — Build the Flow Definition
 
-Construct the definition object. See [FLOW-SCHEMA.md](references/FLOW-SCHEMA.md)
+Construct the definition object. See [flow-schema.md](references/flow-schema.md)
 for the full schema and these action pattern references for copy-paste templates:
-- [ACTION-PATTERNS-CORE.md](references/ACTION-PATTERNS-CORE.md) — Variables, control flow, expressions
-- [ACTION-PATTERNS-DATA.md](references/ACTION-PATTERNS-DATA.md) — Array transforms, HTTP, parsing
-- [ACTION-PATTERNS-CONNECTORS.md](references/ACTION-PATTERNS-CONNECTORS.md) — SharePoint, Outlook, Teams, Approvals
+- [action-patterns-core.md](references/action-patterns-core.md) — Variables, control flow, expressions
+- [action-patterns-data.md](references/action-patterns-data.md) — Array transforms, HTTP, parsing
+- [action-patterns-connectors.md](references/action-patterns-connectors.md) — SharePoint, Outlook, Teams, Approvals
 
 ```python
 definition = {
     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
     "contentVersion": "1.0.0.0",
-    "triggers": {
-        "Recurrence": {
-            "type": "Recurrence",
-            "recurrence": {
-                "frequency": "Day",
-                "interval": 1,
-                "startTime": "2026-01-01T08:00:00Z",
-                "timeZone": "AUS Eastern Standard Time"
-            }
-        }
-    },
-    "actions": {
-        "Compose_Hello": {
-            "type": "Compose",
-            "runAfter": {},
-            "inputs": "Hello, world!"
-        },
-        "Send_Email": {
-            "type": "OpenApiConnection",
-            "runAfter": {"Compose_Hello": ["Succeeded"]},
-            "inputs": {
-                "host": {
-                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
-                    "connectionName": "shared_office365",  # must match the KEY in connectionReferences
-                    "operationId": "SendEmailV2"
-                },
-                "parameters": {
-                    "emailMessage/To": "recipient@contoso.com",
-                    "emailMessage/Subject": "Daily Report",
-                    "emailMessage/Body": "@outputs('Compose_Hello')"
-                }
-            }
-        }
-    }
+    "triggers": { ... },   # see trigger-types.md / build-patterns.md
+    "actions": { ... }     # see ACTION-PATTERNS-*.md / build-patterns.md
 }
 ```
+
+> See [build-patterns.md](references/build-patterns.md) for complete, ready-to-use
+> flow definitions covering Recurrence+SharePoint+Teams, HTTP triggers, and more.
 
 ---
 
@@ -458,111 +439,6 @@ else:
 
 ---
 
-## Common Build Patterns
-
-### Pattern: Recurrence + SharePoint list read + Teams notification
-
-```json
-{
-  "triggers": {
-    "Recurrence": {
-      "type": "Recurrence",
-      "recurrence": { "frequency": "Day", "interval": 1,
-                       "startTime": "2026-01-01T08:00:00Z",
-                       "timeZone": "AUS Eastern Standard Time" }
-    }
-  },
-  "actions": {
-    "Get_SP_Items": {
-      "type": "OpenApiConnection",
-      "runAfter": {},
-      "inputs": {
-        "host": {
-          "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
-          "connectionName": "shared_sharepointonline",
-          "operationId": "GetItems"
-        },
-        "parameters": {
-          "dataset": "https://mytenant.sharepoint.com/sites/mysite",
-          "table": "MyList",
-          "$filter": "Status eq 'Active'",
-          "$top": 500
-        }
-      }
-    },
-    "Apply_To_Each": {
-      "type": "Foreach",
-      "runAfter": { "Get_SP_Items": ["Succeeded"] },
-      "foreach": "@outputs('Get_SP_Items')?['body/value']",
-      "actions": {
-        "Post_Teams_Message": {
-          "type": "OpenApiConnection",
-          "runAfter": {},
-          "inputs": {
-            "host": {
-              "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
-              "connectionName": "shared_teams",
-              "operationId": "PostMessageToConversation"
-            },
-            "parameters": {
-              "poster": "Flow bot",
-              "location": "Channel",
-              "body/recipient": {
-                "groupId": "<team-id>",
-                "channelId": "<channel-id>"
-              },
-              "body/messageBody": "Item: @{items('Apply_To_Each')?['Title']}"
-            }
-          }
-        }
-      },
-      "operationOptions": "Sequential"
-    }
-  }
-}
-```
-
-### Pattern: HTTP trigger (webhook / Power App call)
-
-```json
-{
-  "triggers": {
-    "manual": {
-      "type": "Request",
-      "kind": "Http",
-      "inputs": {
-        "schema": {
-          "type": "object",
-          "properties": {
-            "name": { "type": "string" },
-            "value": { "type": "number" }
-          }
-        }
-      }
-    }
-  },
-  "actions": {
-    "Compose_Response": {
-      "type": "Compose",
-      "runAfter": {},
-      "inputs": "Received: @{triggerBody()?['name']} = @{triggerBody()?['value']}"
-    },
-    "Response": {
-      "type": "Response",
-      "runAfter": { "Compose_Response": ["Succeeded"] },
-      "inputs": {
-        "statusCode": 200,
-        "body": { "status": "ok", "message": "@{outputs('Compose_Response')}" }
-      }
-    }
-  }
-}
-```
-
-Access body values: `@triggerBody()?['name']`
-
----
-
 ## Gotchas
 
 | Mistake | Consequence | Prevention |
@@ -573,16 +449,30 @@ Access body values: `@triggerBody()?['name']`
 | `split()` on potentially-null string | `InvalidTemplate` crash | Wrap with `coalesce(field, '')` |
 | Checking `result["error"]` exists | Always present; true error is `!= null` | Use `result.get("error") is not None` |
 | Flow deployed but state is "Stopped" | Flow won't run on schedule | Check connection auth; re-enable |
+| Teams "Chat with Flow bot" recipient as object | 400 `GraphUserDetailNotFound` | Use plain string with trailing semicolon (see below) |
+
+### Teams `PostMessageToConversation` — Recipient Formats
+
+The `body/recipient` parameter format depends on the `location` value:
+
+| Location | `body/recipient` format | Example |
+|---|---|---|
+| **Chat with Flow bot** | Plain email string with **trailing semicolon** | `"user@contoso.com;"` |
+| **Channel** | Object with `groupId` and `channelId` | `{"groupId": "...", "channelId": "..."}` |
+
+> **Common mistake**: passing `{"to": "user@contoso.com"}` for "Chat with Flow bot"
+> returns a 400 `GraphUserDetailNotFound` error. The API expects a plain string.
 
 ---
 
 ## Reference Files
 
-- [FLOW-SCHEMA.md](references/FLOW-SCHEMA.md) — Full flow definition JSON schema
-- [TRIGGER-TYPES.md](references/TRIGGER-TYPES.md) — Trigger type templates
-- [ACTION-PATTERNS-CORE.md](references/ACTION-PATTERNS-CORE.md) — Variables, control flow, expressions
-- [ACTION-PATTERNS-DATA.md](references/ACTION-PATTERNS-DATA.md) — Array transforms, HTTP, parsing
-- [ACTION-PATTERNS-CONNECTORS.md](references/ACTION-PATTERNS-CONNECTORS.md) — SharePoint, Outlook, Teams, Approvals
+- [flow-schema.md](references/flow-schema.md) — Full flow definition JSON schema
+- [trigger-types.md](references/trigger-types.md) — Trigger type templates
+- [action-patterns-core.md](references/action-patterns-core.md) — Variables, control flow, expressions
+- [action-patterns-data.md](references/action-patterns-data.md) — Array transforms, HTTP, parsing
+- [action-patterns-connectors.md](references/action-patterns-connectors.md) — SharePoint, Outlook, Teams, Approvals
+- [build-patterns.md](references/build-patterns.md) — Complete flow definition templates (Recurrence+SP+Teams, HTTP trigger)
 
 ## Related Skills
 

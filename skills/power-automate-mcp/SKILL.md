@@ -24,6 +24,24 @@ no UI, no manual steps.
 
 ---
 
+## Source of Truth
+
+| Priority | Source | Covers |
+|----------|--------|--------|
+| 1 | **Real API response** | Always trust what the server actually returns |
+| 2 | **`tools/list`** | Tool names, parameter names, types, required flags |
+| 3 | **SKILL docs & reference files** | Response shapes, behavioral notes, workflow recipes |
+
+> **Start every new session with `tools/list`.**
+> It returns the authoritative, up-to-date schema for every tool — parameter names,
+> types, and required flags. The SKILL docs cover what `tools/list` cannot tell you:
+> response shapes, non-obvious behaviors, and end-to-end workflow patterns.
+>
+> If any documentation disagrees with `tools/list` or a real API response,
+> the API wins.
+
+---
+
 ## Recommended Language: Python
 
 All examples in this skill and the companion build / debug skills use **Python
@@ -393,9 +411,9 @@ print(new_runs[0]["status"])   # Succeeded = done
 
 ## Reference Files
 
-- [TOOL-REFERENCE.md](references/TOOL-REFERENCE.md) — complete tool catalogue with all parameters
-- [ACTION-TYPES.md](references/ACTION-TYPES.md) — Power Automate action type patterns
-- [CONNECTION-REFERENCES.md](references/CONNECTION-REFERENCES.md) — connector reference guide
+- [tool-reference.md](references/tool-reference.md) — response shapes and behavioral notes (parameters are in `tools/list`)
+- [action-types.md](references/action-types.md) — Power Automate action type patterns
+- [connection-references.md](references/connection-references.md) — connector reference guide
 
 ---
 

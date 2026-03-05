@@ -33,7 +33,7 @@ The full JSON structure expected by `update_live_flow` (and returned by `get_liv
 Exactly one trigger per flow definition. The key name is arbitrary but
 conventional names are used (e.g. `Recurrence`, `manual`, `When_a_new_email_arrives`).
 
-See [TRIGGER-TYPES.md](TRIGGER-TYPES.md) for all trigger templates.
+See [trigger-types.md](trigger-types.md) for all trigger templates.
 
 ---
 
@@ -47,8 +47,8 @@ Each action must include:
 - `runAfter` — map of upstream action names → status conditions array
 - `inputs` — action-specific input configuration
 
-See [ACTION-PATTERNS-CORE.md](ACTION-PATTERNS-CORE.md), [ACTION-PATTERNS-DATA.md](ACTION-PATTERNS-DATA.md),
-and [ACTION-PATTERNS-CONNECTORS.md](ACTION-PATTERNS-CONNECTORS.md) for templates.
+See [action-patterns-core.md](action-patterns-core.md), [action-patterns-data.md](action-patterns-data.md),
+and [action-patterns-connectors.md](action-patterns-connectors.md) for templates.
 
 ### Optional Action Properties
 
