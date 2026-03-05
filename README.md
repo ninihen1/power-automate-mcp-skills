@@ -1,6 +1,6 @@
 # FlowStudio MCP — GitHub Copilot Agent Skills
 
-GitHub Copilot agent skills for [FlowStudio](https://flowstudio.app), a
+GitHub Copilot agent skills for [FlowStudio](https://mcp.flowstudio.app), a
 Power Automate MCP (Model Context Protocol) service that lets AI agents read,
 modify, deploy, debug, and monitor Power Automate cloud flows programmatically.
 
@@ -19,7 +19,7 @@ bundled `references/` assets, following the
 
 ## Prerequisites
 
-- A [FlowStudio](https://flowstudio.app) MCP subscription (or compatible
+- A [FlowStudio](https://mcp.flowstudio.app) MCP subscription (or compatible
   Power Automate MCP server)
 - MCP endpoint: `https://mcp.flowstudio.app/mcp` (same for all subscribers)
 - API key / JWT token (passed as `x-api-key` header — **not** Bearer)
@@ -28,7 +28,7 @@ bundled `references/` assets, following the
 
 1. Copy the skill folder(s) you need into your project's `.github/skills/` directory
    (or wherever your agent discovers skills)
-2. Configure your JWT token (obtain from [flowstudio.app](https://flowstudio.app))
+2. Configure your JWT token (obtain from [mcp.flowstudio.app](https://mcp.flowstudio.app))
 3. Ask your AI agent to "list my Power Automate flows" — the skill will guide it
 
 ## Repository Structure
