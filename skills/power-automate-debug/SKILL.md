@@ -101,16 +101,10 @@ if record.get("runError"):
 ## Step 1 — Locate the Flow
 
 ```python
-# All subscribers: search via live PA API
 flows = mcp("list_live_flows", environmentName=ENV)
+# Returns a direct array — no {"flows": [...]} wrapper
 target = next(f for f in flows if "My Flow Name" in f["displayName"])
 FLOW_ID = target["id"]   # plain UUID — use directly as flowName
-
-# FlowStudio for Teams: search via cache
-flows = mcp("list_store_flows", environmentName=ENV)
-# Both return DIRECT ARRAYS — no {"flows": [...]} wrapper
-# Store IDs are "envId.flowId" — extract the UUID part:
-# FLOW_ID = target["id"].split(".", 1)[1]
 print(FLOW_ID)
 ```
 

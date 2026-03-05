@@ -215,12 +215,6 @@ Response:
 >
 > `description` is **always required** (create and update).
 
-### `validate_live_flow`
-
-Validates a definition against the PA API. Returns validation errors/warnings.
-
-> Use `get_live_flow` to retrieve the current definition before modifying and validating.
-
 ### `add_live_flow_to_solution`
 
 Migrates a non-solution flow into a solution. Returns error if already in a solution.

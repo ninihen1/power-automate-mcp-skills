@@ -208,28 +208,7 @@ definition = {
 
 ---
 
-## Step 4 — Validate Before Deploying (Optional but Recommended)
-
-Use `validate_live_flow` to catch errors before deploying. This requires an
-existing flow to validate against — if creating from scratch, skip to Step 5
-and rely on the `update_live_flow` error response for validation.
-
-```python
-if FLOW_ID:
-    validation = mcp("validate_live_flow",
-        environmentName=ENV,
-        flowName=FLOW_ID,
-        definition=definition)
-    if validation.get("error"):
-        print("Validation failed:", validation["error"])
-        # Fix the definition before deploying
-    else:
-        print("Validation passed")
-```
-
----
-
-## Step 5 — Deploy (Create or Update)
+## Step 4 — Deploy (Create or Update)
 
 `update_live_flow` handles both creation and updates in a single tool.
 

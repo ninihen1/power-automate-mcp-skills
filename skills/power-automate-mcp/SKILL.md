@@ -42,19 +42,24 @@ no UI, no manual steps.
 
 ---
 
-## Recommended Language: Python
+## Recommended Language: Python or Node.js
 
 All examples in this skill and the companion build / debug skills use **Python
-with `urllib.request`** (stdlib — no `pip install` needed).
+with `urllib.request`** (stdlib — no `pip install` needed). **Node.js** is an
+equally valid choice: `fetch` is built-in from Node 18+, JSON handling is
+native, and the async/await model maps cleanly onto the request-response pattern
+of MCP tool calls — making it a natural fit for teams already working in a
+JavaScript/TypeScript stack.
 
 | Language | Verdict | Notes |
 |---|---|---|
 | **Python** | ✅ Recommended | Clean JSON handling, no escaping issues, all skill examples use it |
+| **Node.js (≥ 18)** | ✅ Recommended | Native `fetch` + `JSON.stringify`/`JSON.parse`; async/await fits MCP call patterns well; no extra packages needed |
 | PowerShell | ⚠️ Avoid for flow operations | `ConvertTo-Json -Depth` silently truncates nested definitions; quoting and escaping break complex payloads. Acceptable for a quick `tools/list` discovery call but not for building or updating flows. |
 | cURL / Bash | ⚠️ Possible but fragile | Shell-escaping nested JSON is error-prone; no native JSON parser |
 
-> **TL;DR — use the Core MCP Helper (Python) below.** It handles JSON-RPC
-> framing, auth, and response parsing in one function.
+> **TL;DR — use the Core MCP Helper (Python or Node.js) below.** Both handle
+> JSON-RPC framing, auth, and response parsing in a single reusable function.
 
 ---
 
@@ -77,7 +82,6 @@ more than enough to build, debug, and operate flows.
 | `get_live_flow_trigger_url` | Get the current signed callback URL for an HTTP-triggered flow |
 | `trigger_live_flow` | POST to an HTTP-triggered flow's callback URL (AAD auth handled automatically) |
 | `update_live_flow` | Create a new flow or patch an existing definition in one call |
-| `validate_live_flow` | Validate a flow definition against the PA API before deploying |
 | `add_live_flow_to_solution` | Migrate a non-solution flow into a solution |
 | `get_live_flow_runs` | List recent run history with status, start/end times, and errors |
 | `get_live_flow_run_error` | Get structured error details (per-action) for a failed run |
@@ -110,19 +114,15 @@ snapshot of your tenant's flows enriched with governance metadata and run statis
 
 ## Which Tool Tier to Call First
 
-| You have... | Start with... | Why |
+| Task | Tool | Notes |
 |---|---|---|
-| FlowStudio for Teams | `list_store_flows` | Instant — reads from Azure Table cache, includes run stats and governance metadata |
-| MCP-only subscription | `list_live_flows` | Calls Power Automate API directly — always current |
-| Any tier, need definition | `get_live_flow` | Definition is always fetched live — not cached |
-| Any tier, debugging a failure | `get_live_flow_runs` then `get_live_flow_run_error` | Live run data; store errors may be empty if monitoring isn't active |
+| List flows | `list_live_flows` | Always current — calls PA API directly |
+| Read a definition | `get_live_flow` | Always fetched live — not cached |
+| Debug a failure | `get_live_flow_runs` → `get_live_flow_run_error` | Use live run data |
 
-> ⚠️ **Critical: both list tools return a direct array** — not a wrapper object.
-> `list_store_flows` does NOT return `{"flows": [...], "totalCount": n}`.
-> Iterate the result directly.
+> ⚠️ **`list_live_flows` returns a direct array** — not a wrapper object. Iterate the result directly.
 
-> ⚠️ **Store flow IDs are `envId.flowId`** (e.g. `3991358a-...b1ed.0757041a-...f371`).
-> Strip the env prefix — pass only the UUID part as `flowName` to all other tools.
+> Store tools (`list_store_flows`, `get_store_flow`, etc.) are available to **FlowStudio for Teams** subscribers and provide cached governance metadata. Use live tools when in doubt — they work for all subscription tiers.
 
 ---
 
@@ -193,12 +193,50 @@ def mcp(tool, args, cid=1):
 
 ---
 
+## Core MCP Helper (Node.js)
+
+Equivalent helper for Node.js 18+ (built-in `fetch` — no packages required):
+
+```js
+const TOKEN = "<YOUR_JWT_TOKEN>";
+const MCP   = "https://mcp.flowstudio.app/mcp";
+
+async function mcp(tool, args, cid = 1) {
+  const payload = {
+    jsonrpc: "2.0",
+    method: "tools/call",
+    id: cid,
+    params: { name: tool, arguments: args },
+  };
+  const res = await fetch(MCP, {
+    method: "POST",
+    headers: {
+      "x-api-key": TOKEN,
+      "Content-Type": "application/json",
+      "User-Agent": "MCP/1.0",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`MCP HTTP ${res.status}: ${body.slice(0, 200)}`);
+  }
+  const raw = await res.json();
+  if (raw.error) throw new Error(`MCP error: ${JSON.stringify(raw.error)}`);
+  return JSON.parse(raw.result.content[0].text);
+}
+```
+
+> Requires Node.js 18+. For older Node, replace `fetch` with `https.request`
+> from the stdlib or install `node-fetch`.
+
+---
+
 ## List Flows
 
 ```python
-ENV = "Default-<tenant-guid>"    # or "envId" prefix for store environments
+ENV = "Default-<tenant-guid>"
 
-# All MCP subscribers — live from PA API
 flows = mcp("list_live_flows", {"environmentName": ENV})
 # Returns direct array:
 # [{"id": "0757041a-...", "displayName": "My Flow", "state": "Started",
@@ -206,20 +244,6 @@ flows = mcp("list_live_flows", {"environmentName": ENV})
 for f in flows:
     FLOW_ID = f["id"]   # plain UUID — use directly as flowName
     print(FLOW_ID, "|", f["displayName"], "|", f["state"])
-
-# FlowStudio for Teams — from cache, includes run stats
-flows = mcp("list_store_flows", {"environmentName": ENV})
-# Returns direct array:
-# [{"id": "3991358a-...b1ed.0757041a-...f371",   ← envId.flowId format!
-#   "displayName": "Admin | Sync Template v3",
-#   "state": "Started", "runPeriodTotal": 100, ...}, ...]
-for f in flows:
-    # Extract the flow UUID — strip the envId prefix
-    FLOW_ID = f["id"].split(".", 1)[1]   # → "0757041a-8ef2-cf74-ef06-06881916f371"
-    print(FLOW_ID, "|", f["displayName"], "|", f.get("runPeriodTotal", 0), "runs")
-
-# Search by name
-flows = mcp("list_store_flows", {"environmentName": ENV, "searchTerm": "Invoice"})
 ```
 
 ---
@@ -405,7 +429,7 @@ print(new_runs[0]["status"])   # Succeeded = done
 | Auth header | `x-api-key: <JWT>` — **not** `Authorization: Bearer` |
 | Token format | Plain JWT — do not strip, alter, or prefix it |
 | Timeout | Use ≥ 120 s for `get_live_flow_run_action_outputs` (large outputs) |
-| Environment name | `Default-<tenant-guid>` (find it via `list_store_flows` response) |
+| Environment name | `Default-<tenant-guid>` (find it via `list_live_environments` or `list_live_flows` response) |
 
 ---
 
