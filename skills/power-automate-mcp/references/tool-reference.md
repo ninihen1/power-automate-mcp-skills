@@ -196,9 +196,12 @@ Response: full flow definition from PA API.
 
 ### `update_live_flow`
 
-**Create mode**: Omit `flowName` --- creates a new flow. `definition` and `displayName` required.
+**Create mode** (omit `flowName`): Creates a new flow.
+- Required: `definition`, `displayName`, `description`
 
-**Update mode**: Provide `flowName` --- PATCHes existing flow.
+**Update mode** (provide `flowName`): PATCHes existing flow.
+- Required: `description`
+- Optional: `definition`, `displayName`, `connectionReferences`, `state`
 
 Response:
 ```json
@@ -216,8 +219,6 @@ Response:
 > `error` is **always present** but may be `null`. Check `result.get("error") is not None`.
 >
 > On create: `created` is the new flow GUID (string). On update: `created` is `false`.
->
-> `description` is **always required** (create and update).
 
 ### `add_live_flow_to_solution`
 
@@ -420,7 +421,7 @@ Non-obvious behaviors discovered through real API usage. These are things
 - Outputs can be 50 MB+ for bulk-data actions --- always use 120s+ timeout.
 
 ### `update_live_flow`
-- `description` is **always required** (create and update modes).
+- `description` is required for both create and update modes (see required fields above).
 - `error` key is **always present** in response --- `null` means success.
   Do NOT check `if "error" in result`; check `result.get("error") is not None`.
 - On create, `created` = new flow GUID (string). On update, `created` = `false`.
