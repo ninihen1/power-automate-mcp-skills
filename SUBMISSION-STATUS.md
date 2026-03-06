@@ -15,7 +15,7 @@ OpenHands, Goose, Amp, and more.
 
 | Channel | Audience | `power-automate-mcp` | `power-automate-debug` | `power-automate-build` |
 |---------|----------|---------------------|----------------------|----------------------|
-| **awesome-copilot** | GitHub Copilot | [PR #896](https://github.com/github/awesome-copilot/pull/896) — changes pushed, awaiting re-review | After mcp merges | After mcp merges |
+| **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | Ready (as `flowstudio-power-automate-debug`) | Ready (as `flowstudio-power-automate-build`) |
 | **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 |
 | **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | Not yet submitted | Not yet submitted | Not yet submitted |
 | **openai/skills** | Codex (11.2k ⭐, 622 forks) | Not yet submitted | Not yet submitted | Not yet submitted |
@@ -26,12 +26,12 @@ OpenHands, Goose, Amp, and more.
 
 ## 1. GitHub Copilot — awesome-copilot
 
-### Status: Changes pushed, awaiting re-review
+### Status: ✅ Merged
 
 - Fork: `ninihen1/awesome-copilot` → cloned to `~/GitHub/awesome-copilot`
 - Branch: `add-power-automate-mcp` off `staged`
-- PR: **[#896](https://github.com/github/awesome-copilot/pull/896)**
-- Skill folder: `skills/flowstudio-power-automate-mcp/` (renamed per reviewer request)
+- PR: **[#896](https://github.com/github/awesome-copilot/pull/896)** — merged by @aaronpowell on 2026-03-06
+- Skill folder: `skills/flowstudio-power-automate-mcp/`
 
 ### What happened
 1. Initial PR submitted as `power-automate-mcp` (commit `9c81ea6`)
@@ -43,28 +43,33 @@ OpenHands, Goose, Amp, and more.
 7. Validation: `npm run skill:validate` ✅ (208 skills valid), `npm run build` ✅
 
 ### Next Steps
-1. **Wait for @aaronpowell to re-review and merge**
-2. **Once PR #896 merges**: Submit debug + build skills together:
+1. ~~Wait for @aaronpowell to re-review and merge~~ — **✅ Merged 2026-03-06**
+2. Submit debug + build skills together:
+   - Rename to `flowstudio-power-automate-debug` and `flowstudio-power-automate-build` (reviewer convention)
+   - Update frontmatter `name:` field in each SKILL.md copy
+   - Fixes already applied: User-Agent header, list_live_flows response shape
    ```bash
    cd ~/GitHub/awesome-copilot
    git checkout staged && git pull upstream staged
    git checkout -b add-power-automate-debug-build
 
-   mkdir -p skills/power-automate-debug/references
-   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/SKILL.md skills/power-automate-debug/SKILL.md
-   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/references/* skills/power-automate-debug/references/
+   mkdir -p skills/flowstudio-power-automate-debug/references
+   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/SKILL.md skills/flowstudio-power-automate-debug/SKILL.md
+   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/references/* skills/flowstudio-power-automate-debug/references/
+   # Update frontmatter name to flowstudio-power-automate-debug
 
-   mkdir -p skills/power-automate-build/references
-   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/SKILL.md skills/power-automate-build/SKILL.md
-   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/references/* skills/power-automate-build/references/
+   mkdir -p skills/flowstudio-power-automate-build/references
+   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/SKILL.md skills/flowstudio-power-automate-build/SKILL.md
+   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/references/* skills/flowstudio-power-automate-build/references/
+   # Update frontmatter name to flowstudio-power-automate-build
 
    npm run skill:validate && npm run build
-   git add skills/power-automate-debug skills/power-automate-build
-   git commit -m "feat: add power-automate-debug and power-automate-build skills"
+   git add skills/flowstudio-power-automate-debug skills/flowstudio-power-automate-build
+   git commit -m "feat: add flowstudio-power-automate-debug and flowstudio-power-automate-build skills"
    git push origin add-power-automate-debug-build
    gh pr create --repo github/awesome-copilot --base staged \
      --head ninihen1:add-power-automate-debug-build \
-     --title "feat: add power-automate-debug and power-automate-build skills"
+     --title "feat: add flowstudio-power-automate-debug and flowstudio-power-automate-build skills"
    ```
 
 ### Key Details
@@ -306,7 +311,8 @@ mcp-publisher publish
 
 | Priority | Action | Effort | Status |
 |----------|--------|--------|--------|
-| 1 | awesome-copilot PR #896 | Done | ⏳ Awaiting re-review (changes pushed) |
+| 1 | ✅ awesome-copilot PR #896 | Done | ✅ Merged |
+| 1b | awesome-copilot: debug + build skills | Low — fixes already applied | Ready (rename to flowstudio-*) |
 | 2 | ✅ Upload 3 skills to ClawHub | Done | ✅ Complete |
 | 3 | PR to anthropics/skills (all 3 skills) | Low — same format, one PR | Ready |
 | 4 | PR to openai/skills (all 3 skills) | Low — same format, `.experimental/` | Ready |
