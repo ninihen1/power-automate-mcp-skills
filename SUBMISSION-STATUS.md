@@ -39,7 +39,7 @@ OpenHands, Goose, Amp, and more.
 | Channel | Audience | `power-automate-mcp` | `power-automate-debug` | `power-automate-build` |
 |---------|----------|---------------------|----------------------|----------------------|
 | **awesome-copilot** | GitHub Copilot | [PR #896](https://github.com/github/awesome-copilot/pull/896) — awaiting review | Submit after mcp merges | Submit after mcp merges |
-| **ClawHub** (OpenClaw) | 240k monthly visitors | Not yet uploaded | Not yet uploaded | Not yet uploaded |
+| **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 |
 | **anthropics/skills** | Claude Code (84.9k stars) | Not yet submitted | Not yet submitted | Not yet submitted |
 | **openai/skills** | Codex (11k stars) | Not yet submitted | Not yet submitted | Not yet submitted |
 | **Official MCP Registry** | All MCP clients | Not yet published | N/A (skill, not server) | N/A (skill, not server) |
