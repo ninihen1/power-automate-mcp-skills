@@ -5,29 +5,6 @@
 
 ---
 
-## What We Did
-
-### Cleanup (FlowStudio MCP repo)
-- Added `.claude/` to `.gitignore` (commit `62432ee`) — prevents Claude worktree artifacts from leaking
-- Deleted `skills/power-automate-build/examples/__pycache__/` from disk
-- Confirmed `__pycache__/` was already in `.gitignore`
-- Confirmed no private/tenant-specific files are tracked (examples/ is gitignored)
-
-### Fork & Submission
-1. Forked `github/awesome-copilot` → `ninihen1/awesome-copilot`
-2. Cloned fork to `~/GitHub/awesome-copilot`
-3. Created branch `add-power-automate-mcp` off `staged`
-4. Copied `power-automate-mcp` skill (SKILL.md + 4 reference files) into `skills/power-automate-mcp/`
-5. Ran `npm run skill:validate` — ✅ passed
-6. Ran `npm run build` — ✅ passed
-7. Committed as `9c81ea6`: "feat: add power-automate-mcp skill"
-8. Pushed to `origin/add-power-automate-mcp`
-9. PR opened: **https://github.com/github/awesome-copilot/pull/896**
-   - Base: `staged`
-   - Head: `ninihen1:add-power-automate-mcp`
-
----
-
 ## Distribution Overview
 
 All three skills use the **Agent Skills standard** (SKILL.md with `name`/`description` YAML frontmatter).
@@ -38,37 +15,47 @@ OpenHands, Goose, Amp, and more.
 
 | Channel | Audience | `power-automate-mcp` | `power-automate-debug` | `power-automate-build` |
 |---------|----------|---------------------|----------------------|----------------------|
-| **awesome-copilot** | GitHub Copilot | [PR #896](https://github.com/github/awesome-copilot/pull/896) — awaiting review | Submit after mcp merges | Submit after mcp merges |
+| **awesome-copilot** | GitHub Copilot | [PR #896](https://github.com/github/awesome-copilot/pull/896) — changes pushed, awaiting re-review | After mcp merges | After mcp merges |
 | **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 |
-| **anthropics/skills** | Claude Code (84.9k stars) | Not yet submitted | Not yet submitted | Not yet submitted |
-| **openai/skills** | Codex (11k stars) | Not yet submitted | Not yet submitted | Not yet submitted |
+| **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | Not yet submitted | Not yet submitted | Not yet submitted |
+| **openai/skills** | Codex (11.2k ⭐, 622 forks) | Not yet submitted | Not yet submitted | Not yet submitted |
+| **Smithery** | 125k+ skills, 4.8k+ MCPs | Not yet published | Not yet published | Not yet published |
 | **Official MCP Registry** | All MCP clients | Not yet published | N/A (skill, not server) | N/A (skill, not server) |
-| **Smithery** | 125k+ skills users | Not yet published | Not yet published | Not yet published |
 
 ---
 
 ## 1. GitHub Copilot — awesome-copilot
 
-### What We Did
-- Forked `github/awesome-copilot` → `ninihen1/awesome-copilot`
-- Cloned fork to `~/GitHub/awesome-copilot`
-- Submitted PR #896 for `power-automate-mcp` (branch `add-power-automate-mcp`)
-- Files: SKILL.md + 4 reference files under `skills/power-automate-mcp/`
+### Status: Changes pushed, awaiting re-review
+
+- Fork: `ninihen1/awesome-copilot` → cloned to `~/GitHub/awesome-copilot`
+- Branch: `add-power-automate-mcp` off `staged`
+- PR: **[#896](https://github.com/github/awesome-copilot/pull/896)**
+- Skill folder: `skills/flowstudio-power-automate-mcp/` (renamed per reviewer request)
+
+### What happened
+1. Initial PR submitted as `power-automate-mcp` (commit `9c81ea6`)
+2. @aaronpowell (code owner) requested: "have FlowStudio as part of the name"
+3. Copilot AI posted 8 review comments on response shapes, syntax, User-Agent, docs
+4. **All 8 comments verified against live FlowStudio MCP server** using real API calls
+5. Renamed to `flowstudio-power-automate-mcp`, applied all valid fixes (commit `0962c47`)
+6. Posted [review reply comment](https://github.com/github/awesome-copilot/pull/896#issuecomment-4009420759) with verdict table for each Copilot suggestion
+7. Validation: `npm run skill:validate` ✅ (208 skills valid), `npm run build` ✅
 
 ### Next Steps
-1. **If changes requested**: Update on `add-power-automate-mcp` branch, commit, push.
-2. **Once PR #896 merges**: Submit debug + build together:
+1. **Wait for @aaronpowell to re-review and merge**
+2. **Once PR #896 merges**: Submit debug + build skills together:
    ```bash
    cd ~/GitHub/awesome-copilot
    git checkout staged && git pull upstream staged
    git checkout -b add-power-automate-debug-build
 
-   cp -r ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/SKILL.md skills/power-automate-debug/SKILL.md
    mkdir -p skills/power-automate-debug/references
+   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/SKILL.md skills/power-automate-debug/SKILL.md
    cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/references/* skills/power-automate-debug/references/
 
-   cp -r ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/SKILL.md skills/power-automate-build/SKILL.md
    mkdir -p skills/power-automate-build/references
+   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/SKILL.md skills/power-automate-build/SKILL.md
    cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/references/* skills/power-automate-build/references/
 
    npm run skill:validate && npm run build
@@ -89,82 +76,131 @@ OpenHands, Goose, Amp, and more.
 
 ## 2. OpenClaw — ClawHub
 
-### Overview
-- **OpenClaw** (formerly Clawdbot/Moltbot) by Peter Steinberger (@steipete)
-- Locally-running AI assistant — users interact via WhatsApp, Telegram, Discord, Slack, iMessage
-- **ClawHub** (clawhub.ai) is the skill registry: 13,729 skills, 240k monthly visitors
+### Status: ✅ All 3 skills uploaded
+
+- **ClawHub** (clawhub.ai): 13,729 skills, 240k monthly visitors
 - **awesome-openclaw-skills** (VoltAgent/awesome-openclaw-skills): 28.5k stars curated list
-- Skills in `openclaw/skills` repo are auto-synced from ClawHub uploads
 
-### Format Compatibility
-Our SKILL.md files are **directly compatible** — same frontmatter format:
-```yaml
----
-name: skill-name
-description: "Short description"
----
-# Skill content...
-```
-
-### How to Upload
-1. Go to https://clawhub.ai/upload
-2. Sign in with GitHub
-3. Upload each skill folder (SKILL.md + references/)
-4. Skills auto-publish to `openclaw/skills` repo on GitHub
+### How We Uploaded
+1. Went to https://clawhub.ai/upload
+2. Signed in with GitHub
+3. Uploaded each skill folder (SKILL.md + references/)
+4. Skills auto-published to `openclaw/skills` repo on GitHub
 
 ### Installation by Users
 ```bash
-# Via ClawHub CLI
 npx clawhub@latest install power-automate-mcp
-
-# Or manual copy to:
-~/.openclaw/skills/power-automate-mcp/    # Global
-<project>/skills/power-automate-mcp/      # Workspace
 ```
 
-### awesome-openclaw-skills Listing (After Upload)
-Once skills get some community traction on ClawHub:
-- PR to `VoltAgent/awesome-openclaw-skills` (28.5k stars, 2.7k forks)
-- Entry format: `- [skill-name](https://github.com/openclaw/skills/tree/main/skills/author/skill-name/SKILL.md) - Description ≤10 words`
-- PR title: `Add skill: ninihen1/power-automate-mcp`
-- Best category: **DevOps & Cloud** (408 skills)
-- ⚠️ They require proven community adoption — don't submit immediately after upload
+### awesome-openclaw-skills Listing (Deferred)
+- PR to `VoltAgent/awesome-openclaw-skills` once skills get community traction on ClawHub
+- Category: **DevOps & Cloud** (408 skills)
+- ⚠️ Requires proven adoption — don't submit until download metrics warrant it
 
 ---
 
 ## 3. Claude Code — anthropics/skills
 
-### Overview
-- Official repo: `anthropics/skills` (84.9k stars)
-- Same SKILL.md format as our skills
-- Skills at `skills/<skill-name>/SKILL.md`
+### Status: Ready to submit
+
+- Repo: `anthropics/skills` (85.2k ⭐, 9k forks, 267 open PRs)
+- 17 official example skills in `skills/` directory
+- Same `SKILL.md` format — our skills are directly compatible, no reformatting needed
+- PRs target `main` branch
 - Can also register as Claude Code Plugin marketplace
 
 ### How to Submit
-PR to `anthropics/skills` with skill folders under `skills/`.
-Structure: `skills/power-automate-mcp/SKILL.md` (+ reference files)
+1. Fork `anthropics/skills`
+2. Add skill folders under `skills/`:
+   - `skills/power-automate-mcp/SKILL.md` + `references/`
+   - `skills/power-automate-debug/SKILL.md` + `references/`
+   - `skills/power-automate-build/SKILL.md` + `references/`
+3. PR to `main`
 
-### Users Connect FlowStudio MCP
+```bash
+# Fork & clone
+gh repo fork anthropics/skills --clone
+cd skills
+
+# Copy all 3 skills
+for skill in power-automate-mcp power-automate-debug power-automate-build; do
+  mkdir -p "skills/$skill/references"
+  cp ~/GitHub/"FlowStudio MCP"/skills/$skill/SKILL.md "skills/$skill/"
+  cp ~/GitHub/"FlowStudio MCP"/skills/$skill/references/* "skills/$skill/references/" 2>/dev/null
+done
+
+# Commit & PR
+git checkout -b add-flowstudio-skills
+git add skills/power-automate-*
+git commit -m "feat: add FlowStudio Power Automate skills (mcp, debug, build)"
+git push origin add-flowstudio-skills
+gh pr create --base main --title "feat: add FlowStudio Power Automate skills" \
+  --body "Three skills for Power Automate cloud flow management via FlowStudio MCP server.
+- **power-automate-mcp**: Core connection & CRUD operations
+- **power-automate-debug**: Debug workflow for failed flow runs
+- **power-automate-build**: Build & deploy flows from natural language
+
+Requires FlowStudio MCP subscription: https://flowstudio.app"
+```
+
+### Users Connect FlowStudio MCP in Claude Code
 ```bash
 claude mcp add --transport http flowstudio https://mcp.flowstudio.app/mcp \
   --header "x-api-key: <JWT>"
 ```
 
+### Notes
+- 267 open PRs suggest review backlog — submit early, expect wait
+- All 3 skills can go in one PR since anthropics/skills has no tier system
+
 ---
 
 ## 4. OpenAI Codex — openai/skills
 
-### Overview
-- Official repo: `openai/skills` (11k stars)
-- Same SKILL.md format + optional `agents/openai.yaml` for UI metadata
-- Skills organized by tiers: `.system`, `.curated`, `.experimental`
+### Status: Ready to submit
+
+- Repo: `openai/skills` (11.2k ⭐, 622 forks, 87 open PRs)
+- Skills organized by tiers: `.system` (built-in), `.curated` (vetted), `.experimental` (community)
+- Community contributions go to `skills/.experimental/`
+- Same SKILL.md format — no reformatting needed
+- Lightweight contributing guidelines (Contributor Covenant, no CLA)
 - Install via `$skill-installer` in Codex
 
 ### How to Submit
-PR to `openai/skills` with skill folders.
-Optional: Add `agents/openai.yaml` with display_name, icon, brand_color, default_prompt.
+1. Fork `openai/skills`
+2. Add skill folders under `skills/.experimental/`:
+   - `skills/.experimental/power-automate-mcp/SKILL.md` + `references/`
+   - `skills/.experimental/power-automate-debug/SKILL.md` + `references/`
+   - `skills/.experimental/power-automate-build/SKILL.md` + `references/`
+3. PR to `main`
 
-### Users Connect FlowStudio MCP
+```bash
+# Fork & clone
+gh repo fork openai/skills --clone
+cd skills
+
+# Copy all 3 skills into .experimental
+for skill in power-automate-mcp power-automate-debug power-automate-build; do
+  mkdir -p "skills/.experimental/$skill/references"
+  cp ~/GitHub/"FlowStudio MCP"/skills/$skill/SKILL.md "skills/.experimental/$skill/"
+  cp ~/GitHub/"FlowStudio MCP"/skills/$skill/references/* "skills/.experimental/$skill/references/" 2>/dev/null
+done
+
+# Commit & PR
+git checkout -b add-flowstudio-skills
+git add skills/.experimental/power-automate-*
+git commit -m "feat: add FlowStudio Power Automate skills"
+git push origin add-flowstudio-skills
+gh pr create --base main --title "feat: add FlowStudio Power Automate skills (.experimental)" \
+  --body "Three experimental skills for Power Automate cloud flow management via FlowStudio MCP.
+- **power-automate-mcp**: Core connection & CRUD operations
+- **power-automate-debug**: Debug workflow for failed flow runs
+- **power-automate-build**: Build & deploy flows from natural language
+
+Requires FlowStudio MCP subscription: https://flowstudio.app"
+```
+
+### Users Connect FlowStudio MCP in Codex
 In `~/.codex/config.toml`:
 ```toml
 [mcp_servers.flowstudio]
@@ -174,53 +210,119 @@ url = "https://mcp.flowstudio.app/mcp"
 x-api-key = "<JWT>"
 ```
 
----
-
-## 5. Official MCP Registry
-
-### Overview
-- `registry.modelcontextprotocol.io` — the canonical MCP server directory
-- One publish reaches ALL MCP-compatible clients
-- Uses `mcp-publisher` CLI tool
-- Note: This publishes the **FlowStudio MCP server** itself, not individual skills
-
-### How to Publish
-```bash
-npx mcp-publisher login github
-# Create server.json with server metadata
-npx mcp-publisher publish
+### Users Install Skills
 ```
-Server name format: `io.github.ninihen1/flowstudio-mcp`
+$skill-installer install the power-automate-mcp skill from the .experimental folder
+```
 
 ---
 
-## 6. Smithery
+## 5. Smithery
 
-### Overview
-- smithery.ai — 4,819+ MCP servers, 125,974+ skills
-- Publish both MCP servers and skills
-- GitHub sign-in at smithery.ai/servers/new
-- Built-in OAuth and observability
+### Status: Ready to publish (skills + MCP server)
+
+- smithery.ai — 4,824+ MCP servers, 125,300+ skills
+- Supports **both** MCP server publishing AND Agent Skills publishing
+- GitHub sign-in required
+
+### Publishing Skills (3 skills)
+1. Go to https://smithery.ai/skills/new
+2. Sign in with GitHub
+3. Upload each skill (SKILL.md + references)
+4. Skills get a dedicated page and install count tracking
+
+### Publishing the MCP Server
+1. Go to https://smithery.ai/servers/new
+2. Enter FlowStudio MCP URL: `https://mcp.flowstudio.app/mcp`
+3. Smithery Gateway proxies to the upstream server
+4. **⚠️ Cloudflare issue**: Smithery sends `User-Agent: SmitheryBot/1.0`. If Cloudflare Bot Fight Mode blocks it, options:
+   - Whitelist `SmitheryBot/1.0` in Cloudflare WAF rules
+   - Serve a `/.well-known/mcp/server-card.json` endpoint to bypass scanning
+   - Ensure server returns 401 (not 403) for unauthenticated requests
+5. Requires Streamable HTTP transport support
+
+---
+
+## 6. Official MCP Registry
+
+### Status: Requires investigation — may not be compatible yet
+
+- `registry.modelcontextprotocol.io` — canonical MCP server directory (currently in preview)
+- Publishes the **FlowStudio MCP server** itself, not individual skills
+- Uses `mcp-publisher` CLI tool + `server.json` metadata file
+
+### Compatibility Considerations
+- Registry expects either an **npm package** (stdio transport) or a **remote server** (Streamable HTTP/SSE)
+- FlowStudio MCP uses JSON-RPC over HTTP with `x-api-key` auth — this maps to the `remotes` approach
+- The `headers` property in `server.json` supports custom headers like `X-API-Key`
+- Server name: `io.github.ninihen1/flowstudio-mcp` (GitHub auth prefix)
+- **Question**: Does FlowStudio MCP support Streamable HTTP transport, or only JSON-RPC POST? The registry expects MCP protocol compliance.
+
+### How to Publish (if compatible)
+```bash
+# Install mcp-publisher
+curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+sudo mv mcp-publisher /usr/local/bin/
+
+# Authenticate
+mcp-publisher login github
+
+# Create server.json
+cat > server.json << 'EOF'
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ninihen1/flowstudio-mcp",
+  "title": "FlowStudio MCP",
+  "description": "Read, modify, deploy, debug, and monitor Power Automate cloud flows via MCP",
+  "version": "1.0.0",
+  "repository": {
+    "url": "https://github.com/ninihen1/FlowStudio-MCP",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.flowstudio.app/mcp",
+      "headers": [
+        {
+          "name": "x-api-key",
+          "description": "FlowStudio workspace JWT (get from https://flowstudio.app)",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
+EOF
+
+# Publish
+mcp-publisher publish
+```
 
 ---
 
 ## Priority & Execution Order
 
-| Priority | Action | Effort | Blocked By |
-|----------|--------|--------|------------|
-| 1 | ✅ awesome-copilot PR #896 | Done | Awaiting review |
-| 2 | Upload 3 skills to ClawHub | Low — no reformatting | GitHub sign-in |
-| 3 | PR to anthropics/skills | Low — same format | Nothing |
-| 4 | PR to openai/skills | Low — same format + optional yaml | Nothing |
-| 5 | Publish FlowStudio MCP to MCP Registry | Medium — needs server.json | Nothing |
-| 6 | Publish to Smithery | Low — GitHub sign-in | Nothing |
-| 7 | PR to awesome-openclaw-skills | Low — but needs traction on ClawHub first | ClawHub upload + adoption |
+| Priority | Action | Effort | Status |
+|----------|--------|--------|--------|
+| 1 | awesome-copilot PR #896 | Done | ⏳ Awaiting re-review (changes pushed) |
+| 2 | ✅ Upload 3 skills to ClawHub | Done | ✅ Complete |
+| 3 | PR to anthropics/skills (all 3 skills) | Low — same format, one PR | Ready |
+| 4 | PR to openai/skills (all 3 skills) | Low — same format, `.experimental/` | Ready |
+| 5 | Publish 3 skills to Smithery | Low — GitHub sign-in, upload | Ready |
+| 6 | Publish MCP server to Smithery | Low — enter URL | Ready (check Cloudflare) |
+| 7 | Publish to MCP Registry | Medium — needs server.json, verify transport | Investigate |
+| 8 | PR to awesome-openclaw-skills | Low — needs traction first | Deferred |
 
 ---
 
 ## Key Details to Remember
 - All skills use Agent Skills standard format (SKILL.md with name/description frontmatter)
+- In awesome-copilot, the skill is named `flowstudio-power-automate-mcp` (renamed per reviewer)
+- In all other platforms, skills keep original names: `power-automate-mcp`, `-debug`, `-build`
 - Auth in all skills uses `x-api-key` header, never Bearer
+- User-Agent `FlowStudio-MCP/1.0` required in all HTTP examples (Cloudflare blocks empty UA)
 - PowerShell examples must include `-UseBasicParsing`
+- awesome-copilot PRs target the **`staged`** branch; anthropics/skills and openai/skills target `main`
 - The `skills/*/examples/` directory in FlowStudio MCP is gitignored (tenant-specific data)
-- awesome-copilot PRs target the **`staged`** branch (not `main`)
