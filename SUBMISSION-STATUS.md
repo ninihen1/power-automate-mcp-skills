@@ -15,7 +15,7 @@ OpenHands, Goose, Amp, and more.
 
 | Channel | Audience | `power-automate-mcp` | `power-automate-debug` | `power-automate-build` |
 |---------|----------|---------------------|----------------------|----------------------|
-| **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | Ready (as `flowstudio-power-automate-debug`) | Ready (as `flowstudio-power-automate-build`) |
+| **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | [PR #899](https://github.com/github/awesome-copilot/pull/899) submitted (as `flowstudio-power-automate-debug`) | [PR #899](https://github.com/github/awesome-copilot/pull/899) submitted (as `flowstudio-power-automate-build`) |
 | **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 |
 | **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | Not yet submitted | Not yet submitted | Not yet submitted |
 | **openai/skills** | Codex (11.2k ⭐, 622 forks) | Not yet submitted | Not yet submitted | Not yet submitted |
@@ -312,7 +312,7 @@ mcp-publisher publish
 | Priority | Action | Effort | Status |
 |----------|--------|--------|--------|
 | 1 | ✅ awesome-copilot PR #896 | Done | ✅ Merged |
-| 1b | awesome-copilot: debug + build skills | Low — fixes already applied | Ready (rename to flowstudio-*) |
+| 1b | awesome-copilot: debug + build skills | Done | [PR #899](https://github.com/github/awesome-copilot/pull/899) submitted |
 | 2 | ✅ Upload 3 skills to ClawHub | Done | ✅ Complete |
 | 3 | PR to anthropics/skills (all 3 skills) | Low — same format, one PR | Ready |
 | 4 | PR to openai/skills (all 3 skills) | Low — same format, `.experimental/` | Ready |
