@@ -183,12 +183,13 @@ For each action **leading up to** the failure, inspect its runtime output:
 
 ```python
 for action_name in ["Compose_WeekEnd", "HTTP_Get_Data", "Parse_JSON"]:
-    out = mcp("get_live_flow_run_action_outputs",
+    result = mcp("get_live_flow_run_action_outputs",
         environmentName=ENV,
         flowName=FLOW_ID,
         runName=RUN_ID,
         actionName=action_name)
-    # Check status + outputs
+    # Returns an array — single-element when actionName is provided
+    out = result[0] if result else {}
     print(action_name, out.get("status"))
     print(json.dumps(out.get("outputs", {}), indent=2)[:500])
 ```
@@ -209,8 +210,13 @@ If the error mentions `InvalidTemplate` or a function name:
 ```python
 # Example: action uses split(item()?['Name'], ' ')
 # → null Name in the source data
-outputs = mcp("get_live_flow_run_action_outputs", ..., actionName="Compose_Names")
-names = outputs["outputs"]["body"]  # check for nulls in the body array
+result = mcp("get_live_flow_run_action_outputs", ..., actionName="Compose_Names")
+# Returns a single-element array; index [0] to get the action object
+if not result:
+    print("No outputs returned for Compose_Names")
+    names = []
+else:
+    names = result[0].get("outputs", {}).get("body") or []
 nulls = [x for x in names if x.get("Name") is None]
 print(f"{len(nulls)} records with null Name")
 ```
