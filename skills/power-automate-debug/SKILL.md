@@ -42,7 +42,8 @@ def mcp(tool, **kwargs):
     payload = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/call",
                           "params": {"name": tool, "arguments": kwargs}}).encode()
     req = urllib.request.Request(MCP_URL, data=payload,
-        headers={"x-api-key": MCP_TOKEN, "Content-Type": "application/json"})
+        headers={"x-api-key": MCP_TOKEN, "Content-Type": "application/json",
+                 "User-Agent": "FlowStudio-MCP/1.0"})
     try:
         resp = urllib.request.urlopen(req, timeout=120)
     except urllib.error.HTTPError as e:
@@ -101,9 +102,9 @@ if record.get("runError"):
 ## Step 1 — Locate the Flow
 
 ```python
-flows = mcp("list_live_flows", environmentName=ENV)
-# Returns a direct array — no {"flows": [...]} wrapper
-target = next(f for f in flows if "My Flow Name" in f["displayName"])
+result = mcp("list_live_flows", environmentName=ENV)
+# Returns a wrapper object: {mode, flows, totalCount, error}
+target = next(f for f in result["flows"] if "My Flow Name" in f["displayName"])
 FLOW_ID = target["id"]   # plain UUID — use directly as flowName
 print(FLOW_ID)
 ```
