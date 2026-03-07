@@ -19,7 +19,8 @@ OpenHands, Goose, Amp, and more.
 | **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) |
 | **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review |
 | **openai/skills** | Codex (11.2k ⭐, 622 forks) | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review |
-| **Smithery** | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
+| **Smithery** (skills) | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
+| **Smithery** (MCP server) | 4.8k+ MCPs | ⚠️ [Created](https://smithery.ai/servers/flowstudio/flowstudio-mcp) — scan blocked by Cloudflare | N/A (server) | N/A (server) |
 | **Official MCP Registry** | All MCP clients | Not yet published | N/A (skill, not server) | N/A (skill, not server) |
 
 ---
@@ -252,11 +253,35 @@ curl -X PUT "https://api.smithery.ai/skills/flowstudio/power-automate-mcp" \
 npx smithery skill add flowstudio/power-automate-mcp
 ```
 
-### MCP Server Publishing (Not Yet Done)
-- Can also publish the FlowStudio MCP **server** itself at https://smithery.ai/new
-- Requires Streamable HTTP transport support
-- FlowStudio uses `x-api-key` header auth (not OAuth) — may need `/.well-known/mcp/server-card.json`
-- **⚠️ Cloudflare**: SmitheryBot UA may be blocked; options: whitelist in WAF, serve static server card, or ensure 401 (not 403) for unauthed requests
+### MCP Server Publishing — ⚠️ Created but scan blocked by Cloudflare
+
+- Server created: [flowstudio/flowstudio-mcp](https://smithery.ai/servers/flowstudio/flowstudio-mcp)
+- Proxy URL: `https://flowstudio-mcp--flowstudio.run.tools`
+- Config schema: `smithery-config-schema.json` (declares `x-api-key` via `x-from: header:x-api-key`)
+- Description: ✅ Updated via PATCH API
+- **Scan failed**: Cloudflare Bot Fight Mode blocks `SmitheryBot/1.0` User-Agent, returning HTML instead of JSON
+- Server page shows "No capabilities found" / "No deployments found"
+
+**To fix (requires FlowStudio server-side change — pick one):**
+1. **Whitelist SmitheryBot UA** in Cloudflare WAF: Security > WAF > Tools > IP Access Rules, or create skip rule for `(http.user_agent contains "SmitheryBot")`
+2. **Serve `/.well-known/mcp/server-card.json`** endpoint to bypass scanning entirely:
+   ```json
+   {
+     "serverInfo": { "name": "FlowStudio MCP", "version": "1.0.0" },
+     "authentication": { "required": true, "schemes": ["apiKey"] },
+     "tools": [
+       { "name": "list_live_flows", "description": "List flows in an environment", "inputSchema": { "type": "object" } },
+       { "name": "get_live_flow", "description": "Fetch complete flow definition", "inputSchema": { "type": "object" } }
+     ]
+   }
+   ```
+3. **Disable Bot Fight Mode** in Cloudflare (Security > Bots)
+
+**After Cloudflare fix, re-publish:**
+```bash
+SMITHERY_API_KEY="<key>" npx smithery mcp publish "https://mcp.flowstudio.app/mcp" \
+  -n flowstudio/flowstudio-mcp --config-schema smithery-config-schema.json
+```
 
 ---
 
@@ -329,7 +354,7 @@ mcp-publisher publish
 | 3 | ✅ PR to anthropics/skills (all 3 skills) | Done | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review |
 | 4 | ✅ PR to openai/skills (all 3 skills) | Done | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review |
 | 5 | ✅ Publish 3 skills to Smithery | Done | ✅ Published (namespace: flowstudio) |
-| 6 | Publish MCP server to Smithery | Low — enter URL | Ready (check Cloudflare/transport) |
+| 6 | ⚠️ Publish MCP server to Smithery | Done | ⚠️ Created — scan blocked by Cloudflare Bot Fight Mode |
 | 7 | Publish to MCP Registry | Medium — needs server.json, verify transport | Investigate |
 | 8 | PR to awesome-openclaw-skills | Low — needs traction first | Deferred |
 
