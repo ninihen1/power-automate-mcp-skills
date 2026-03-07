@@ -17,9 +17,9 @@ OpenHands, Goose, Amp, and more.
 |---------|----------|---------------------|----------------------|----------------------|
 | **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) + plugin — awaiting merge | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) + plugin — awaiting merge |
 | **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) |
-| **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | Not yet submitted | Not yet submitted | Not yet submitted |
-| **openai/skills** | Codex (11.2k ⭐, 622 forks) | Not yet submitted | Not yet submitted | Not yet submitted |
-| **Smithery** | 125k+ skills, 4.8k+ MCPs | Not yet published | Not yet published | Not yet published |
+| **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review |
+| **openai/skills** | Codex (11.2k ⭐, 622 forks) | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review |
+| **Smithery** | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
 | **Official MCP Registry** | All MCP clients | Not yet published | N/A (skill, not server) | N/A (skill, not server) |
 
 ---
@@ -96,13 +96,17 @@ npx clawhub@latest install power-automate-mcp
 
 ## 3. Claude Code — anthropics/skills
 
-### Status: Ready to submit
+### Status: ⏳ PR #555 submitted — awaiting review
 
 - Repo: `anthropics/skills` (85.2k ⭐, 9k forks, 267 open PRs)
-- 17 official example skills in `skills/` directory
-- Same `SKILL.md` format — our skills are directly compatible, no reformatting needed
-- PRs target `main` branch
-- Can also register as Claude Code Plugin marketplace
+- Fork: `ninihen1/skills` → cloned to `~/GitHub/skills`
+- Branch: `add-flowstudio-power-automate-skills`
+- PR: **[#555](https://github.com/anthropics/skills/pull/555)** — submitted 2026-03-07
+- Skill folders (with `flowstudio-` prefix per convention):
+  - `skills/flowstudio-power-automate-mcp/`
+  - `skills/flowstudio-power-automate-debug/`
+  - `skills/flowstudio-power-automate-build/`
+- 15 files total (3 SKILL.md + 12 reference files)
 
 ### How to Submit
 1. Fork `anthropics/skills`
@@ -152,14 +156,17 @@ claude mcp add --transport http flowstudio https://mcp.flowstudio.app/mcp \
 
 ## 4. OpenAI Codex — openai/skills
 
-### Status: Ready to submit
+### Status: ⏳ PR #231 submitted — awaiting review
 
 - Repo: `openai/skills` (11.2k ⭐, 622 forks, 87 open PRs)
+- Fork: `ninihen1/openai-skills` (renamed to avoid collision with anthropics fork)
+- Branch: `add-flowstudio-power-automate-skills`
+- PR: **[#231](https://github.com/openai/skills/pull/231)** — submitted 2026-03-07
+- Skill folders under `skills/.experimental/` (with `flowstudio-` prefix):
+  - `skills/.experimental/flowstudio-power-automate-mcp/`
+  - `skills/.experimental/flowstudio-power-automate-debug/`
+  - `skills/.experimental/flowstudio-power-automate-build/`
 - Skills organized by tiers: `.system` (built-in), `.curated` (vetted), `.experimental` (community)
-- Community contributions go to `skills/.experimental/`
-- Same SKILL.md format — no reformatting needed
-- Lightweight contributing guidelines (Contributor Covenant, no CLA)
-- Install via `$skill-installer` in Codex
 
 ### How to Submit
 1. Fork `openai/skills`
@@ -214,27 +221,42 @@ $skill-installer install the power-automate-mcp skill from the .experimental fol
 
 ## 5. Smithery
 
-### Status: Ready to publish (skills + MCP server)
+### Status: ✅ All 3 skills published
 
 - smithery.ai — 4,824+ MCP servers, 125,300+ skills
-- Supports **both** MCP server publishing AND Agent Skills publishing
-- GitHub sign-in required
+- Namespace: `flowstudio` (created 2026-03-07)
+- Skills published via REST API: `PUT https://api.smithery.ai/skills/{namespace}/{slug}`
+- All skills link to GitHub repo subdirs and auto-sync from SKILL.md
 
-### Publishing Skills (3 skills)
-1. Go to https://smithery.ai/skills/new
-2. Sign in with GitHub
-3. Upload each skill (SKILL.md + references)
-4. Skills get a dedicated page and install count tracking
+### Published Skills
+| Skill | Smithery URL |
+|-------|-------------|
+| `power-automate-mcp` | [flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp) |
+| `power-automate-debug` | [flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug) |
+| `power-automate-build` | [flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build) |
 
-### Publishing the MCP Server
-1. Go to https://smithery.ai/servers/new
-2. Enter FlowStudio MCP URL: `https://mcp.flowstudio.app/mcp`
-3. Smithery Gateway proxies to the upstream server
-4. **⚠️ Cloudflare issue**: Smithery sends `User-Agent: SmitheryBot/1.0`. If Cloudflare Bot Fight Mode blocks it, options:
-   - Whitelist `SmitheryBot/1.0` in Cloudflare WAF rules
-   - Serve a `/.well-known/mcp/server-card.json` endpoint to bypass scanning
-   - Ensure server returns 401 (not 403) for unauthenticated requests
-5. Requires Streamable HTTP transport support
+### CLI Publishing Commands (for reference)
+```bash
+# Authenticate
+export SMITHERY_API_KEY="<api-key>"
+
+# Publish/update a skill (idempotent PUT)
+curl -X PUT "https://api.smithery.ai/skills/flowstudio/power-automate-mcp" \
+  -H "Authorization: Bearer $SMITHERY_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"gitUrl": "https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-mcp"}'
+```
+
+### Installation by Users
+```bash
+npx smithery skill add flowstudio/power-automate-mcp
+```
+
+### MCP Server Publishing (Not Yet Done)
+- Can also publish the FlowStudio MCP **server** itself at https://smithery.ai/new
+- Requires Streamable HTTP transport support
+- FlowStudio uses `x-api-key` header auth (not OAuth) — may need `/.well-known/mcp/server-card.json`
+- **⚠️ Cloudflare**: SmitheryBot UA may be blocked; options: whitelist in WAF, serve static server card, or ensure 401 (not 403) for unauthed requests
 
 ---
 
@@ -304,10 +326,10 @@ mcp-publisher publish
 | 1 | ✅ awesome-copilot PR #896 | Done | ✅ Merged |
 | 1b | awesome-copilot: debug + build + plugin | Done | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) awaiting merge |
 | 2 | ✅ Publish 3 skills to ClawHub | Done | ✅ v1.1.0 (metadata fix) |
-| 3 | PR to anthropics/skills (all 3 skills) | Low — same format, one PR | Ready |
-| 4 | PR to openai/skills (all 3 skills) | Low — same format, `.experimental/` | Ready |
-| 5 | Publish 3 skills to Smithery | Low — GitHub sign-in, upload | Ready |
-| 6 | Publish MCP server to Smithery | Low — enter URL | Ready (check Cloudflare) |
+| 3 | ✅ PR to anthropics/skills (all 3 skills) | Done | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review |
+| 4 | ✅ PR to openai/skills (all 3 skills) | Done | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review |
+| 5 | ✅ Publish 3 skills to Smithery | Done | ✅ Published (namespace: flowstudio) |
+| 6 | Publish MCP server to Smithery | Low — enter URL | Ready (check Cloudflare/transport) |
 | 7 | Publish to MCP Registry | Medium — needs server.json, verify transport | Investigate |
 | 8 | PR to awesome-openclaw-skills | Low — needs traction first | Deferred |
 
