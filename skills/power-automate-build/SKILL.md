@@ -7,6 +7,13 @@ description: >-
   JSON, update an existing flow's actions, patch a flow definition, add actions
   to a flow, wire up connections, or generate a workflow definition from scratch.
   Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app
+metadata:
+  openclaw:
+    requires:
+      env:
+        - FLOWSTUDIO_MCP_TOKEN
+    primaryEnv: FLOWSTUDIO_MCP_TOKEN
+    homepage: https://mcp.flowstudio.app
 ---
 
 # Build & Deploy Power Automate Flows with FlowStudio MCP

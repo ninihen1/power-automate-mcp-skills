@@ -8,6 +8,13 @@ description: >-
   talking to the Power Automate API through an MCP tool. Also use for Power Platform
   environment discovery and connection management. Requires a FlowStudio MCP
   subscription or compatible server — see https://mcp.flowstudio.app
+metadata:
+  openclaw:
+    requires:
+      env:
+        - FLOWSTUDIO_MCP_TOKEN
+    primaryEnv: FLOWSTUDIO_MCP_TOKEN
+    homepage: https://mcp.flowstudio.app
 ---
 
 # Power Automate via FlowStudio MCP
