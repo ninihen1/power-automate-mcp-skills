@@ -1,7 +1,7 @@
 # Skill Distribution Status
 
 > Reference doc for tracking skill submissions across all agent platforms.
-> Last updated: 2026-03-06
+> Last updated: 2026-03-07
 
 ---
 
@@ -15,8 +15,8 @@ OpenHands, Goose, Amp, and more.
 
 | Channel | Audience | `power-automate-mcp` | `power-automate-debug` | `power-automate-build` |
 |---------|----------|---------------------|----------------------|----------------------|
-| **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | [PR #899](https://github.com/github/awesome-copilot/pull/899) submitted (as `flowstudio-power-automate-debug`) | [PR #899](https://github.com/github/awesome-copilot/pull/899) submitted (as `flowstudio-power-automate-build`) |
-| **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 | ✅ Uploaded 2026-03-06 |
+| **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) + plugin — awaiting merge | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) + plugin — awaiting merge |
+| **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) |
 | **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | Not yet submitted | Not yet submitted | Not yet submitted |
 | **openai/skills** | Codex (11.2k ⭐, 622 forks) | Not yet submitted | Not yet submitted | Not yet submitted |
 | **Smithery** | 125k+ skills, 4.8k+ MCPs | Not yet published | Not yet published | Not yet published |
@@ -42,35 +42,16 @@ OpenHands, Goose, Amp, and more.
 6. Posted [review reply comment](https://github.com/github/awesome-copilot/pull/896#issuecomment-4009420759) with verdict table for each Copilot suggestion
 7. Validation: `npm run skill:validate` ✅ (208 skills valid), `npm run build` ✅
 
-### Next Steps
-1. ~~Wait for @aaronpowell to re-review and merge~~ — **✅ Merged 2026-03-06**
-2. Submit debug + build skills together:
-   - Rename to `flowstudio-power-automate-debug` and `flowstudio-power-automate-build` (reviewer convention)
-   - Update frontmatter `name:` field in each SKILL.md copy
-   - Fixes already applied: User-Agent header, list_live_flows response shape
-   ```bash
-   cd ~/GitHub/awesome-copilot
-   git checkout staged && git pull upstream staged
-   git checkout -b add-power-automate-debug-build
+### Status: ⏳ PR #899 awaiting merge (all review comments addressed + plugin added)
 
-   mkdir -p skills/flowstudio-power-automate-debug/references
-   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/SKILL.md skills/flowstudio-power-automate-debug/SKILL.md
-   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-debug/references/* skills/flowstudio-power-automate-debug/references/
-   # Update frontmatter name to flowstudio-power-automate-debug
-
-   mkdir -p skills/flowstudio-power-automate-build/references
-   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/SKILL.md skills/flowstudio-power-automate-build/SKILL.md
-   cp ~/GitHub/"FlowStudio MCP"/skills/power-automate-build/references/* skills/flowstudio-power-automate-build/references/
-   # Update frontmatter name to flowstudio-power-automate-build
-
-   npm run skill:validate && npm run build
-   git add skills/flowstudio-power-automate-debug skills/flowstudio-power-automate-build
-   git commit -m "feat: add flowstudio-power-automate-debug and flowstudio-power-automate-build skills"
-   git push origin add-power-automate-debug-build
-   gh pr create --repo github/awesome-copilot --base staged \
-     --head ninihen1:add-power-automate-debug-build \
-     --title "feat: add flowstudio-power-automate-debug and flowstudio-power-automate-build skills"
-   ```
+- Fork: `ninihen1/awesome-copilot` → cloned to `~/GitHub/awesome-copilot`
+- Branch: `add-power-automate-debug-build` off `staged`
+- PR: **[#899](https://github.com/github/awesome-copilot/pull/899)** — submitted 2026-03-06
+- Skill folders: `skills/flowstudio-power-automate-debug/`, `skills/flowstudio-power-automate-build/`
+- Plugin: `plugins/flowstudio-power-automate/` (bundles all 3 skills)
+- CI: All 4 checks passing (line-endings, materialized-files, codespell, validate-readme)
+- Review: @aaronpowell's CHANGES_REQUESTED was auto-dismissed after fixes
+- Branches cleaned: only `add-power-automate-debug-build`, `main`, `staged` remain
 
 ### Key Details
 - PRs target the **`staged`** branch (not `main`)
@@ -81,16 +62,25 @@ OpenHands, Goose, Amp, and more.
 
 ## 2. OpenClaw — ClawHub
 
-### Status: ✅ All 3 skills uploaded
+### Status: ✅ All 3 skills published (v1.1.0)
 
 - **ClawHub** (clawhub.ai): 13,729 skills, 240k monthly visitors
 - **awesome-openclaw-skills** (VoltAgent/awesome-openclaw-skills): 28.5k stars curated list
 
-### How We Uploaded
-1. Went to https://clawhub.ai/upload
-2. Signed in with GitHub
-3. Uploaded each skill folder (SKILL.md + references/)
-4. Skills auto-published to `openclaw/skills` repo on GitHub
+### What happened
+1. v1.0.0 uploaded manually via web UI on 2026-03-06
+2. Security scan flagged `mcp` and `build` as "Suspicious (medium confidence)" — missing credential declarations
+3. Added `metadata.openclaw` to all 3 SKILL.md frontmatters declaring `FLOWSTUDIO_MCP_TOKEN` env var
+4. Published v1.1.0 via `clawhub` CLI on 2026-03-07
+5. `debug` skill already passed as "Benign (high confidence)"
+
+### CLI Setup
+```bash
+npx clawhub login --token "<token>" --no-browser
+npx clawhub publish skills/power-automate-mcp --version 1.1.0
+npx clawhub publish skills/power-automate-debug --version 1.1.0
+npx clawhub publish skills/power-automate-build --version 1.1.0
+```
 
 ### Installation by Users
 ```bash
@@ -312,8 +302,8 @@ mcp-publisher publish
 | Priority | Action | Effort | Status |
 |----------|--------|--------|--------|
 | 1 | ✅ awesome-copilot PR #896 | Done | ✅ Merged |
-| 1b | awesome-copilot: debug + build skills | Done | [PR #899](https://github.com/github/awesome-copilot/pull/899) submitted |
-| 2 | ✅ Upload 3 skills to ClawHub | Done | ✅ Complete |
+| 1b | awesome-copilot: debug + build + plugin | Done | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) awaiting merge |
+| 2 | ✅ Publish 3 skills to ClawHub | Done | ✅ v1.1.0 (metadata fix) |
 | 3 | PR to anthropics/skills (all 3 skills) | Low — same format, one PR | Ready |
 | 4 | PR to openai/skills (all 3 skills) | Low — same format, `.experimental/` | Ready |
 | 5 | Publish 3 skills to Smithery | Low — GitHub sign-in, upload | Ready |
