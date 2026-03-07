@@ -7,6 +7,13 @@ description: >-
   fix a broken Power Automate flow, diagnose a timeout, trace a DynamicOperationRequestFailure,
   check connector auth errors, read error details from a run, or troubleshoot
   expression failures. Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app
+metadata:
+  openclaw:
+    requires:
+      env:
+        - FLOWSTUDIO_MCP_TOKEN
+    primaryEnv: FLOWSTUDIO_MCP_TOKEN
+    homepage: https://mcp.flowstudio.app
 ---
 
 # Power Automate Debugging with FlowStudio MCP
@@ -15,7 +22,7 @@ A step-by-step diagnostic process for investigating failing Power Automate
 cloud flows through the FlowStudio MCP server.
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
-See the `flowstudio-power-automate-mcp` skill for connection setup.  
+See the `power-automate-mcp` skill for connection setup.  
 Subscribe at https://mcp.flowstudio.app
 
 ---
@@ -318,5 +325,5 @@ print(f"Status: {result['status']}, Body: {result.get('body')}")
 
 ## Related Skills
 
-- `flowstudio-power-automate-mcp` — Core connection setup and operation reference
-- `flowstudio-power-automate-build` — Build and deploy new flows
+- `power-automate-mcp` — Core connection setup and operation reference
+- `power-automate-build` — Build and deploy new flows

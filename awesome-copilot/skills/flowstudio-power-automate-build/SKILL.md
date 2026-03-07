@@ -7,6 +7,13 @@ description: >-
   JSON, update an existing flow's actions, patch a flow definition, add actions
   to a flow, wire up connections, or generate a workflow definition from scratch.
   Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app
+metadata:
+  openclaw:
+    requires:
+      env:
+        - FLOWSTUDIO_MCP_TOKEN
+    primaryEnv: FLOWSTUDIO_MCP_TOKEN
+    homepage: https://mcp.flowstudio.app
 ---
 
 # Build & Deploy Power Automate Flows with FlowStudio MCP
@@ -15,7 +22,7 @@ Step-by-step guide for constructing and deploying Power Automate cloud flows
 programmatically through the FlowStudio MCP server.
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
-See the `flowstudio-power-automate-mcp` skill for connection setup.  
+See the `power-automate-mcp` skill for connection setup.  
 Subscribe at https://mcp.flowstudio.app
 
 ---
@@ -456,5 +463,5 @@ The `body/recipient` parameter format depends on the `location` value:
 
 ## Related Skills
 
-- `flowstudio-power-automate-mcp` — Core connection setup and tool reference
-- `flowstudio-power-automate-debug` — Debug failing flows after deployment
+- `power-automate-mcp` — Core connection setup and tool reference
+- `power-automate-debug` — Debug failing flows after deployment
