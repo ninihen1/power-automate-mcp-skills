@@ -153,8 +153,6 @@ Works with Copilot, Claude, and any MCP-compatible agent.
 - [skills.sh](https://skills.sh/?q=flowstudio) (3K+ installs)
 - [Smithery](https://smithery.ai/skills/flowstudio/power-automate-mcp) (published)
 - [ClawHub](https://clawhub.ai) (v1.1.0)
-- [anthropics/skills](https://github.com/anthropics/skills/pull/555) (PR #555)
-- [openai/skills](https://github.com/openai/skills/pull/231) (PR #231)
 
 ## Contributing
 
