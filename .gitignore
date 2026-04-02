@@ -4,6 +4,8 @@
 !package-lock.json
 !smithery-config-schema.json
 tmp_*
+*.txt
+list_flows.py
 
 # Private / workspace-specific files
 /SKILL.md
