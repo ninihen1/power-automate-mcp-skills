@@ -25,6 +25,7 @@ OpenHands, Goose, Amp, and more.
 | **skills.sh** (Vercel) | Agent skills directory | ✅ Auto-indexed via awesome-copilot ([3K+ installs](https://skills.sh/?q=flowstudio)) | ✅ Auto-indexed (691 installs) | ✅ Auto-indexed (689 installs) |
 | **awesome-mcp-servers** (appcypher) | 5.3k ⭐ GitHub list | ❌ PRs disabled on repo — PR #757 lost | N/A (server listing) | N/A (server listing) |
 | **awesome-remote-mcp-servers** (jaw9c) | 1k ⭐ remote-only list | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review | N/A (server listing) | N/A (server listing) |
+| **Claude Code Plugin** | Claude Code users | ✅ Live — `/plugin marketplace add ninihen1/FlowStudio-MCP` | ✅ Bundled | ✅ Bundled |
 | **awesome-openclaw-skills** (VoltAgent) | 28.5k ⭐ curated list | ⏳ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) awaiting review | ⏳ PR #372 | ⏳ PR #372 |
 | **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | 🔲 Submit via web form | N/A (server listing) | N/A (server listing) |
 
