@@ -1,6 +1,6 @@
 # FlowStudio MCP — Power Automate Skills for AI Agents
 
-Give your AI agent the same visibility you have in the Power Automate portal.
+Give your AI agent the same visibility you have in the Power Automate portal — plus a bit more.
 The Graph API only returns top-level run status — agents can't see action inputs,
 loop iterations, or nested failures. Flow Studio MCP exposes all of it.
 
@@ -16,6 +16,7 @@ loop iterations, or nested failures. Flow Studio MCP exposes all of it.
 
 - Your agent can see that a flow failed, but not why — Graph API only returns status codes
 - You want your agent to see action-level inputs and outputs, like you can in the portal
+- A loop has hundreds of iterations and some produced bad output — in the portal you'd click through each one, but the agent can scan all iteration inputs and outputs at once
 - You're tired of being the middle-man between your agent and the portal
 
 ## Graph API vs Flow Studio MCP
