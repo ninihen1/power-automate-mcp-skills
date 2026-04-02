@@ -18,7 +18,7 @@ loop iterations, or nested failures. Flow Studio MCP exposes all of it.
 - You're tired of being the middle-man between your agent and the portal
 - You want your agent to compare two runs and find what changed
 - Child flow failures are invisible to agents without MCP
-- Loop iteration outputs require clicking through each one manually
+- A loop ran successfully but some iterations produced bad output — you'd have to click through each one in the portal, but the agent can scan them all at once
 
 ## What your agent gets vs Graph API alone
 
@@ -27,7 +27,7 @@ loop iterations, or nested failures. Flow Studio MCP exposes all of it.
 | Run status (succeeded/failed) | Yes | Yes |
 | Action-level inputs and outputs | No | Yes |
 | Nested child flow errors | No | Yes — traces parent to child |
-| Loop iteration details | No | Full per-iteration outputs |
+| Loop iteration details | No | Full per-iteration outputs — agent scans all iterations at once instead of clicking through each one |
 | Expression error context | No — status code only | Input values + failed expression |
 | Resubmit failed runs | API call (limited) | Agent-initiated with full context |
 | Read and modify flow definitions | Limited | Full JSON — agent builds + deploys |

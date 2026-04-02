@@ -34,9 +34,14 @@ Crashed when `Name` was **null**. `split()` cannot operate on null.
 
 ### 3. Measured the scope of the problem
 
-The agent examined the loop iteration outputs and found that **38% of
+The agent scanned all loop iteration outputs at once and found that **38% of
 ArtsVision records had null Name fields**. This was not an edge case — it
 was a systemic data quality issue.
+
+In the portal, a human would need to click through each iteration one by one
+to find affected records. When a loop iteration fails, the portal has a "next
+failed" button — but when iterations succeed with bad data (no error thrown),
+there's no shortcut. The agent with MCP can inspect all iterations in bulk.
 
 ### 4. Found a second bug
 
