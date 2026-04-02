@@ -23,8 +23,9 @@ OpenHands, Goose, Amp, and more.
 | **Smithery** (MCP server) | 4.8k+ MCPs | ⚠️ [Created](https://smithery.ai/servers/flowstudio/flowstudio-mcp) — scan blocked by Cloudflare | N/A (server) | N/A (server) |
 | **Official MCP Registry + VS Code Gallery** | All MCP clients, VS Code | ❌ Blocked — needs Streamable HTTP transport | N/A (skill, not server) | N/A (skill, not server) |
 | **skills.sh** (Vercel) | Agent skills directory | ✅ Auto-indexed via awesome-copilot ([3K+ installs](https://skills.sh/?q=flowstudio)) | ✅ Auto-indexed (691 installs) | ✅ Auto-indexed (689 installs) |
-| **awesome-mcp-servers** (appcypher) | 5.3k ⭐ GitHub list | ⏳ [PR #757](https://github.com/appcypher/awesome-mcp-servers/pull/757) awaiting review | N/A (server listing) | N/A (server listing) |
+| **awesome-mcp-servers** (appcypher) | 5.3k ⭐ GitHub list | ❌ PRs disabled on repo — PR #757 lost | N/A (server listing) | N/A (server listing) |
 | **awesome-remote-mcp-servers** (jaw9c) | 1k ⭐ remote-only list | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review | N/A (server listing) | N/A (server listing) |
+| **awesome-openclaw-skills** (VoltAgent) | 28.5k ⭐ curated list | ⏳ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) awaiting review | ⏳ PR #372 | ⏳ PR #372 |
 | **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | 🔲 Submit via web form | N/A (server listing) | N/A (server listing) |
 
 ---
@@ -382,10 +383,10 @@ mcp-publisher publish
 | 6 | ⚠️ Publish MCP server to Smithery | Done | ⚠️ Created — scan blocked by Cloudflare Bot Fight Mode |
 | 7 | Publish to MCP Registry + VS Code Gallery | Blocked — needs Streamable HTTP transport | ❌ Blocked |
 | 8 | ✅ skills.sh (Vercel) | Auto-indexed | ✅ Live — [3K+ installs](https://skills.sh/?q=flowstudio) |
-| 9 | awesome-mcp-servers (appcypher) | Done | ⏳ [PR #757](https://github.com/appcypher/awesome-mcp-servers/pull/757) awaiting review |
+| 9 | awesome-mcp-servers (appcypher) | Dead | ❌ PRs disabled on repo — PR #757 lost |
 | 10 | awesome-remote-mcp-servers (jaw9c) | Done | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review |
 | 11 | mcpservers.org (wong2) | Low — web form | 🔲 Submit at https://mcpservers.org/submit |
-| 12 | PR to awesome-openclaw-skills | Low — needs traction first | Deferred |
+| 12 | awesome-openclaw-skills (VoltAgent) | Done | ⏳ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) awaiting review |
 
 ---
 

@@ -55,9 +55,9 @@ Copilot, Claude Code, Codex, OpenClaw, Gemini CLI, Cursor, Goose, Amp, OpenHands
 Search for [flowstudio on skills.sh](https://skills.sh/?q=flowstudio), or:
 
 ```bash
-npx skills add flowstudio-power-automate-mcp
-npx skills add flowstudio-power-automate-debug
-npx skills add flowstudio-power-automate-build
+npx skills add github/awesome-copilot -s flowstudio-power-automate-mcp
+npx skills add github/awesome-copilot -s flowstudio-power-automate-debug
+npx skills add github/awesome-copilot -s flowstudio-power-automate-build
 ```
 
 ### Install via ClawHub
