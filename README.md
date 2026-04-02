@@ -1,37 +1,36 @@
 # FlowStudio MCP — Power Automate Skills for AI Agents
 
-Inspect Power Automate flow runs beyond what the portal shows.
-Retrieve action inputs, outputs, loop iterations, and nested failures
-using AI agents like Copilot, Claude, and Codex.
+Give your AI agent the same visibility you have in the Power Automate portal.
+The Graph API only returns top-level run status — agents can't see action inputs,
+loop iterations, or nested failures. Flow Studio MCP exposes all of it.
 
 ![Agent debugging a Power Automate flow via MCP](assets/demo-debug.gif)
 
-**The portal shows the top-level error. The agent finds the root cause.**
+**You can click through the portal and find the root cause. Your agent can't — unless it has MCP.**
 
-![Portal vs Reality — What your agent sees vs what's really wrong](assets/portal-vs-reality.png)
+![The portal shows everything to a human — but agents only see the top-level error via Graph API](assets/portal-vs-reality.png)
 
-![With Flow Studio MCP — Root cause found instantly](assets/mcp-root-cause.png)
+![With Flow Studio MCP, the agent sees what you see](assets/mcp-root-cause.png)
 
 ## When you need this
 
-- Your agent cannot explain why a flow run failed
-- The portal does not show nested action errors or child flow failures
-- You need to compare two runs of the same flow to find what changed
-- Loop iteration outputs are hidden behind "click to expand" in the portal
-- JSON inspection in the run history is not enough
-- Expression evaluation errors give you a status code but no context
+- Your agent can't explain why a flow run failed (Graph API only returns status codes)
+- You're tired of being the middle-man between your agent and the portal
+- You want your agent to compare two runs and find what changed
+- Child flow failures are invisible to agents without MCP
+- Loop iteration outputs require clicking through each one manually
 
-## Portal vs API vs MCP
+## What your agent gets vs Graph API alone
 
-| Capability | Portal | Power Automate API | FlowStudio MCP |
-|---|---|---|---|
-| View run status | Yes | Yes | Yes |
-| Action-level inputs/outputs | Partial (click-through) | Limited | Full |
-| Nested child flow errors | No | No | Yes — traces parent to child |
-| Loop iteration details | Collapsed | Not available | Full per-iteration outputs |
-| Expression error context | Status code only | Status code only | Input values + failed expression |
-| Resubmit failed runs | Manual | API call | Agent-initiated |
-| Modify flow definition | Designer only | Full JSON PATCH | Agent builds + deploys |
+| Capability | Graph API | Flow Studio MCP |
+|---|---|---|
+| Run status (succeeded/failed) | Yes | Yes |
+| Action-level inputs and outputs | No | Yes |
+| Nested child flow errors | No | Yes — traces parent to child |
+| Loop iteration details | No | Full per-iteration outputs |
+| Expression error context | No — status code only | Input values + failed expression |
+| Resubmit failed runs | API call (limited) | Agent-initiated with full context |
+| Read and modify flow definitions | Limited | Full JSON — agent builds + deploys |
 
 ## Skills
 

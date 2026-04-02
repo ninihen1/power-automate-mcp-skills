@@ -53,12 +53,16 @@ The agent used `update_live_flow` to modify the parent flow definition:
   archive data
 - This ensured records with populated Name fields were preferred
 
-## What the portal could not show
+## What the agent could not see without MCP
 
-- Which loop iteration failed (portal collapses loop detail)
-- What the null value was (portal shows the expression, not the input)
-- The percentage of records affected (requires examining multiple iterations)
-- The CostCentre/CostCenter mismatch (different action, not flagged as error)
+A human could click through the portal, expand each loop iteration, and
+eventually find the null Name. But via Graph API, the agent only sees
+`ActionFailed` — it cannot:
+
+- Inspect which loop iteration failed or what the null value was
+- Examine multiple iterations to measure the scope of the problem
+- Read the flow definition to understand the union logic
+- Deploy a fix directly
 
 ## Tools used
 

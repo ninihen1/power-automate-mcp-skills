@@ -44,15 +44,13 @@ Both issues diagnosed in under 60 seconds. No flow changes needed.
 
 ## Why this matters
 
-Portal inspection would have shown the email was "sent successfully" with no
-indication of what addresses were used. You would need to:
+A human could open the portal, click into the Send Email action, expand the
+inputs, and spot the bad addresses. But without MCP, the agent only sees
+"run succeeded" from the Graph API — it has no way to inspect the action
+inputs or compare them against what was expected.
 
-1. Open the run
-2. Click into the Send Email action
-3. Expand the inputs
-4. Manually compare against the expected recipient list
-
-The agent did all of this automatically and identified the mismatch.
+With MCP, the agent did what you would do in the portal — automatically and
+in seconds.
 
 ## The universal pain point
 

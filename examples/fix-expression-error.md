@@ -52,12 +52,16 @@ The Power BI data source had an intermittent SQL timeout. When the timeout
 occurred, the `serviceExceptionJson` field contained a nested retry structure
 instead of a flat error string. The expression assumed a flat string.
 
-## What the portal could not show
+## What the agent could not see without MCP
 
-- Which expression failed (only showed `ExpressionEvaluationFailed`)
-- What the input value was (the nested JSON structure)
-- The difference between the successful and failed run inputs
-- That the root cause was upstream (PBI data source timeout), not the flow logic
+Via Graph API alone, the agent only saw `ExpressionEvaluationFailed` as a
+status code. A human could click through the portal and find all of this,
+but the agent had no way to:
+
+- See which expression failed or what input caused it
+- Retrieve the nested JSON structure from the action inputs
+- Compare the successful and failed run inputs side by side
+- Trace the root cause upstream to the PBI data source timeout
 
 ## Tools used
 
