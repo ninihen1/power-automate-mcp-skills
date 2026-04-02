@@ -1,0 +1,26 @@
+{
+  "name": "flowstudio-power-automate",
+  "version": "1.0.0",
+  "description": "Give your AI agent portal-level visibility into Power Automate flows. Read, debug, and build flows via Flow Studio MCP.",
+  "author": {
+    "name": "Flow Studio",
+    "url": "https://flowstudio.app"
+  },
+  "homepage": "https://mcp.flowstudio.app",
+  "repository": "https://github.com/ninihen1/FlowStudio-MCP",
+  "license": "MIT",
+  "keywords": [
+    "power-automate",
+    "mcp",
+    "flow-studio",
+    "debugging",
+    "power-platform"
+  ],
+  "mcpServers": ".mcp.json",
+  "userConfig": {
+    "FLOWSTUDIO_MCP_TOKEN": {
+      "description": "Flow Studio MCP API token (get from https://mcp.flowstudio.app)",
+      "sensitive": true
+    }
+  }
+}

@@ -3,6 +3,8 @@
 !package.json
 !package-lock.json
 !smithery-config-schema.json
+!.claude-plugin/marketplace.json
+!plugins/**/*.json
 tmp_*
 *.txt
 list_flows.py
