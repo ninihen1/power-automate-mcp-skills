@@ -361,9 +361,38 @@ Response keys: `flowKey`, `triggerName`, `triggerUrl`, `requiresAadAuth`, `authT
 
 ## Flow State Management
 
+### `set_live_flow_state`
+
+Start or stop a Power Automate flow via the live PA API. Does **not** require
+a Power Clarity workspace — works for any flow the impersonated account can access.
+Reads the current state first and only issues the start/stop call if a change is
+actually needed.
+
+Parameters: `environmentName`, `flowName`, `state` (`"Started"` | `"Stopped"`) — all required.
+
+Response:
+```json
+{
+  "flowName": "6321ab25-7eb0-42df-b977-e97d34bcb272",
+  "environmentName": "Default-26e65220-...",
+  "requestedState": "Started",
+  "actualState": "Started"
+}
+```
+
+> **Use this tool** — not `update_live_flow` — to start or stop a flow.
+> `update_live_flow` only changes displayName/definition; the PA API ignores
+> state passed through that endpoint.
+
 ### `set_store_flow_state`
 
-Start or stop a flow. Pass `state: "Started"` or `state: "Stopped"`.
+Start or stop a flow via the live PA API **and** persist the updated state back
+to the Power Clarity cache. Same parameters as `set_live_flow_state` but requires
+a Power Clarity workspace.
+
+> Prefer `set_live_flow_state` when you only need to toggle state.
+> Use `set_store_flow_state` when the flow is managed in the Power Clarity store
+> and you want the cache to stay in sync.
 
 ---
 
@@ -424,6 +453,8 @@ Non-obvious behaviors discovered through real API usage. These are things
 - `error` key is **always present** in response --- `null` means success.
   Do NOT check `if "error" in result`; check `result.get("error") is not None`.
 - On create, `created` = new flow GUID (string). On update, `created` = `false`.
+- **Cannot change flow state.** Only updates displayName, definition, and
+  connectionReferences. Use `set_live_flow_state` to start/stop a flow.
 
 ### `trigger_live_flow`
 - **Only works for HTTP Request triggers.** Returns error for Recurrence, connector,

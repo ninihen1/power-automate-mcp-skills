@@ -2,6 +2,7 @@
 *.json
 !package.json
 !package-lock.json
+!smithery-config-schema.json
 tmp_*
 
 # Private / workspace-specific files
@@ -23,6 +24,9 @@ Thumbs.db
 
 # AI agent worktrees
 .claude/
+
+# Local experimentation
+Learn-Experiment/
 
 # Editor
 .vscode/*

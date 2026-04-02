@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "properties": {
+    "apiKey": {
+      "type": "string",
+      "description": "FlowStudio workspace JWT token. Get yours at https://flowstudio.app",
+      "x-from": "header:x-api-key"
+    }
+  },
+  "required": ["apiKey"]
+}

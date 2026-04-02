@@ -1,7 +1,7 @@
 # Skill Distribution Status
 
 > Reference doc for tracking skill submissions across all agent platforms.
-> Last updated: 2026-03-07
+> Last updated: 2026-04-03
 
 ---
 
@@ -15,13 +15,17 @@ OpenHands, Goose, Amp, and more.
 
 | Channel | Audience | `power-automate-mcp` | `power-automate-debug` | `power-automate-build` |
 |---------|----------|---------------------|----------------------|----------------------|
-| **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) + plugin — awaiting merge | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) + plugin — awaiting merge |
+| **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | ✅ [PR #899](https://github.com/github/awesome-copilot/pull/899) merged 2026-03-08 | ✅ [PR #899](https://github.com/github/awesome-copilot/pull/899) merged 2026-03-08 |
 | **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) |
 | **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review |
 | **openai/skills** | Codex (11.2k ⭐, 622 forks) | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review |
 | **Smithery** (skills) | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
 | **Smithery** (MCP server) | 4.8k+ MCPs | ⚠️ [Created](https://smithery.ai/servers/flowstudio/flowstudio-mcp) — scan blocked by Cloudflare | N/A (server) | N/A (server) |
-| **Official MCP Registry** | All MCP clients | Not yet published | N/A (skill, not server) | N/A (skill, not server) |
+| **Official MCP Registry + VS Code Gallery** | All MCP clients, VS Code | ❌ Blocked — needs Streamable HTTP transport | N/A (skill, not server) | N/A (skill, not server) |
+| **skills.sh** (Vercel) | Agent skills directory | ✅ Auto-indexed via awesome-copilot ([3K+ installs](https://skills.sh/?q=flowstudio)) | ✅ Auto-indexed (691 installs) | ✅ Auto-indexed (689 installs) |
+| **awesome-mcp-servers** (appcypher) | 5.3k ⭐ GitHub list | ⏳ [PR #757](https://github.com/appcypher/awesome-mcp-servers/pull/757) awaiting review | N/A (server listing) | N/A (server listing) |
+| **awesome-remote-mcp-servers** (jaw9c) | 1k ⭐ remote-only list | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review | N/A (server listing) | N/A (server listing) |
+| **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | 🔲 Submit via web form | N/A (server listing) | N/A (server listing) |
 
 ---
 
@@ -43,16 +47,14 @@ OpenHands, Goose, Amp, and more.
 6. Posted [review reply comment](https://github.com/github/awesome-copilot/pull/896#issuecomment-4009420759) with verdict table for each Copilot suggestion
 7. Validation: `npm run skill:validate` ✅ (208 skills valid), `npm run build` ✅
 
-### Status: ⏳ PR #899 awaiting merge (all review comments addressed + plugin added)
+### Status: ✅ PR #899 merged
 
 - Fork: `ninihen1/awesome-copilot` → cloned to `~/GitHub/awesome-copilot`
 - Branch: `add-power-automate-debug-build` off `staged`
-- PR: **[#899](https://github.com/github/awesome-copilot/pull/899)** — submitted 2026-03-06
+- PR: **[#899](https://github.com/github/awesome-copilot/pull/899)** — merged by @aaronpowell on 2026-03-08
 - Skill folders: `skills/flowstudio-power-automate-debug/`, `skills/flowstudio-power-automate-build/`
 - Plugin: `plugins/flowstudio-power-automate/` (bundles all 3 skills)
-- CI: All 4 checks passing (line-endings, materialized-files, codespell, validate-readme)
-- Review: @aaronpowell's CHANGES_REQUESTED was auto-dismissed after fixes
-- Branches cleaned: only `add-power-automate-debug-build`, `main`, `staged` remain
+- CI: All 4 checks passed (line-endings, materialized-files, codespell, validate-readme)
 
 ### Key Details
 - PRs target the **`staged`** branch (not `main`)
@@ -245,7 +247,7 @@ export SMITHERY_API_KEY="<api-key>"
 curl -X PUT "https://api.smithery.ai/skills/flowstudio/power-automate-mcp" \
   -H "Authorization: Bearer $SMITHERY_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"gitUrl": "https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-mcp"}'
+  -d '{"gitUrl": "https://github.com/ninihen1/FlowStudio-MCP/tree/master/skills/power-automate-mcp"}'
 ```
 
 ### Installation by Users
@@ -285,37 +287,64 @@ SMITHERY_API_KEY="<key>" npx smithery mcp publish "https://mcp.flowstudio.app/mc
 
 ---
 
-## 6. Official MCP Registry
+## 6. Official MCP Registry + VS Code MCP Gallery
 
-### Status: Requires investigation — may not be compatible yet
+### Status: ❌ Blocked — requires Streamable HTTP transport
 
 - `registry.modelcontextprotocol.io` — canonical MCP server directory (currently in preview)
-- Publishes the **FlowStudio MCP server** itself, not individual skills
+- Powers the **VS Code MCP Servers Marketplace** (via GitHub MCP Registry as intermediary)
+- Pipeline: publish to Official MCP Registry → GitHub MCP Registry syncs → VS Code gallery displays
 - Uses `mcp-publisher` CLI tool + `server.json` metadata file
 
-### Compatibility Considerations
-- Registry expects either an **npm package** (stdio transport) or a **remote server** (Streamable HTTP/SSE)
-- FlowStudio MCP uses JSON-RPC over HTTP with `x-api-key` auth — this maps to the `remotes` approach
-- The `headers` property in `server.json` supports custom headers like `X-API-Key`
-- Server name: `io.github.ninihen1/flowstudio-mcp` (GitHub auth prefix)
-- **Question**: Does FlowStudio MCP support Streamable HTTP transport, or only JSON-RPC POST? The registry expects MCP protocol compliance.
+### Blocker: Transport Incompatibility
 
-### How to Publish (if compatible)
+- Registry `remotes` only supports `"type": "streamable-http"` or `"type": "sse"`
+- **FlowStudio MCP currently uses JSON-RPC POST** (function-based), which is not a recognized transport type
+- This also affects the Smithery server scan (item 6 above) — Streamable HTTP would resolve both
+
+### What's needed (server-side, coordinated with John)
+
+1. **Add Streamable HTTP transport support** to `mcp.flowstudio.app/mcp`:
+   - `Mcp-Session-Id` header handling
+   - `Accept: text/event-stream` support for streaming responses
+   - Session initialization via `initialize` method
+   - Spec: https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http
+2. Once transport is supported, proceed with publishing below
+
+### Namespace Options
+
+| Auth method | Namespace | Requires |
+|-------------|-----------|----------|
+| Domain (preferred) | `app.flowstudio/power-automate-mcp` | Host `.well-known/mcp-registry-auth` on flowstudio.app |
+| GitHub | `io.github.ninihen1/flowstudio-mcp` | `mcp-publisher login github` |
+
+### How to Publish (once Streamable HTTP is supported)
+
 ```bash
 # Install mcp-publisher
 curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
 sudo mv mcp-publisher /usr/local/bin/
 
-# Authenticate
-mcp-publisher login github
+# Authenticate (domain method — preferred for branding)
+# First, host verification file at https://flowstudio.app/.well-known/mcp-registry-auth
+mcp-publisher login http --domain "flowstudio.app" --private-key "${PRIVATE_KEY}"
 
-# Create server.json
-cat > server.json << 'EOF'
+# Or authenticate via GitHub (simpler, less branded namespace)
+# mcp-publisher login github
+
+# server.json already in repo root
+mcp-publisher publish
+```
+
+### server.json (draft — ready to use once transport is supported)
+
+```json
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.ninihen1/flowstudio-mcp",
-  "title": "FlowStudio MCP",
-  "description": "Read, modify, deploy, debug, and monitor Power Automate cloud flows via MCP",
+  "name": "app.flowstudio/power-automate-mcp",
+  "title": "Flow Studio",
+  "description": "AI agent tools to read, debug, and modify Power Automate cloud flows",
+  "websiteUrl": "https://flowstudio.app",
   "version": "1.0.0",
   "repository": {
     "url": "https://github.com/ninihen1/FlowStudio-MCP",
@@ -328,7 +357,7 @@ cat > server.json << 'EOF'
       "headers": [
         {
           "name": "x-api-key",
-          "description": "FlowStudio workspace JWT (get from https://flowstudio.app)",
+          "description": "Flow Studio MCP API key (get from https://flowstudio.app)",
           "isRequired": true,
           "isSecret": true
         }
@@ -336,10 +365,6 @@ cat > server.json << 'EOF'
     }
   ]
 }
-EOF
-
-# Publish
-mcp-publisher publish
 ```
 
 ---
@@ -349,14 +374,18 @@ mcp-publisher publish
 | Priority | Action | Effort | Status |
 |----------|--------|--------|--------|
 | 1 | ✅ awesome-copilot PR #896 | Done | ✅ Merged |
-| 1b | awesome-copilot: debug + build + plugin | Done | ⏳ [PR #899](https://github.com/github/awesome-copilot/pull/899) awaiting merge |
+| 1b | awesome-copilot: debug + build + plugin | Done | ✅ [PR #899](https://github.com/github/awesome-copilot/pull/899) merged 2026-03-08 |
 | 2 | ✅ Publish 3 skills to ClawHub | Done | ✅ v1.1.0 (metadata fix) |
 | 3 | ✅ PR to anthropics/skills (all 3 skills) | Done | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review |
 | 4 | ✅ PR to openai/skills (all 3 skills) | Done | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review |
 | 5 | ✅ Publish 3 skills to Smithery | Done | ✅ Published (namespace: flowstudio) |
 | 6 | ⚠️ Publish MCP server to Smithery | Done | ⚠️ Created — scan blocked by Cloudflare Bot Fight Mode |
-| 7 | Publish to MCP Registry | Medium — needs server.json, verify transport | Investigate |
-| 8 | PR to awesome-openclaw-skills | Low — needs traction first | Deferred |
+| 7 | Publish to MCP Registry + VS Code Gallery | Blocked — needs Streamable HTTP transport | ❌ Blocked |
+| 8 | ✅ skills.sh (Vercel) | Auto-indexed | ✅ Live — [3K+ installs](https://skills.sh/?q=flowstudio) |
+| 9 | awesome-mcp-servers (appcypher) | Done | ⏳ [PR #757](https://github.com/appcypher/awesome-mcp-servers/pull/757) awaiting review |
+| 10 | awesome-remote-mcp-servers (jaw9c) | Done | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review |
+| 11 | mcpservers.org (wong2) | Low — web form | 🔲 Submit at https://mcpservers.org/submit |
+| 12 | PR to awesome-openclaw-skills | Low — needs traction first | Deferred |
 
 ---
 

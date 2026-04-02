@@ -285,6 +285,8 @@ check = mcp("get_live_flow", environmentName=ENV, flowName=FLOW_ID)
 
 # Confirm state
 print("State:", check["properties"]["state"])  # Should be "Started"
+# If state is "Stopped", use set_live_flow_state — NOT update_live_flow
+# mcp("set_live_flow_state", environmentName=ENV, flowName=FLOW_ID, state="Started")
 
 # Confirm the action we added is there
 acts = check["properties"]["definition"]["actions"]
@@ -435,7 +437,7 @@ else:
 | `union(old_data, new_data)` | Old values override new (first-wins) | Use `union(new_data, old_data)` |
 | `split()` on potentially-null string | `InvalidTemplate` crash | Wrap with `coalesce(field, '')` |
 | Checking `result["error"]` exists | Always present; true error is `!= null` | Use `result.get("error") is not None` |
-| Flow deployed but state is "Stopped" | Flow won't run on schedule | Check connection auth; re-enable |
+| Flow deployed but state is "Stopped" | Flow won't run on schedule | Call `set_live_flow_state` with `state: "Started"` — do **not** use `update_live_flow` for state changes |
 | Teams "Chat with Flow bot" recipient as object | 400 `GraphUserDetailNotFound` | Use plain string with trailing semicolon (see below) |
 
 ### Teams `PostMessageToConversation` — Recipient Formats
