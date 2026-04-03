@@ -1,7 +1,7 @@
 # Skill Distribution Status
 
 > Reference doc for tracking skill submissions across all agent platforms.
-> Last updated: 2026-04-03
+> Last updated: 2026-04-03 (added OpenAI Apps Directory, copilot-mcp, skills CLI, Streamable HTTP gap analysis, VS Code Marketplace extension)
 
 ---
 
@@ -22,7 +22,10 @@ OpenHands, Goose, Amp, and more.
 | **Smithery** (skills) | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
 | **Smithery** (MCP server) | 4.8k+ MCPs | ⚠️ [Created](https://smithery.ai/servers/flowstudio/flowstudio-mcp) — scan blocked by Cloudflare | N/A (server) | N/A (server) |
 | **Official MCP Registry + VS Code Gallery** | All MCP clients, VS Code | ❌ Blocked — needs Streamable HTTP transport | N/A (skill, not server) | N/A (skill, not server) |
+| **OpenAI Apps Directory** | ChatGPT Apps + Codex Plugins | ❌ Blocked — needs Streamable HTTP transport + tool hint annotations | N/A (server) | N/A (server) |
+| **copilot-mcp** (VS Code extension) | 482 ⭐, skills + MCP registry UI | ✅ Skills discoverable via skills.sh. Registry listing blocked — needs Streamable HTTP | ✅ Via skills.sh | ✅ Via skills.sh |
 | **skills.sh** (Vercel) | Agent skills directory | ✅ Auto-indexed via awesome-copilot ([3K+ installs](https://skills.sh/?q=flowstudio)) | ✅ Auto-indexed (691 installs) | ✅ Auto-indexed (689 installs) |
+| **skills CLI** (direct repo) | All 40+ agents | ✅ `npx skills add ninihen1/power-automate-mcp-skills -g -y` — tested, installs to 12+ agents | ✅ Installed | ✅ Installed |
 | **awesome-mcp-servers** (appcypher) | 5.3k ⭐ GitHub list | ❌ PRs disabled on repo — PR #757 lost | N/A (server listing) | N/A (server listing) |
 | **awesome-remote-mcp-servers** (jaw9c) | 1k ⭐ remote-only list | ⚠️ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) — repo hasn't merged a community PR since May 2025 | N/A (server listing) | N/A (server listing) |
 | **Claude Code Plugin** (official marketplace) | Claude Code + Claude.ai users (15.8k ⭐) | ⏳ Submitted 2026-04-03 via claude.ai/settings/plugins/submit + platform.claude.com/plugins/submit | ✅ Bundled | ✅ Bundled |
@@ -30,6 +33,7 @@ OpenHands, Goose, Amp, and more.
 | **community.openai.com** | OpenAI dev forum (Codex category) | ✅ [Posted 2026-04-03](https://community.openai.com/t/flow-studio-mcp-power-automate-debugging-and-building-skills-for-codex/1378409) | Linked | Linked |
 | **Docker MCP Registry** | Docker Desktop MCP Toolkit (461 ⭐, 702 forks) | ❌ Blocked — needs Streamable HTTP transport. Submit via [PR to docker/mcp-registry](https://github.com/docker/mcp-registry) once resolved | N/A (server listing) | N/A (server listing) |
 | **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | 🔲 Submit via web form | N/A (server listing) | N/A (server listing) |
+| **VS Code Marketplace** (extension) | All VS Code users | ✅ [Published](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.1.0 — multi-tenant, guided setup | ✅ Bundled | ✅ Bundled |
 
 ---
 
@@ -304,16 +308,42 @@ SMITHERY_API_KEY="<key>" npx smithery mcp publish "https://mcp.flowstudio.app/mc
 
 - Registry `remotes` only supports `"type": "streamable-http"` or `"type": "sse"`
 - **FlowStudio MCP currently uses JSON-RPC POST** (function-based), which is not a recognized transport type
-- This also affects the Smithery server scan (item 6 above) — Streamable HTTP would resolve both
+- This also affects: Smithery server scan, OpenAI Apps Directory, copilot-mcp registry tab, Docker MCP Registry
+- **70% of servers** on the Official MCP Registry use streamable-http; it is the dominant transport
+
+### Current server state (audited 2026-04-03)
+
+| Aspect | Current | Required |
+|--------|---------|----------|
+| Protocol version | `2024-11-05` | `2025-03-26` |
+| POST response | `application/json` (JSON-RPC) | `application/json` OK (SSE streaming optional) |
+| Notification-only POSTs | Unknown | Must return `202 Accepted` (empty body) |
+| GET endpoint | Returns 200 welcome page | Must return `405 Method Not Allowed` (or SSE stream) |
+| DELETE endpoint | Returns 404 | Should return `405` (close enough, but 405 is correct) |
+| `Mcp-Session-Id` header | Not returned | Optional (MAY assign) |
+| `Origin` header validation | Not validated | MUST validate (DNS rebinding protection) |
+| CORS headers | Already include `mcp-session-id`, `GET,POST,DELETE,OPTIONS` | Already set up |
 
 ### What's needed (server-side, coordinated with John)
 
-1. **Add Streamable HTTP transport support** to `mcp.flowstudio.app/mcp`:
-   - `Mcp-Session-Id` header handling
-   - `Accept: text/event-stream` support for streaming responses
-   - Session initialization via `initialize` method
-   - Spec: https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http
-2. Once transport is supported, proceed with publishing below
+The gap from current state to **minimum-viable streamable-http** is small. The core JSON-RPC POST/response flow stays the same — no SSE streaming required.
+
+**Required changes:**
+1. Return `protocolVersion: "2025-03-26"` in InitializeResult
+2. Return `202 Accepted` (empty body) for notification-only POSTs (no `id` field)
+3. Change GET to return `405 Method Not Allowed` instead of welcome page
+4. Validate `Origin` header on all requests
+5. Optionally return `Mcp-Session-Id` header on InitializeResult
+
+**Not required (optional, can add later):**
+- SSE streaming responses (server can always respond with `application/json`)
+- GET SSE stream for server-initiated push (405 is valid)
+- DELETE session termination (405 is valid)
+- Resumability (`Last-Event-ID`)
+
+**Spec reference:** https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http
+
+Once transport is supported, proceed with publishing below.
 
 ### Namespace Options
 
@@ -373,6 +403,125 @@ mcp-publisher publish
 
 ---
 
+## 7. OpenAI Apps Directory (ChatGPT + Codex Plugins)
+
+### Status: ❌ Blocked — needs Streamable HTTP transport + tool hint annotations
+
+- Submission portal: https://developers.openai.com/apps-sdk/deploy/submission
+- Approved apps appear in ChatGPT Apps Directory and auto-create a Codex plugin
+- Zero Power Automate apps exist — first-mover opportunity
+
+### Blockers (2 items)
+
+**1. Streamable HTTP transport** (same as MCP Registry blocker above)
+- The submission requires a publicly accessible MCP server
+- Server must support standard MCP transports — plain JSON-RPC POST is not recognized
+
+**2. Tool hint annotations** (server-side)
+- All 15 MCP tools need `readOnlyHint`, `destructiveHint`, `openWorldHint` annotations
+- Review team checks that hints match actual behavior — misalignment causes rejection
+
+| Category | Tools | Hints needed |
+|----------|-------|-------------|
+| Read-only (9) | `list_live_flows`, `list_live_environments`, `list_live_connections`, `get_live_flow`, `get_live_flow_http_schema`, `get_live_flow_trigger_url`, `get_live_flow_runs`, `get_live_flow_run_error`, `get_live_flow_run_action_outputs` | `readOnlyHint: true` |
+| State-changing (6) | `trigger_live_flow`, `update_live_flow`, `add_live_flow_to_solution`, `resubmit_live_flow_run`, `cancel_live_flow_run`, `set_live_flow_state` | `readOnlyHint: false` + per-tool `destructiveHint`/`openWorldHint` |
+
+Key annotations:
+- `trigger_live_flow`: `destructiveHint: true`, `openWorldHint: true` (executes flow — may send emails, call external APIs)
+- `update_live_flow`: `destructiveHint: true`, `openWorldHint: false` (overwrites definition, closed system)
+- `resubmit_live_flow_run`: `destructiveHint: true`, `openWorldHint: true` (re-executes, same downstream effects)
+- `cancel_live_flow_run`: `destructiveHint: true`, `openWorldHint: false` (irreversible for that run)
+- `add_live_flow_to_solution`: `destructiveHint: false`, `openWorldHint: false` (reversible, closed system)
+- `set_live_flow_state`: `destructiveHint: false`, `openWorldHint: false` (reversible toggle)
+
+### Other submission requirements
+- Organization verification (individual or business) on OpenAI Platform Dashboard
+- Owner role required to submit
+- Demo account with **no MFA** for review team
+- Credentials tested **outside company network/VPN**
+- CSP configured for exact domains the server fetches from (Power Automate API domains)
+- Tools must return only necessary data — strip unnecessary PII, internal IDs, auth secrets
+
+---
+
+## 8. copilot-mcp (VS Code Extension)
+
+### Status: ✅ Skills discoverable | ❌ Registry listing blocked
+
+- Extension: [vikashloomba/copilot-mcp](https://github.com/vikashloomba/copilot-mcp) (482 stars, v0.0.92)
+- Two discovery channels within the extension:
+
+**Skills tab (via skills.sh):** ✅ Working
+- Users searching "power automate" find all 3 Flow Studio skills
+- Install: `npx skills add github/awesome-copilot@flowstudio-power-automate-mcp`
+
+**Registry tab (via Official MCP Registry):** ❌ Blocked
+- The extension's `buildRemoteInstall()` only accepts `streamable-http` or `sse` transport types
+- Any other transport type returns `unavailableReason: "Remote transport '${remote.type}' is not supported"`
+- Blocked by the same Streamable HTTP transport requirement as items 6 and 7
+
+### Once Streamable HTTP is supported
+- Publishing to the Official MCP Registry (item 6) automatically makes Flow Studio visible in this extension's registry tab
+- No separate submission to copilot-mcp needed
+
+---
+
+## 9. skills CLI (direct repo install)
+
+### Status: ✅ Working — tested 2026-04-03
+
+- `npx skills add ninihen1/power-automate-mcp-skills -g -y` successfully installs all 3 skills
+- Discovered 3 skills, installed to 12+ agents: Antigravity, Claude Code (symlinked), Codex, Cursor, Gemini CLI, GitHub Copilot, and 7 more
+- Files land at `~/.agents/skills/power-automate-{mcp,build,debug}/`
+- `npx skills list` confirms installation
+- No submission needed — works directly from the GitHub repo
+
+### Two install paths available to users
+```bash
+# Via awesome-copilot (indexed on skills.sh)
+npx skills add github/awesome-copilot@flowstudio-power-automate-mcp
+
+# Direct from repo (all 3 skills at once)
+npx skills add ninihen1/power-automate-mcp-skills -g -y
+```
+
+---
+
+## 10. VS Code Marketplace (Extension)
+
+### Status: ✅ Published — verifying
+
+- Publisher: [Flow Studio Solutions](https://marketplace.visualstudio.com/manage/publishers/FlowStudio) (ID: `FlowStudio`)
+- Extension: [FlowStudio.flowstudio-mcp](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.1.0
+- Source: `vscode-extension/` directory in this repo
+- Published: 2026-04-03 via `vsce publish`
+
+### What it does
+- Registers Flow Studio MCP server with GitHub Copilot Chat on install
+- Multi-tenant support: users configure multiple connections for different tenants
+- Guided onboarding: welcome notification with "Add Connection" / "Get API Key"
+- Commands: `Flow Studio: Add Tenant Connection`, `Remove Tenant Connection`, `List Connections`
+- API key prompt if user tries to use without configuring
+
+### Technical details
+- Uses `McpHttpServerDefinition` API (VS Code 1.101+)
+- `contributes.mcpServerDefinitionProviders` in package.json
+- ~100 lines of extension code in `extension.js`
+- Settings stored in `flowstudio.mcp.servers` array (label + apiKey per tenant)
+
+### Publishing
+```bash
+cd vscode-extension
+npx @vscode/vsce package --allow-missing-repository
+npx @vscode/vsce publish --pat "<PAT>"
+```
+PAT requires: Azure DevOps → Personal Access Tokens → Organization: "All accessible organizations" → Scope: Marketplace > Manage
+
+### Does NOT require Streamable HTTP
+This extension works with the current JSON-RPC over HTTP transport. It bypasses the MCP Registry entirely — users install the extension directly, which configures the MCP server connection.
+
+---
+
 ## Priority & Execution Order
 
 | Priority | Action | Effort | Status |
@@ -390,6 +539,30 @@ mcp-publisher publish
 | 10 | awesome-remote-mcp-servers (jaw9c) | Done | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review |
 | 11 | mcpservers.org (wong2) | Low — web form | 🔲 Submit at https://mcpservers.org/submit |
 | 12 | awesome-openclaw-skills (VoltAgent) | Done | ⏳ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) awaiting review |
+| 13 | OpenAI Apps Directory (ChatGPT + Codex) | Blocked — needs Streamable HTTP + tool hints | ❌ Blocked |
+| 14 | copilot-mcp extension (registry tab) | Blocked — auto-resolves when MCP Registry listing goes live | ❌ Blocked |
+| 15 | ✅ skills CLI (direct repo install) | Tested | ✅ `npx skills add ninihen1/power-automate-mcp-skills -g -y` |
+| 16 | ✅ VS Code Marketplace extension | Published | ✅ [FlowStudio.flowstudio-mcp](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.1.0 |
+
+### Streamable HTTP Transport — Unblocks 4 Channels
+
+Adding minimum-viable Streamable HTTP support to the MCP server unblocks:
+
+| Channel | What it unblocks |
+|---------|-----------------|
+| Official MCP Registry + VS Code Gallery | Direct listing as remote server |
+| OpenAI Apps Directory | ChatGPT app + Codex plugin submission |
+| copilot-mcp (registry tab) | Auto-visible once on MCP Registry |
+| Docker MCP Registry | Submit via PR to docker/mcp-registry |
+
+Server changes required (5 items, all small):
+1. Return `protocolVersion: "2025-03-26"` in InitializeResult
+2. Return `202 Accepted` (empty body) for notification-only POSTs
+3. Return `405` on GET (instead of welcome page)
+4. Validate `Origin` header
+5. Optionally return `Mcp-Session-Id` header
+
+The core JSON-RPC POST/response pattern stays unchanged. SSE streaming is optional.
 
 ---
 

@@ -1,0 +1,88 @@
+{
+  "name": "flowstudio-mcp",
+  "displayName": "Power Automate MCP Server",
+  "description": "Debug, build, and manage Power Automate cloud flows with AI. Ask Copilot to find why a flow failed, build new flows, or check run history — no portal needed.",
+  "version": "0.2.0",
+  "publisher": "FlowStudio",
+  "license": "MIT",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ninihen1/power-automate-mcp-skills"
+  },
+  "homepage": "https://mcp.flowstudio.app",
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "keywords": [
+    "mcp",
+    "model context protocol",
+    "power automate",
+    "power platform",
+    "microsoft",
+    "flow studio",
+    "cloud flows",
+    "copilot",
+    "ai agent"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "mcpServerDefinitionProviders": [
+      {
+        "id": "flowstudioMcp",
+        "label": "Flow Studio MCP"
+      }
+    ],
+    "commands": [
+      {
+        "command": "flowstudio.addConnection",
+        "title": "Flow Studio: Add Tenant Connection"
+      },
+      {
+        "command": "flowstudio.removeConnection",
+        "title": "Flow Studio: Remove Tenant Connection"
+      },
+      {
+        "command": "flowstudio.listConnections",
+        "title": "Flow Studio: List Connections"
+      }
+    ],
+    "configuration": {
+      "title": "Flow Studio MCP",
+      "properties": {
+        "flowstudio.mcp.servers": {
+          "type": "array",
+          "default": [],
+          "description": "Flow Studio MCP server connections. Each entry creates a separate MCP server for a different tenant.",
+          "items": {
+            "type": "object",
+            "required": ["label"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Auto-generated unique identifier for this connection (do not edit)"
+              },
+              "label": {
+                "type": "string",
+                "description": "Display name for this connection (e.g. 'Contoso', 'Northwind')"
+              },
+              "serverUrl": {
+                "type": "string",
+                "default": "https://mcp.flowstudio.app/mcp",
+                "description": "MCP server URL (only change if using a custom server)"
+              }
+            }
+          },
+          "order": 1
+        }
+      }
+    }
+  }
+}

@@ -41,3 +41,8 @@ Learn-Experiment/
 # Python
 __pycache__/
 *.pyc
+
+# VS Code extension
+vscode-extension/*.vsix
+!vscode-extension/package.json
+!vscode-extension/LICENSE
