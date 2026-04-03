@@ -2,6 +2,8 @@
 name: power-automate-debug
 description: >-
   Debug failing Power Automate cloud flows using the FlowStudio MCP server.
+  The Graph API only shows top-level status codes. This skill gives your agent
+  action-level inputs and outputs to find the actual root cause.
   Load this skill when asked to: debug a flow, investigate a failed run, why is
   this flow failing, inspect action outputs, find the root cause of a flow error,
   fix a broken Power Automate flow, diagnose a timeout, trace a DynamicOperationRequestFailure,
@@ -20,6 +22,10 @@ metadata:
 
 A step-by-step diagnostic process for investigating failing Power Automate
 cloud flows through the FlowStudio MCP server.
+
+> **Real debugging examples**: [Expression error in child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/master/examples/fix-expression-error.md) |
+> [Data entry, not a flow bug](https://github.com/ninihen1/power-automate-mcp-skills/blob/master/examples/data-not-flow.md) |
+> [Null value crashes child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/master/examples/null-child-flow.md)
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
 See the `power-automate-mcp` skill for connection setup.  
