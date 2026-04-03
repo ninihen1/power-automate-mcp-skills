@@ -4,6 +4,9 @@
 !package-lock.json
 !smithery-config-schema.json
 !server.json
+!gemini-extension.json
+!cursor-plugin/.cursor-plugin/plugin.json
+!cursor-plugin/mcp.json
 !.claude-plugin/plugin.json
 !.codex-plugin/plugin.json
 tmp_*

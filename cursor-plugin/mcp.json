@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "flowstudio": {
+      "url": "https://mcp.flowstudio.app/mcp",
+      "headers": {
+        "x-api-key": "${env:FLOWSTUDIO_MCP_API_KEY}"
+      }
+    }
+  }
+}

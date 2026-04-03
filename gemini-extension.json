@@ -1,0 +1,19 @@
+{
+  "name": "flowstudio-power-automate",
+  "version": "1.0.0",
+  "description": "Debug, build, and manage Power Automate cloud flows with AI via Flow Studio MCP. 15 tools for action-level error details, flow creation, and multi-tenant operations.",
+  "mcpServers": {
+    "flowstudio": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.flowstudio.app/mcp", "--header", "x-api-key: ${FLOWSTUDIO_MCP_API_KEY}"]
+    }
+  },
+  "settings": [
+    {
+      "name": "FLOWSTUDIO_MCP_API_KEY",
+      "description": "Your Flow Studio MCP API key (get one at https://mcp.flowstudio.app)",
+      "envVar": "FLOWSTUDIO_MCP_API_KEY",
+      "sensitive": true
+    }
+  ]
+}

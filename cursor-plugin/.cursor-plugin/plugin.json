@@ -1,0 +1,15 @@
+{
+  "name": "flowstudio-power-automate",
+  "displayName": "Power Automate MCP Server by Flow Studio",
+  "version": "1.0.0",
+  "description": "Debug, build, and manage Power Automate cloud flows with AI. 15 tools for action-level error details, flow creation, run history, and multi-tenant operations.",
+  "author": {
+    "name": "Flow Studio Solutions",
+    "email": "support@flowstudio.app"
+  },
+  "license": "MIT",
+  "keywords": ["mcp", "power-automate", "power-platform", "microsoft", "cloud-flows", "automation", "debug"],
+  "logo": "assets/logo.png",
+  "homepage": "https://mcp.flowstudio.app",
+  "repository": "https://github.com/ninihen1/power-automate-mcp-skills"
+}
