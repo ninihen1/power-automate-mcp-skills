@@ -50,20 +50,22 @@ Copilot, Claude Code, Codex, OpenClaw, Gemini CLI, Cursor, Goose, Amp, OpenHands
 
 ## Quick Start
 
-### Install as Claude Code plugin (recommended)
+### Install as Claude Code plugin
 
-One command installs all 3 skills and configures the MCP server automatically:
+Installs all 3 skills in one command:
 
-```bash
-/plugin marketplace add ninihen1/FlowStudio-MCP
 ```
-
-Then install the plugin:
-```
+/plugin marketplace add ninihen1/power-automate-mcp-skills
 /plugin install flowstudio-power-automate@flowstudio
 ```
 
-Claude Code will prompt for your API token. Get one at [mcp.flowstudio.app](https://mcp.flowstudio.app).
+Then connect the MCP server:
+```bash
+claude mcp add --transport http flowstudio https://mcp.flowstudio.app/mcp \
+  --header "x-api-key: <YOUR_TOKEN>"
+```
+
+Get your token at [mcp.flowstudio.app](https://mcp.flowstudio.app).
 
 ### Install via skills.sh
 

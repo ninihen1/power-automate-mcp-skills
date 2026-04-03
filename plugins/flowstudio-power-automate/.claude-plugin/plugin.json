@@ -15,12 +15,5 @@
     "flow-studio",
     "debugging",
     "power-platform"
-  ],
-  "mcpServers": ".mcp.json",
-  "userConfig": {
-    "FLOWSTUDIO_MCP_TOKEN": {
-      "description": "Flow Studio MCP API token (get from https://mcp.flowstudio.app)",
-      "sensitive": true
-    }
-  }
+  ]
 }
