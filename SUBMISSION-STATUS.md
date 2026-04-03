@@ -1,7 +1,7 @@
 # Skill Distribution Status
 
 > Reference doc for tracking skill submissions across all agent platforms.
-> Last updated: 2026-04-03 (added OpenAI Apps Directory, copilot-mcp, skills CLI, Streamable HTTP gap analysis, VS Code Marketplace extension)
+> Last updated: 2026-04-03 (published to Official MCP Registry, VS Code Marketplace extension, Streamable HTTP upgrade)
 
 ---
 
@@ -21,9 +21,9 @@ OpenHands, Goose, Amp, and more.
 | **openai/skills** | Codex (11.2k ⭐, 622 forks) | ⚠️ [PR #231](https://github.com/openai/skills/pull/231) — repo only merges internal/partner PRs | ⚠️ PR #231 | ⚠️ PR #231 |
 | **Smithery** (skills) | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
 | **Smithery** (MCP server) | 4.8k+ MCPs | ⚠️ [Created](https://smithery.ai/servers/flowstudio/flowstudio-mcp) — scan blocked by Cloudflare | N/A (server) | N/A (server) |
-| **Official MCP Registry + VS Code Gallery** | All MCP clients, VS Code | ❌ Blocked — needs Streamable HTTP transport | N/A (skill, not server) | N/A (skill, not server) |
+| **Official MCP Registry + VS Code Gallery** | All MCP clients, VS Code | ✅ [Published](https://registry.modelcontextprotocol.io/v0/servers?search=flowstudio) `io.github.ninihen1/flowstudio-mcp` v1.0.0 | N/A (skill, not server) | N/A (skill, not server) |
 | **OpenAI Apps Directory** | ChatGPT Apps + Codex Plugins | ❌ Blocked — needs Streamable HTTP transport + tool hint annotations | N/A (server) | N/A (server) |
-| **copilot-mcp** (VS Code extension) | 482 ⭐, skills + MCP registry UI | ✅ Skills discoverable via skills.sh. Registry listing blocked — needs Streamable HTTP | ✅ Via skills.sh | ✅ Via skills.sh |
+| **copilot-mcp** (VS Code extension) | 482 ⭐, skills + MCP registry UI | ✅ Skills via skills.sh + registry via Official MCP Registry | ✅ Via skills.sh | ✅ Via skills.sh |
 | **skills.sh** (Vercel) | Agent skills directory | ✅ Auto-indexed via awesome-copilot ([3K+ installs](https://skills.sh/?q=flowstudio)) | ✅ Auto-indexed (691 installs) | ✅ Auto-indexed (689 installs) |
 | **skills CLI** (direct repo) | All 40+ agents | ✅ `npx skills add ninihen1/power-automate-mcp-skills -g -y` — tested, installs to 12+ agents | ✅ Installed | ✅ Installed |
 | **awesome-mcp-servers** (appcypher) | 5.3k ⭐ GitHub list | ❌ PRs disabled on repo — PR #757 lost | N/A (server listing) | N/A (server listing) |
@@ -297,12 +297,13 @@ SMITHERY_API_KEY="<key>" npx smithery mcp publish "https://mcp.flowstudio.app/mc
 
 ## 6. Official MCP Registry + VS Code MCP Gallery
 
-### Status: ❌ Blocked — requires Streamable HTTP transport
+### Status: ✅ Published
 
-- `registry.modelcontextprotocol.io` — canonical MCP server directory (currently in preview)
-- Powers the **VS Code MCP Servers Marketplace** (via GitHub MCP Registry as intermediary)
-- Pipeline: publish to Official MCP Registry → GitHub MCP Registry syncs → VS Code gallery displays
-- Uses `mcp-publisher` CLI tool + `server.json` metadata file
+- `registry.modelcontextprotocol.io` — canonical MCP server directory
+- Published 2026-04-03 as `io.github.ninihen1/flowstudio-mcp` v1.0.0
+- Powers the **VS Code `@mcp` gallery** and **copilot-mcp registry tab**
+- Auth: GitHub (`mcp-publisher login github`)
+- Server transport: Streamable HTTP (upgraded 2026-04-03)
 
 ### Blocker: Transport Incompatibility
 
@@ -533,14 +534,14 @@ This extension works with the current JSON-RPC over HTTP transport. It bypasses 
 | 4 | ✅ PR to openai/skills (all 3 skills) | Done | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review |
 | 5 | ✅ Publish 3 skills to Smithery | Done | ✅ Published (namespace: flowstudio) |
 | 6 | ⚠️ Publish MCP server to Smithery | Done | ⚠️ Created — scan blocked by Cloudflare Bot Fight Mode |
-| 7 | Publish to MCP Registry + VS Code Gallery | Blocked — needs Streamable HTTP transport | ❌ Blocked |
+| 7 | ✅ Publish to MCP Registry + VS Code Gallery | Done | ✅ [Published](https://registry.modelcontextprotocol.io/v0/servers?search=flowstudio) `io.github.ninihen1/flowstudio-mcp` v1.0.0 |
 | 8 | ✅ skills.sh (Vercel) | Auto-indexed | ✅ Live — [3K+ installs](https://skills.sh/?q=flowstudio) |
 | 9 | awesome-mcp-servers (appcypher) | Dead | ❌ PRs disabled on repo — PR #757 lost |
 | 10 | awesome-remote-mcp-servers (jaw9c) | Done | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review |
 | 11 | mcpservers.org (wong2) | Low — web form | 🔲 Submit at https://mcpservers.org/submit |
 | 12 | awesome-openclaw-skills (VoltAgent) | Done | ⏳ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) awaiting review |
 | 13 | OpenAI Apps Directory (ChatGPT + Codex) | Blocked — needs Streamable HTTP + tool hints | ❌ Blocked |
-| 14 | copilot-mcp extension (registry tab) | Blocked — auto-resolves when MCP Registry listing goes live | ❌ Blocked |
+| 14 | ✅ copilot-mcp extension (registry tab) | Auto-resolved | ✅ Visible via MCP Registry |
 | 15 | ✅ skills CLI (direct repo install) | Tested | ✅ `npx skills add ninihen1/power-automate-mcp-skills -g -y` |
 | 16 | ✅ VS Code Marketplace extension | Published | ✅ [FlowStudio.flowstudio-mcp](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.1.0 |
 
