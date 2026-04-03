@@ -17,7 +17,7 @@ OpenHands, Goose, Amp, and more.
 |---------|----------|---------------------|----------------------|----------------------|
 | **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | ✅ [PR #899](https://github.com/github/awesome-copilot/pull/899) merged 2026-03-08 | ✅ [PR #899](https://github.com/github/awesome-copilot/pull/899) merged 2026-03-08 |
 | **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) |
-| **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | ⚠️ [PR #555](https://github.com/anthropics/skills/pull/555) — repo only merges internal PRs | ⚠️ PR #555 | ⚠️ PR #555 |
+| **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | ⚠️ [PR #555](https://github.com/anthropics/skills/pull/555) — repo only merges internal PRs. Superseded by official plugin submission | ⚠️ PR #555 | ⚠️ PR #555 |
 | **openai/skills** | Codex (11.2k ⭐, 622 forks) | ⚠️ [PR #231](https://github.com/openai/skills/pull/231) — repo only merges internal/partner PRs | ⚠️ PR #231 | ⚠️ PR #231 |
 | **Smithery** (skills) | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
 | **Smithery** (MCP server) | 4.8k+ MCPs | ⚠️ [Created](https://smithery.ai/servers/flowstudio/flowstudio-mcp) — scan blocked by Cloudflare | N/A (server) | N/A (server) |
@@ -25,7 +25,7 @@ OpenHands, Goose, Amp, and more.
 | **skills.sh** (Vercel) | Agent skills directory | ✅ Auto-indexed via awesome-copilot ([3K+ installs](https://skills.sh/?q=flowstudio)) | ✅ Auto-indexed (691 installs) | ✅ Auto-indexed (689 installs) |
 | **awesome-mcp-servers** (appcypher) | 5.3k ⭐ GitHub list | ❌ PRs disabled on repo — PR #757 lost | N/A (server listing) | N/A (server listing) |
 | **awesome-remote-mcp-servers** (jaw9c) | 1k ⭐ remote-only list | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review | N/A (server listing) | N/A (server listing) |
-| **Claude Code Plugin** | Claude Code users | ✅ Live — `/plugin marketplace add ninihen1/power-automate-mcp-skills` | ✅ Bundled | ✅ Bundled |
+| **Claude Code Plugin** (official marketplace) | Claude Code + Claude.ai users (15.8k ⭐) | ⏳ Submitted 2026-04-03 via claude.ai/settings/plugins/submit + platform.claude.com/plugins/submit | ✅ Bundled | ✅ Bundled |
 | **awesome-openclaw-skills** (VoltAgent) | 28.5k ⭐ curated list | ⏳ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) awaiting review | ⏳ PR #372 | ⏳ PR #372 |
 | **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | 🔲 Submit via web form | N/A (server listing) | N/A (server listing) |
 
