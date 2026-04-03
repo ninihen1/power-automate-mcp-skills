@@ -27,6 +27,7 @@ OpenHands, Goose, Amp, and more.
 | **awesome-remote-mcp-servers** (jaw9c) | 1k ⭐ remote-only list | ⚠️ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) — repo hasn't merged a community PR since May 2025 | N/A (server listing) | N/A (server listing) |
 | **Claude Code Plugin** (official marketplace) | Claude Code + Claude.ai users (15.8k ⭐) | ⏳ Submitted 2026-04-03 via claude.ai/settings/plugins/submit + platform.claude.com/plugins/submit | ✅ Bundled | ✅ Bundled |
 | **awesome-openclaw-skills** (VoltAgent) | 28.5k ⭐ curated list | ⚠️ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) — repo closing all PRs without merge | ⚠️ PR #372 | ⚠️ PR #372 |
+| **community.openai.com** | OpenAI dev forum (Codex category) | ✅ [Posted 2026-04-03](https://community.openai.com/t/flow-studio-mcp-power-automate-debugging-and-building-skills-for-codex/1378409) | Linked | Linked |
 | **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | 🔲 Submit via web form | N/A (server listing) | N/A (server listing) |
 
 ---
