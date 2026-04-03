@@ -20,7 +20,7 @@ OpenHands, Goose, Amp, and more.
 | **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | ❌ [PR #555](https://github.com/anthropics/skills/pull/555) — repo only merges internal PRs. 267 open PRs, none merged externally. Superseded by Claude Code Plugin submission | ❌ PR #555 | ❌ PR #555 |
 | **openai/skills** | Codex (11.2k ⭐, 622 forks) | ❌ [PR #231](https://github.com/openai/skills/pull/231) — repo only merges internal/partner PRs. 87 open PRs, none merged externally. Superseded by skills.sh + community forum | ❌ PR #231 | ❌ PR #231 |
 | **Smithery** (skills) | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
-| **Smithery** (MCP server) | 4.8k+ MCPs | ⚠️ [Created](https://smithery.ai/servers/flowstudio/flowstudio-mcp) — Cloudflare disabled, needs re-scan via `npx smithery mcp publish` | N/A (server) | N/A (server) |
+| **Smithery** (MCP server) | 4.8k+ MCPs | ✅ [Published](https://smithery.ai/servers/flowstudio-mcp/power-automate) — 28 tools discovered, namespace `flowstudio-mcp/power-automate` | N/A (server) | N/A (server) |
 | **Official MCP Registry + VS Code Gallery** | All MCP clients, VS Code | ✅ [Published](https://registry.modelcontextprotocol.io/v0/servers?search=flowstudio) `io.github.ninihen1/flowstudio-mcp` v1.0.0 | N/A (skill, not server) | N/A (skill, not server) |
 | **OpenAI Apps Directory** | ChatGPT Apps + Codex Plugins | ⚠️ Transport unblocked — still needs tool hint annotations on all 15 tools. Only blocks official app store listing; Codex users can already connect directly via config.toml or skills CLI | N/A (server) | N/A (server) |
 | **copilot-mcp** (VS Code extension) | 482 ⭐, skills + MCP registry UI | ✅ Skills via skills.sh + registry via Official MCP Registry | ✅ Via skills.sh | ✅ Via skills.sh |
@@ -534,7 +534,7 @@ This extension works with the current JSON-RPC over HTTP transport. It bypasses 
 | 3 | PR to anthropics/skills (all 3 skills) | Dead | ❌ [PR #555](https://github.com/anthropics/skills/pull/555) — repo only merges internal PRs |
 | 4 | PR to openai/skills (all 3 skills) | Dead | ❌ [PR #231](https://github.com/openai/skills/pull/231) — repo only merges internal PRs |
 | 5 | ✅ Publish 3 skills to Smithery | Done | ✅ Published (namespace: flowstudio) |
-| 6 | ⚠️ Publish MCP server to Smithery | Done | ⚠️ Created — scan blocked by Cloudflare Bot Fight Mode |
+| 6 | ✅ Publish MCP server to Smithery | Done | ✅ [Published](https://smithery.ai/servers/flowstudio-mcp/power-automate) — 28 tools, new namespace `flowstudio-mcp` |
 | 7 | ✅ Publish to MCP Registry + VS Code Gallery | Done | ✅ [Published](https://registry.modelcontextprotocol.io/v0/servers?search=flowstudio) `io.github.ninihen1/flowstudio-mcp` v1.0.0 |
 | 8 | ✅ skills.sh (Vercel) | Auto-indexed | ✅ Live — [3K+ installs](https://skills.sh/?q=flowstudio) |
 | 9 | awesome-mcp-servers (appcypher) | Dead | ❌ PRs disabled on repo — PR #757 lost |
