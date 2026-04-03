@@ -1,7 +1,7 @@
 # Skill Distribution Status
 
 > Reference doc for tracking skill submissions across all agent platforms.
-> Last updated: 2026-04-03 (published to Official MCP Registry, VS Code Marketplace extension, Streamable HTTP upgrade)
+> Last updated: 2026-04-04 (added Open VSX, Cursor, Gemini CLI, mcp.so, Glama, PulseMCP)
 
 ---
 
@@ -34,7 +34,11 @@ OpenHands, Goose, Amp, and more.
 | **openai/openai-cookbook** | OpenAI cookbook (9.2k ⭐) | ❌ Internal-only repo — all merged PRs from `*-oai` accounts. Cookbook content lives in `examples/codex-mcp-power-automate-cookbook.md` and is linked from the community forum post | N/A | N/A |
 | **Docker MCP Registry** | Docker Desktop MCP Toolkit (461 ⭐, 702 forks) | ❌ Blocked — needs Streamable HTTP transport. Submit via [PR to docker/mcp-registry](https://github.com/docker/mcp-registry) once resolved | N/A (server listing) | N/A (server listing) |
 | **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | ⏳ Submitted 2026-04-04 via web form — awaiting approval | N/A (server listing) | N/A (server listing) |
-| **VS Code Marketplace** (extension) | All VS Code users | ✅ [Published](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.1.0 — multi-tenant, guided setup | ✅ Bundled | ✅ Bundled |
+| **VS Code Marketplace** (extension) | All VS Code users | ✅ [Published](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.2.0 — multi-tenant, guided setup | ✅ Bundled | ✅ Bundled |
+| **Open VSX** (extension) | VSCodium, Gitpod, Eclipse Theia | ✅ [Published](https://open-vsx.org/extension/FlowStudio/flowstudio-mcp) v0.2.0 | ✅ Bundled | ✅ Bundled |
+| **Cursor Marketplace** (plugin) | Cursor IDE users | ⏳ Submitted 2026-04-04 — [repo](https://github.com/ninihen1/flowstudio-cursor-plugin) | N/A (server) | N/A (server) |
+| **Gemini CLI Extensions** | Gemini CLI users | ⏳ Auto-indexing — `gemini-cli-extension` topic + `gemini-extension.json` in repo | N/A (server) | N/A (server) |
+| **mcp.so** | MCP server directory | ⏳ Submitted 2026-04-04 via web form | N/A (server listing) | N/A (server listing) |
 
 ---
 
@@ -544,7 +548,11 @@ This extension works with the current JSON-RPC over HTTP transport. It bypasses 
 | 13 | OpenAI Apps Directory (ChatGPT + Codex) | Transport unblocked — needs tool hints | ⚠️ Needs tool hint annotations on 15 tools |
 | 14 | ✅ copilot-mcp extension (registry tab) | Auto-resolved | ✅ Visible via MCP Registry |
 | 15 | ✅ skills CLI (direct repo install) | Tested | ✅ `npx skills add ninihen1/power-automate-mcp-skills -g -y` |
-| 16 | ✅ VS Code Marketplace extension | Published | ✅ [FlowStudio.flowstudio-mcp](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.1.0 |
+| 16 | ✅ VS Code Marketplace extension | Published | ✅ [FlowStudio.flowstudio-mcp](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.2.0 |
+| 17 | ✅ Open VSX extension | Published | ✅ [FlowStudio.flowstudio-mcp](https://open-vsx.org/extension/FlowStudio/flowstudio-mcp) v0.2.0 |
+| 18 | ⏳ Cursor Marketplace plugin | Submitted | ⏳ Submitted 2026-04-04 |
+| 19 | ⏳ Gemini CLI extension | Auto-indexing | ⏳ Topic + manifest in repo, crawler picks up within 24h |
+| 20 | ⏳ mcp.so | Submitted | ⏳ Submitted 2026-04-04 via web form |
 
 ### Streamable HTTP Transport — Upgrade Complete (2026-04-03)
 
