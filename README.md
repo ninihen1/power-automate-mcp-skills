@@ -52,11 +52,13 @@ Copilot, Claude Code, Codex, OpenClaw, Gemini CLI, Cursor, Goose, Amp, OpenHands
 
 ### Install as Claude Code plugin
 
-Installs all 3 skills in one command:
-
+```bash
+claude plugin install --source github --repo ninihen1/power-automate-mcp-skills
 ```
-/plugin marketplace add ninihen1/power-automate-mcp-skills
-/plugin install flowstudio-power-automate@flowstudio
+
+Or test locally:
+```bash
+claude --plugin-dir ./path/to/power-automate-mcp-skills
 ```
 
 Then connect the MCP server:

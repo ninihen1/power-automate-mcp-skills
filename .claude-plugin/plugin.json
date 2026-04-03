@@ -1,0 +1,10 @@
+{
+  "name": "flowstudio-power-automate",
+  "version": "1.0.0",
+  "description": "Power Automate build, debug, and operations toolkit for Claude Code via FlowStudio MCP.",
+  "author": {
+    "name": "Flow Studio"
+  },
+  "homepage": "https://github.com/ninihen1/power-automate-mcp-skills",
+  "repository": "https://github.com/ninihen1/power-automate-mcp-skills"
+}
