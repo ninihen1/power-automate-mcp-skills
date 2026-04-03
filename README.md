@@ -52,13 +52,11 @@ Copilot, Claude Code, Codex, OpenClaw, Gemini CLI, Cursor, Goose, Amp, OpenHands
 
 ### Install as Claude Code plugin
 
-```bash
-claude plugin install --source github --repo ninihen1/power-automate-mcp-skills
-```
+Available through the Claude plugin marketplace after approval. To test locally:
 
-Or test locally:
 ```bash
-claude --plugin-dir ./path/to/power-automate-mcp-skills
+git clone https://github.com/ninihen1/power-automate-mcp-skills.git
+claude --plugin-dir ./power-automate-mcp-skills
 ```
 
 Then connect the MCP server:

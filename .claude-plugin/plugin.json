@@ -5,6 +5,14 @@
   "author": {
     "name": "Flow Studio"
   },
-  "homepage": "https://github.com/ninihen1/power-automate-mcp-skills",
-  "repository": "https://github.com/ninihen1/power-automate-mcp-skills"
+  "homepage": "https://mcp.flowstudio.app",
+  "repository": "https://github.com/ninihen1/power-automate-mcp-skills",
+  "license": "MIT",
+  "keywords": [
+    "power-automate",
+    "mcp",
+    "power-platform",
+    "debugging",
+    "flow-studio"
+  ]
 }
