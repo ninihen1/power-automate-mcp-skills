@@ -16,6 +16,7 @@
     "debugging",
     "flow-studio"
   ],
+  "skills": "./skills/",
   "interface": {
     "displayName": "Flow Studio Power Automate",
     "shortDescription": "Give your AI agent portal-level visibility into Power Automate flows",
