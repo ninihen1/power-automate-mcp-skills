@@ -17,12 +17,12 @@ OpenHands, Goose, Amp, and more.
 |---------|----------|---------------------|----------------------|----------------------|
 | **awesome-copilot** | GitHub Copilot | ✅ [PR #896](https://github.com/github/awesome-copilot/pull/896) merged (as `flowstudio-power-automate-mcp`) | ✅ [PR #899](https://github.com/github/awesome-copilot/pull/899) merged 2026-03-08 | ✅ [PR #899](https://github.com/github/awesome-copilot/pull/899) merged 2026-03-08 |
 | **ClawHub** (OpenClaw) | 240k monthly visitors | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) | ✅ v1.1.0 published (metadata fix) |
-| **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | ⚠️ [PR #555](https://github.com/anthropics/skills/pull/555) — repo only merges internal PRs. Superseded by official plugin submission | ⚠️ PR #555 | ⚠️ PR #555 |
-| **openai/skills** | Codex (11.2k ⭐, 622 forks) | ⚠️ [PR #231](https://github.com/openai/skills/pull/231) — repo only merges internal/partner PRs | ⚠️ PR #231 | ⚠️ PR #231 |
+| **anthropics/skills** | Claude Code (85.2k ⭐, 9k forks) | ❌ [PR #555](https://github.com/anthropics/skills/pull/555) — repo only merges internal PRs. 267 open PRs, none merged externally. Superseded by Claude Code Plugin submission | ❌ PR #555 | ❌ PR #555 |
+| **openai/skills** | Codex (11.2k ⭐, 622 forks) | ❌ [PR #231](https://github.com/openai/skills/pull/231) — repo only merges internal/partner PRs. 87 open PRs, none merged externally. Superseded by skills.sh + community forum | ❌ PR #231 | ❌ PR #231 |
 | **Smithery** (skills) | 125k+ skills, 4.8k+ MCPs | ✅ Published ([flowstudio/power-automate-mcp](https://smithery.ai/skills/flowstudio/power-automate-mcp)) | ✅ Published ([flowstudio/power-automate-debug](https://smithery.ai/skills/flowstudio/power-automate-debug)) | ✅ Published ([flowstudio/power-automate-build](https://smithery.ai/skills/flowstudio/power-automate-build)) |
 | **Smithery** (MCP server) | 4.8k+ MCPs | ⚠️ [Created](https://smithery.ai/servers/flowstudio/flowstudio-mcp) — scan blocked by Cloudflare | N/A (server) | N/A (server) |
 | **Official MCP Registry + VS Code Gallery** | All MCP clients, VS Code | ✅ [Published](https://registry.modelcontextprotocol.io/v0/servers?search=flowstudio) `io.github.ninihen1/flowstudio-mcp` v1.0.0 | N/A (skill, not server) | N/A (skill, not server) |
-| **OpenAI Apps Directory** | ChatGPT Apps + Codex Plugins | ❌ Blocked — needs Streamable HTTP transport + tool hint annotations | N/A (server) | N/A (server) |
+| **OpenAI Apps Directory** | ChatGPT Apps + Codex Plugins | ⚠️ Transport unblocked — still needs tool hint annotations on all 15 tools. Only blocks official app store listing; Codex users can already connect directly via config.toml or skills CLI | N/A (server) | N/A (server) |
 | **copilot-mcp** (VS Code extension) | 482 ⭐, skills + MCP registry UI | ✅ Skills via skills.sh + registry via Official MCP Registry | ✅ Via skills.sh | ✅ Via skills.sh |
 | **skills.sh** (Vercel) | Agent skills directory | ✅ Auto-indexed via awesome-copilot ([3K+ installs](https://skills.sh/?q=flowstudio)) | ✅ Auto-indexed (691 installs) | ✅ Auto-indexed (689 installs) |
 | **skills CLI** (direct repo) | All 40+ agents | ✅ `npx skills add ninihen1/power-automate-mcp-skills -g -y` — tested, installs to 12+ agents | ✅ Installed | ✅ Installed |
@@ -31,8 +31,9 @@ OpenHands, Goose, Amp, and more.
 | **Claude Code Plugin** (official marketplace) | Claude Code + Claude.ai users (15.8k ⭐) | ⏳ Submitted 2026-04-03 via claude.ai/settings/plugins/submit + platform.claude.com/plugins/submit | ✅ Bundled | ✅ Bundled |
 | **awesome-openclaw-skills** (VoltAgent) | 28.5k ⭐ curated list | ⚠️ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) — repo closing all PRs without merge | ⚠️ PR #372 | ⚠️ PR #372 |
 | **community.openai.com** | OpenAI dev forum (Codex category) | ✅ [Posted 2026-04-03](https://community.openai.com/t/flow-studio-mcp-power-automate-debugging-and-building-skills-for-codex/1378409) | Linked | Linked |
+| **openai/openai-cookbook** | OpenAI cookbook (9.2k ⭐) | ❌ Internal-only repo — all merged PRs from `*-oai` accounts. Cookbook content lives in `examples/codex-mcp-power-automate-cookbook.md` and is linked from the community forum post | N/A | N/A |
 | **Docker MCP Registry** | Docker Desktop MCP Toolkit (461 ⭐, 702 forks) | ❌ Blocked — needs Streamable HTTP transport. Submit via [PR to docker/mcp-registry](https://github.com/docker/mcp-registry) once resolved | N/A (server listing) | N/A (server listing) |
-| **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | 🔲 Submit via web form | N/A (server listing) | N/A (server listing) |
+| **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | ⏳ Submitted 2026-04-04 via web form — awaiting approval | N/A (server listing) | N/A (server listing) |
 | **VS Code Marketplace** (extension) | All VS Code users | ✅ [Published](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.1.0 — multi-tenant, guided setup | ✅ Bundled | ✅ Bundled |
 
 ---
@@ -530,40 +531,31 @@ This extension works with the current JSON-RPC over HTTP transport. It bypasses 
 | 1 | ✅ awesome-copilot PR #896 | Done | ✅ Merged |
 | 1b | awesome-copilot: debug + build + plugin | Done | ✅ [PR #899](https://github.com/github/awesome-copilot/pull/899) merged 2026-03-08 |
 | 2 | ✅ Publish 3 skills to ClawHub | Done | ✅ v1.1.0 (metadata fix) |
-| 3 | ✅ PR to anthropics/skills (all 3 skills) | Done | ⏳ [PR #555](https://github.com/anthropics/skills/pull/555) awaiting review |
-| 4 | ✅ PR to openai/skills (all 3 skills) | Done | ⏳ [PR #231](https://github.com/openai/skills/pull/231) awaiting review |
+| 3 | PR to anthropics/skills (all 3 skills) | Dead | ❌ [PR #555](https://github.com/anthropics/skills/pull/555) — repo only merges internal PRs |
+| 4 | PR to openai/skills (all 3 skills) | Dead | ❌ [PR #231](https://github.com/openai/skills/pull/231) — repo only merges internal PRs |
 | 5 | ✅ Publish 3 skills to Smithery | Done | ✅ Published (namespace: flowstudio) |
 | 6 | ⚠️ Publish MCP server to Smithery | Done | ⚠️ Created — scan blocked by Cloudflare Bot Fight Mode |
 | 7 | ✅ Publish to MCP Registry + VS Code Gallery | Done | ✅ [Published](https://registry.modelcontextprotocol.io/v0/servers?search=flowstudio) `io.github.ninihen1/flowstudio-mcp` v1.0.0 |
 | 8 | ✅ skills.sh (Vercel) | Auto-indexed | ✅ Live — [3K+ installs](https://skills.sh/?q=flowstudio) |
 | 9 | awesome-mcp-servers (appcypher) | Dead | ❌ PRs disabled on repo — PR #757 lost |
 | 10 | awesome-remote-mcp-servers (jaw9c) | Done | ⏳ [PR #176](https://github.com/jaw9c/awesome-remote-mcp-servers/pull/176) awaiting review |
-| 11 | mcpservers.org (wong2) | Low — web form | 🔲 Submit at https://mcpservers.org/submit |
+| 11 | ⏳ mcpservers.org (wong2) | Submitted | ⏳ Submitted 2026-04-04 — awaiting approval |
 | 12 | awesome-openclaw-skills (VoltAgent) | Done | ⏳ [PR #372](https://github.com/VoltAgent/awesome-openclaw-skills/pull/372) awaiting review |
-| 13 | OpenAI Apps Directory (ChatGPT + Codex) | Blocked — needs Streamable HTTP + tool hints | ❌ Blocked |
+| 13 | OpenAI Apps Directory (ChatGPT + Codex) | Transport unblocked — needs tool hints | ⚠️ Needs tool hint annotations on 15 tools |
 | 14 | ✅ copilot-mcp extension (registry tab) | Auto-resolved | ✅ Visible via MCP Registry |
 | 15 | ✅ skills CLI (direct repo install) | Tested | ✅ `npx skills add ninihen1/power-automate-mcp-skills -g -y` |
 | 16 | ✅ VS Code Marketplace extension | Published | ✅ [FlowStudio.flowstudio-mcp](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.1.0 |
 
-### Streamable HTTP Transport — Unblocks 4 Channels
+### Streamable HTTP Transport — Upgrade Complete (2026-04-03)
 
-Adding minimum-viable Streamable HTTP support to the MCP server unblocks:
+John deployed minimum-viable Streamable HTTP support. This unblocked:
 
 | Channel | What it unblocks |
 |---------|-----------------|
-| Official MCP Registry + VS Code Gallery | Direct listing as remote server |
-| OpenAI Apps Directory | ChatGPT app + Codex plugin submission |
-| copilot-mcp (registry tab) | Auto-visible once on MCP Registry |
-| Docker MCP Registry | Submit via PR to docker/mcp-registry |
-
-Server changes required (5 items, all small):
-1. Return `protocolVersion: "2025-03-26"` in InitializeResult
-2. Return `202 Accepted` (empty body) for notification-only POSTs
-3. Return `405` on GET (instead of welcome page)
-4. Validate `Origin` header
-5. Optionally return `Mcp-Session-Id` header
-
-The core JSON-RPC POST/response pattern stays unchanged. SSE streaming is optional.
+| Official MCP Registry + VS Code Gallery | ✅ Published |
+| OpenAI Apps Directory | ✅ Transport unblocked (still needs tool hints) |
+| copilot-mcp (registry tab) | ✅ Auto-visible |
+| Docker MCP Registry | ✅ PR #2293 submitted |
 
 ---
 
