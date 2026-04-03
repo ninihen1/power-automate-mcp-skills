@@ -67,11 +67,13 @@ claude mcp add --transport http flowstudio https://mcp.flowstudio.app/mcp \
 
 Get your token at [mcp.flowstudio.app](https://mcp.flowstudio.app).
 
-### Install as Codex plugin
+### Install in Codex
 
-```bash
-git clone https://github.com/ninihen1/power-automate-mcp-skills.git
-codex --plugin-dir ./power-automate-mcp-skills
+Inside a Codex session, install skills directly:
+```
+$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-mcp
+$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-debug
+$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-build
 ```
 
 Then connect the MCP server in `~/.codex/config.toml`:
