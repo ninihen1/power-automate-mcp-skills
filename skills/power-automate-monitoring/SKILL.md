@@ -5,12 +5,12 @@ description: >-
   assets using the FlowStudio MCP cached store. The live API only returns
   top-level run status. Store tools surface aggregated stats, per-run failure
   details with remediation hints, maker activity, and Power Apps inventory —
-  all from a fast Azure-table cache with no rate-limit pressure on the PA API.
+  all from a fast cache with no rate-limit pressure on the PA API.
   Load this skill when asked to: check flow health, find failing flows, get
   failure rates, review error trends, list all flows with monitoring enabled,
   check who built a flow, find inactive makers, inventory Power Apps, see
   environment or connection counts, get a flow summary, or any tenant-wide
-  health overview. Requires a FlowStudio for Teams subscription —
+  health overview. Requires a FlowStudio for Teams or MCP Pro+ subscription —
   see https://mcp.flowstudio.app
 metadata:
   openclaw:
@@ -27,639 +27,91 @@ Monitor flow health, track failure rates, and inventory tenant assets through
 the FlowStudio MCP **cached store** — fast reads, no PA API rate limits, and
 enriched with governance metadata and remediation hints.
 
-> **Requires:** A [FlowStudio for Teams](https://mcp.flowstudio.app) subscription.
-> Store tools read from Azure Table snapshots (`gFlows`, `gRuns`, `gMakers`,
-> `gApps`, `gConnections`, `gEnvs`) in each customer's workspace storage.
-> These tables are populated by the Flow Studio scanning pipeline — flows are
-> only scanned when the `monitor` flag is toggled on. You will need:
-> - MCP endpoint: `https://mcp.flowstudio.app/mcp`
-> - API key / JWT token (`x-api-key` header — NOT Bearer)
-> - Power Platform environment name (e.g. `Default-<tenant-guid>`)
+> **Requires:** A [FlowStudio for Teams or MCP Pro+](https://mcp.flowstudio.app)
+> subscription.
 >
-> **Known limitation (April 2026):** The scanning pipeline that populates
-> `gRuns` (run-level data) requires MS Graph and Power Platform Admin OAuth
-> consent tokens in `gAccounts`, which are provisioned through the Flow Studio
-> for Teams app — not through MCP onboarding. Until Graph consent is configured
-> for a workspace, `get_store_flow_runs`, `get_store_flow_errors`, and
-> `get_store_flow_summary` will return empty results. The `gFlows`-level stats
-> (`runPeriodTotal`, `runPeriodFailRate`, etc.) and asset inventory tools
-> (`list_store_flows`, `list_store_makers`, `list_store_power_apps`, etc.)
-> work correctly. This is being fixed.
-
----
-
-## Source of Truth
-
-> **Always call `tools/list` first** to confirm available tool names and their
-> parameter schemas. Tool names and parameters may change between server versions.
-> This skill covers response shapes, behavioral notes, and monitoring patterns —
-> things `tools/list` cannot tell you. If this document disagrees with `tools/list`
-> or a real API response, the API wins.
+> **Start every session with `tools/list`** to confirm tool names and parameters.
+> This skill covers response shapes, behavioral notes, and workflow patterns —
+> things `tools/list` cannot tell you. If this document disagrees with
+> `tools/list` or a real API response, the API wins.
 
 ---
 
 ## How Monitoring Works
 
-Flow Studio has a scanning pipeline that runs daily for each FlowStudio for
-Teams subscriber and MCP Pro+ subscriber. The pipeline scans the Power Automate API and writes
-results to per-workspace Azure Table Storage.
+Flow Studio scans the Power Automate API daily for each subscriber and caches
+the results. There are two levels:
 
-### Two levels of scanning
+- **All flows** get metadata scanned: definition, connections, owners, trigger
+  type, and aggregate run statistics (`runPeriodTotal`, `runPeriodFailRate`,
+  etc.). Environments, apps, connections, and makers are also scanned.
+- **Monitored flows** (`monitor: true`) additionally get per-run detail:
+  individual run records with status, duration, failed action names, and
+  remediation hints. This is what populates `get_store_flow_runs`,
+  `get_store_flow_errors`, and `get_store_flow_summary`.
 
-- **All flows** get their metadata scanned: definition, connections, owners,
-  trigger type, and aggregate run counts (`runPeriodTotal`,
-  `runPeriodFailRate`, etc. on the `gFlows` record). Environments, apps,
-  connections, and makers are also scanned.
-- **Monitored flows** (`monitor: true`) additionally get per-run detail
-  scanning: individual run records written to `gRuns` with status, duration,
-  failed action names, and remediation hints. This is what populates
-  `get_store_flow_runs`, `get_store_flow_errors`, and `get_store_flow_summary`.
+**Data freshness:** Check the `scanned` field on `get_store_flow` to see when
+a flow was last scanned. If stale, the scanning pipeline may not be running.
 
-### Data freshness
-
-Check the `scanned` field on any `get_store_flow` response to see when a
-flow was last scanned. The `nextScan` field shows when the next scan is
-scheduled. If `scanned` is stale (days old), the scanning pipeline may not
-be running for that workspace.
-
-### Setting monitoring flags
-
-The `monitor` flag and notification settings (`rule_notify_onfail`,
-`rule_notify_onmissingdays`, `rule_notify_email`) can be set via:
-- The Flow Studio for Teams app in Microsoft Teams
-  ([how to select flows](https://learn.flowstudio.app/teams-monitoring))
-- The `update_store_flow` MCP tool (see `power-automate-governance` skill)
+**Enabling monitoring:** Set `monitor: true` via `update_store_flow` or the
+Flow Studio for Teams app
+([how to select flows](https://learn.flowstudio.app/teams-monitoring)).
 
 ---
 
-## Python Helper
+## Tools
 
-```python
-import json, urllib.request
-
-MCP_URL   = "https://mcp.flowstudio.app/mcp"
-MCP_TOKEN = "<YOUR_JWT_TOKEN>"
-
-def mcp(tool, **kwargs):
-    payload = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "tools/call",
-                          "params": {"name": tool, "arguments": kwargs}}).encode()
-    req = urllib.request.Request(MCP_URL, data=payload,
-        headers={"x-api-key": MCP_TOKEN, "Content-Type": "application/json",
-                 "User-Agent": "FlowStudio-MCP/1.0"})
-    try:
-        resp = urllib.request.urlopen(req, timeout=120)
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", errors="replace")
-        raise RuntimeError(f"MCP HTTP {e.code}: {body[:200]}") from e
-    raw = json.loads(resp.read())
-    if "error" in raw:
-        raise RuntimeError(f"MCP error: {json.dumps(raw['error'])}")
-    return json.loads(raw["result"]["content"][0]["text"])
-
-ENV = "<environment-id>"   # e.g. Default-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-```
-
----
-
-## What You Can Do
-
-| Tool | What it does |
+| Tool | Purpose |
 |---|---|
-| `list_store_flows` | List flows with governance flags, failure rates, and monitoring filters |
-| `get_store_flow` | Full cached `gFlows` record: run stats, owners, tier, connections, definition |
-| `get_store_flow_summary` | Aggregated run stats from `gRuns`: success/fail rate, avg/max duration |
-| `get_store_flow_runs` | Per-run history from `gRuns` with duration, status, failed actions, remediation |
-| `get_store_flow_errors` | Failed-only runs from `gRuns` with action names and remediation hints |
+| `list_store_flows` | List flows with failure rates and monitoring filters |
+| `get_store_flow` | Full cached record: run stats, owners, tier, connections, definition |
+| `get_store_flow_summary` | Aggregated run stats: success/fail rate, avg/max duration |
+| `get_store_flow_runs` | Per-run history with duration, status, failed actions, remediation |
+| `get_store_flow_errors` | Failed-only runs with action names and remediation hints |
 | `get_store_flow_trigger_url` | Trigger URL from cache (instant, no PA API call) |
-| `set_store_flow_state` | Start or stop a flow via live PA API and sync state back to cache |
-| `list_store_environments` | All Power Platform environments from `gEnvs` cache |
-| `list_store_connections` | All connections from `gConnections` cache |
-| `list_store_makers` | All makers (citizen developers) from `gMakers` cache |
-| `get_store_maker` | Full maker record: flow/app counts, licenses, account status |
-| `list_store_power_apps` | All Power Apps canvas apps from `gApps` cache |
+| `set_store_flow_state` | Start or stop a flow and sync state back to cache |
+| `update_store_flow` | Set monitor flag, notification rules, tags, governance metadata |
+| `list_store_environments` | All Power Platform environments |
+| `list_store_connections` | All connections |
+| `list_store_makers` | All makers (citizen developers) |
+| `get_store_maker` | Maker detail: flow/app counts, licenses, account status |
+| `list_store_power_apps` | All Power Apps canvas apps |
 
 ---
 
-## Store vs Live — When to Use Which
+## Store vs Live
 
-| Scenario | Use Store | Use Live |
+| Question | Use Store | Use Live |
 |---|---|---|
-| "How many flows are failing?" | `list_store_flows` | — |
-| "Show me this flow's error history" | `get_store_flow_errors` | — |
-| "What's the fail rate over 30 days?" | `get_store_flow_summary` (with `startTime`) | — |
-| "Read the full flow definition" | `get_store_flow` has it (JSON string) | `get_live_flow` (structured) |
-| "Inspect action outputs from a run" | — | `get_live_flow_run_action_outputs` |
-| "Resubmit a failed run" | — | `resubmit_live_flow_run` |
+| How many flows are failing? | `list_store_flows` | — |
+| What's the fail rate over 30 days? | `get_store_flow_summary` | — |
+| Show error history for a flow | `get_store_flow_errors` | — |
+| Who built this flow? | `get_store_flow` → parse `owners` | — |
+| Read the full flow definition | `get_store_flow` has it (JSON string) | `get_live_flow` (structured) |
+| Inspect action inputs/outputs from a run | — | `get_live_flow_run_action_outputs` |
+| Resubmit a failed run | — | `resubmit_live_flow_run` |
 
-> **Rule of thumb**: Store tools answer "what happened?" and "how healthy is it?"
+> Store tools answer "what happened?" and "how healthy is it?"
 > Live tools answer "what exactly went wrong?" and "fix it now."
 
-> **Important**: `get_store_flow_summary`, `get_store_flow_runs`, and
-> `get_store_flow_errors` read from `gRuns`. This table is only populated for
-> flows with `monitor: true` that have been scanned. If these tools return empty
-> results, check whether the flow is monitored and has been scanned recently
-> (see the `scanned` field in `get_store_flow`).
+> If `get_store_flow_runs`, `get_store_flow_errors`, or `get_store_flow_summary`
+> return empty results, check: (1) is `monitor: true` on the flow? and
+> (2) is the `scanned` field recent? Use `get_store_flow` to verify both.
 
 ---
 
-## Step 1 — Discover Your Environment
-
-```python
-envs = mcp("list_store_environments")
-# Returns direct array:
-# [{"id": "Default-26e65220-...", "displayName": "Flow Studio (default)",
-#   "sku": "Default", "type": "NotSpecified", "location": "australia",
-#   "isDefault": true, "isAdmin": true, "isManagedEnvironment": false,
-#   "createdTime": "2017-01-18T01:06:46Z"}]
-
-for e in envs:
-    print(e["id"], "|", e["displayName"], "|", e["sku"],
-          "|", "default" if e.get("isDefault") else "",
-          "|", "managed" if e.get("isManagedEnvironment") else "")
-
-ENV = next(e["id"] for e in envs if e.get("isDefault"))
-```
-
-> `sku` values: `Default`, `Production`, `Developer`, `Sandbox`, `Teams`
-
----
-
-## Step 2 — List Flows and Spot Problems
-
-### All flows
-
-```python
-flows = mcp("list_store_flows")
-# Returns direct array (no wrapper):
-# [{"id": "Default-26e65220-....0f368466-b6b1-44ed-999c-94791124e402",
-#   "displayName": "Flow Studio - Stripe subscription updated",
-#   "state": "Started", "triggerType": "Request",
-#   "triggerUrl": "https://...",           ← only present for HTTP triggers
-#   "tags": ["#operations", "#sensitive"], ← optional, may be absent
-#   "environmentName": "Default-26e65220-...",
-#   "monitor": true,
-#   "runPeriodFailRate": 0.012, "runPeriodTotal": 82,
-#   "createdTime": "2025-06-24T01:20:53Z",
-#   "lastModifiedTime": "2025-06-24T03:51:03Z"}]
-
-print(f"Total flows: {len(flows)}")
-for f in flows:
-    dn = f.get("displayName", "(no name)")
-    print(f"{dn}  |  {f.get('state')}  |  "
-          f"fail rate: {f.get('runPeriodFailRate', 0):.0%}")
-```
-
-> **Sparse entries**: Some flows return only `id` + `monitor: true` with no
-> other fields — these are typically orphaned or deleted records.
-
-### Monitored flows only
-
-```python
-monitored = mcp("list_store_flows", monitor=True)
-print(f"Monitored flows: {len(monitored)}")
-```
-
-### Flows with on-fail notifications enabled
-
-```python
-notified = mcp("list_store_flows", rule_notify_onfail=True)
-print(f"Flows with failure notifications: {len(notified)}")
-```
-
-### Find unhealthy flows
-
-```python
-flows = mcp("list_store_flows")
-unhealthy = [f for f in flows
-             if f.get("displayName")   # skip sparse entries
-             and (f.get("runPeriodFailRate") or 0) > 0.1]
-unhealthy.sort(key=lambda f: f.get("runPeriodFailRate", 0), reverse=True)
-
-print(f"\n{len(unhealthy)} flows with >10% failure rate:")
-for f in unhealthy[:10]:
-    fid = f["id"].split(".", 1)[1]
-    print(f"  {f['displayName']}")
-    print(f"    ID: {fid}")
-    print(f"    Fail rate: {f['runPeriodFailRate']:.0%}  |  "
-          f"Total runs: {f.get('runPeriodTotal', '?')}")
-```
-
-> **`id` format**: `envId.flowId` — split on the first `.` to extract the flow UUID:
-> `flow_id = item["id"].split(".", 1)[1]`
-
----
-
-## Step 3 — Drill Into a Flow's Health
-
-### Quick summary (aggregated stats from gRuns)
-
-```python
-FLOW_ID = "<flow-uuid>"
-
-summary = mcp("get_store_flow_summary",
-    environmentName=ENV, flowName=FLOW_ID)
-# {"flowKey": "Default-26e65220-....0f368466-...",
-#  "windowStart": null, "windowEnd": null,
-#  "totalRuns": 82, "successRuns": 81, "failRuns": 1,
-#  "successRate": 0.988, "failRate": 0.012,
-#  "averageDurationSeconds": 2.877, "maxDurationSeconds": 9.433,
-#  "firstFailRunRemediation": "<hint or null>",
-#  "firstFailRunUrl": "<url or null>"}
-
-print(f"Fail rate: {summary['failRate']:.0%} "
-      f"({summary['failRuns']}/{summary['totalRuns']} runs)")
-print(f"Avg duration: {summary['averageDurationSeconds']:.1f}s")
-print(f"Max duration: {summary['maxDurationSeconds']:.1f}s")
-if summary.get("firstFailRunRemediation"):
-    print(f"Remediation hint: {summary['firstFailRunRemediation']}")
-```
-
-> Returns zeros if `gRuns` has no data for this flow in the time window.
-> This happens when the flow is not monitored or hasn't been scanned recently.
-
-### Summary with custom time window
-
-```python
-summary_30d = mcp("get_store_flow_summary",
-    environmentName=ENV, flowName=FLOW_ID,
-    startTime="2026-03-05T00:00:00Z",
-    endTime="2026-04-04T00:00:00Z")
-print(f"30-day fail rate: {summary_30d['failRate']:.0%}")
-```
-
-### Full cached record (gFlows row)
-
-```python
-record = mcp("get_store_flow", environmentName=ENV, flowName=FLOW_ID)
-# Returns the raw Azure Table entity from gFlows. Key fields:
-#
-# Identity:
-#   name, displayName, environmentName, state, triggerType, triggerKind,
-#   tier ("Standard" or "Premium"), sharingType
-#
-# Run statistics (pre-computed on the flow record):
-#   runPeriodTotal, runPeriodFails, runPeriodSuccess,
-#   runPeriodFailRate, runPeriodSuccessRate,
-#   runPeriodDurationAverage, runPeriodDurationMax, runPeriodDurationMin,
-#   runTotal, runFails, runFirst, runLast, runToday
-#
-# Governance / notification:
-#   monitor (bool), rule_notify_onfail (bool),
-#   rule_notify_onmissingdays (number), rule_notify_email (string),
-#   log_notify_onfail (ISO timestamp of last notification sent),
-#   description, tags
-#
-# Tags: in list_store_flows, tags are auto-extracted from the description
-# field using #hashtag regex (e.g. description "#operations #sensitive"
-# → tags: ["#operations", "#sensitive"]). Can also be set explicitly
-# via update_store_flow's tags parameter.
-#
-# Scan metadata:
-#   scanned (ISO — when this flow was last scanned by the pipeline)
-#   nextScan (ISO — when next scan is scheduled)
-#   clarityVersion, deleted, deletedTime
-#
-# JSON-string fields (parse with json.loads()):
-#   actions, connections, owners, complexity, definition,
-#   createdBy, security, triggers, referencedResources, runError
-
-print(f"Display Name: {record['displayName']}")
-print(f"State: {record['state']}  |  Tier: {record.get('tier')}")
-print(f"Run stats: {record.get('runPeriodTotal', 0)} total, "
-      f"{record.get('runPeriodFails', 0)} fails, "
-      f"{record.get('runPeriodFailRate', 0):.0%} fail rate")
-print(f"Last scanned: {record.get('scanned')}")
-print(f"Monitor: {record.get('monitor')}  |  "
-      f"On-fail notify: {record.get('rule_notify_onfail')}")
-
-# Duration stats are in MILLISECONDS
-avg_ms = record.get("runPeriodDurationAverage", 0)
-max_ms = record.get("runPeriodDurationMax", 0)
-print(f"Avg duration: {avg_ms/1000:.1f}s  |  Max: {max_ms/1000:.1f}s")
-
-# Parse JSON-string fields
-if record.get("runError") and record["runError"] != "{}":
-    err = json.loads(record["runError"])
-    print(f"Last run error: {err}")
-
-if record.get("connections"):
-    conns = json.loads(record["connections"])
-    print(f"Connectors: {[c.get('apiName') for c in conns]}")
-
-if record.get("owners"):
-    owners = json.loads(record["owners"])
-    print(f"Owner IDs: {[o.get('principalId') for o in owners]}")
-```
-
----
-
-## Step 4 — Review Run History and Errors
-
-### Recent runs (all statuses)
-
-```python
-runs = mcp("get_store_flow_runs",
-    environmentName=ENV, flowName=FLOW_ID)
-# Returns direct array from gRuns (default: last 7 days).
-# Empty [] if no run data is stored for this flow.
-
-for r in runs[:5]:
-    print(f"{r['startTime']}  {r['status']}  "
-          f"{r.get('durationSeconds', '?')}s  "
-          f"{r.get('failedActions', [])}")
-```
-
-### Filter by status
-
-```python
-# Only failed runs
-failed = mcp("get_store_flow_runs",
-    environmentName=ENV, flowName=FLOW_ID,
-    status=["Failed"])
-
-# Only succeeded
-succeeded = mcp("get_store_flow_runs",
-    environmentName=ENV, flowName=FLOW_ID,
-    status=["Succeeded"])
-```
-
-### Custom time window
-
-```python
-runs_march = mcp("get_store_flow_runs",
-    environmentName=ENV, flowName=FLOW_ID,
-    startTime="2026-03-01T00:00:00Z",
-    endTime="2026-04-01T00:00:00Z")
-```
-
-### Errors only (with remediation hints)
-
-```python
-errors = mcp("get_store_flow_errors",
-    environmentName=ENV, flowName=FLOW_ID)
-# Convenience wrapper — same as get_store_flow_runs with status=Failed
-# Returns failedActions and remediationHint per run
-
-for e in errors[:5]:
-    print(f"{e['startTime']}  {e.get('failedActions')}")
-    if e.get("remediationHint"):
-        print(f"  Hint: {e['remediationHint']}")
-```
-
----
-
-## Step 5 — Respond to Problems
-
-### Stop a failing flow
-
-When a flow is causing damage (e.g. sending spam emails, writing bad data):
-
-```python
-result = mcp("set_store_flow_state",
-    environmentName=ENV, flowName=FLOW_ID,
-    state="Stopped")
-# Calls live PA API then syncs to cache.
-# {"flowName": "...", "environmentName": "...",
-#  "requestedState": "Stopped", "actualState": "Stopped"}
-
-print(f"Flow state: {result['actualState']}")
-```
-
-> `set_store_flow_state` calls the live PA API to stop the flow AND syncs the
-> state back to the cache. Use `set_live_flow_state` if you only need to toggle
-> state without updating the cache.
-
-### Restart a stopped flow
-
-```python
-result = mcp("set_store_flow_state",
-    environmentName=ENV, flowName=FLOW_ID,
-    state="Started")
-print(f"Flow state: {result['actualState']}")
-```
-
-### Get a trigger URL from cache
-
-```python
-trigger = mcp("get_store_flow_trigger_url",
-    environmentName=ENV, flowName=FLOW_ID)
-# {"flowKey": "Default-26e65220-....0f368466-...",
-#  "displayName": "Flow Studio - Stripe subscription updated",
-#  "triggerType": "Request", "triggerKind": "Http",
-#  "triggerUrl": "https://default26e65220...paths/invoke?api-version=1&..."}
-
-if trigger.get("triggerUrl"):
-    print(f"Trigger URL: {trigger['triggerUrl']}")
-else:
-    print("No HTTP trigger URL (flow uses a different trigger type)")
-```
-
-### Escalate to live debugging
-
-When Store data shows a failure but you need action-level inputs/outputs
-to diagnose the root cause, switch to the live tools:
-
-```python
-# Use live tools for deep inspection (see power-automate-debug skill)
-runs = mcp("get_live_flow_runs",
-    environmentName=ENV, flowName=FLOW_ID, top=5)
-run_id = next(r["name"] for r in runs if r["status"] == "Failed")
-
-out = mcp("get_live_flow_run_action_outputs",
-    environmentName=ENV, flowName=FLOW_ID,
-    runName=run_id, actionName="<failing-action-name>")
-print(json.dumps(out, indent=2)[:500])
-```
-
----
-
-## Tenant-Wide Health Overview
-
-### Flow inventory by state
-
-```python
-flows = mcp("list_store_flows")
-
-started = [f for f in flows if f.get("state") == "Started"]
-stopped = [f for f in flows if f.get("state") == "Stopped"]
-suspended = [f for f in flows if f.get("state") == "Suspended"]
-print(f"Active: {len(started)}  |  Stopped: {len(stopped)}  |  "
-      f"Suspended: {len(suspended)}  |  Total: {len(flows)}")
-```
-
-### Top failing flows
-
-```python
-flows = mcp("list_store_flows")
-with_failures = [f for f in flows
-                 if f.get("displayName")
-                 and (f.get("runPeriodFailRate") or 0) > 0
-                 and (f.get("runPeriodTotal") or 0) >= 5]
-with_failures.sort(key=lambda f: f["runPeriodFailRate"], reverse=True)
-
-print("Top 10 failing flows:")
-for f in with_failures[:10]:
-    fid = f["id"].split(".", 1)[1]
-    print(f"  {f['runPeriodFailRate']:.0%} fail rate  |  "
-          f"{f.get('runPeriodTotal', '?')} runs  |  "
-          f"{f['displayName']}  ({fid})")
-```
-
-### Maker overview
-
-```python
-makers = mcp("list_store_makers")
-# Returns direct array:
-# [{"id": "09dbe02f-...", "displayName": "Catherine Han",
-#   "mail": "catherine.han@flowstudio.app", "deleted": false,
-#   "ownerFlowCount": 199, "ownerAppCount": 209,
-#   "userIsServicePrinciple": false}]
-# Note: deleted makers have no displayName/mail fields
-
-active = [m for m in makers if not m.get("deleted")]
-deleted = [m for m in makers if m.get("deleted")]
-print(f"Active makers: {len(active)}  |  Deleted: {len(deleted)}")
-
-for m in active:
-    print(f"  {m.get('displayName')}  |  {m.get('ownerFlowCount', 0)} flows  |  "
-          f"{m.get('ownerAppCount', 0)} apps")
-```
-
-### Maker detail
-
-```python
-maker = mcp("get_store_maker", makerKey="<aad-object-id>")
-# Returns raw gMakers Azure Table entity. Key fields:
-#   displayName, mail, userPrincipalName, givenName, surname, country
-#   ownerFlowCount, ownerAppCount, deleted, accountEnabled
-#   firstFlow, firstFlowCreatedTime, lastFlowCreatedTime
-#   firstPowerApp, firstPowerAppCreatedTime, lastPowerAppCreatedTime
-#   licenses (JSON string — M365 license SKUs)
-#   assignedLicenses, assignedPlans (JSON strings)
-
-print(f"{maker['displayName']} ({maker['mail']})")
-print(f"Flows: {maker.get('ownerFlowCount', 0)}  |  "
-      f"Apps: {maker.get('ownerAppCount', 0)}")
-print(f"Account enabled: {maker.get('accountEnabled')}")
-print(f"Last flow created: {maker.get('lastFlowCreatedTime')}")
-```
-
-### Power Apps inventory
-
-```python
-apps = mcp("list_store_power_apps")
-# Returns direct array:
-# [{"id": "envId.appId", "displayName": "SpinButton Page",
-#   "environmentName": "3991358a-...", "ownerId": "09dbe02f-...",
-#   "ownerName": "Catherine Han", "appType": "Canvas",
-#   "sharedUsersCount": 0,
-#   "createdTime": "2023-08-18T01:06:22Z",
-#   "lastModifiedTime": "2023-08-18T01:06:22Z",
-#   "lastPublishTime": "2023-08-18T01:06:22Z"}]
-
-print(f"Total Power Apps: {len(apps)}")
-for a in apps[:10]:
-    print(f"  {a['displayName']}  |  {a.get('ownerName')}  |  "
-          f"shared: {a.get('sharedUsersCount', 0)}")
-```
-
-### Connection inventory
-
-```python
-conns = mcp("list_store_connections")
-# Returns direct array (can be very large — 1500+ items):
-# [{"id": "envId.connectionId",
-#   "displayName": "catherine.han@flowstudio.app",
-#   "createdBy": "{...}",          ← JSON string, parse it
-#   "environmentName": "3991358a-...",
-#   "statuses": "[{\"status\":\"Connected\"}]"  ← JSON string}]
-
-print(f"Total connections: {len(conns)}")
-```
-
-### Environment and connection counts
-
-```python
-envs = mcp("list_store_environments")
-conns = mcp("list_store_connections")
-print(f"Environments: {len(envs)}  |  Connections: {len(conns)}")
-```
-
----
-
-## Monitoring Patterns
-
-### Daily health check
-
-```python
-flows = mcp("list_store_flows")
-
-# 1. Flows with high failure rates
-critical = [f for f in flows
-            if f.get("displayName")
-            and (f.get("runPeriodFailRate") or 0) > 0.2
-            and (f.get("runPeriodTotal") or 0) >= 3]
-
-# 2. Monitored flows that are stopped (may indicate auto-suspension)
-stopped = [f for f in flows
-           if f.get("state") == "Stopped"
-           and f.get("monitor") is True
-           and f.get("displayName")]
-
-# 3. Report
-if critical:
-    print(f"ALERT: {len(critical)} flows with >20% failure rate")
-    for f in critical:
-        print(f"  - {f['displayName']} ({f['runPeriodFailRate']:.0%})")
-
-if stopped:
-    print(f"WARNING: {len(stopped)} monitored flows are stopped")
-    for f in stopped:
-        print(f"  - {f['displayName']}")
-
-if not critical and not stopped:
-    print("All clear — no critical failures or unexpected stops")
-```
-
-### Compare time windows
-
-```python
-FLOW_ID = "<flow-uuid>"
-
-this_week = mcp("get_store_flow_summary",
-    environmentName=ENV, flowName=FLOW_ID,
-    startTime="2026-03-28T00:00:00Z")
-
-last_week = mcp("get_store_flow_summary",
-    environmentName=ENV, flowName=FLOW_ID,
-    startTime="2026-03-21T00:00:00Z",
-    endTime="2026-03-28T00:00:00Z")
-
-print(f"This week: {this_week['failRate']:.0%} fail rate, "
-      f"{this_week['averageDurationSeconds']:.1f}s avg")
-print(f"Last week: {last_week['failRate']:.0%} fail rate, "
-      f"{last_week['averageDurationSeconds']:.1f}s avg")
-
-if (this_week["failRate"] > 0
-    and last_week["failRate"] > 0
-    and this_week["failRate"] > last_week["failRate"] * 1.5):
-    print("DEGRADATION: failure rate increased >50% week-over-week")
-```
-
----
-
-## Quick-Reference: Verified Response Shapes
+## Response Shapes
 
 ### `list_store_flows`
 
-Direct array. Optional filters: `monitor` (bool), `rule_notify_onfail` (bool),
+Direct array. Filters: `monitor` (bool), `rule_notify_onfail` (bool),
 `rule_notify_onmissingdays` (bool).
 
 ```json
 [
   {
-    "id": "Default-26e65220-....0f368466-b6b1-44ed-999c-94791124e402",
-    "displayName": "Flow Studio - Stripe subscription updated",
+    "id": "Default-26e65220-....0f368466-...",
+    "displayName": "Stripe subscription updated",
     "state": "Started",
     "triggerType": "Request",
     "triggerUrl": "https://...",
@@ -674,51 +126,36 @@ Direct array. Optional filters: `monitor` (bool), `rule_notify_onfail` (bool),
 ]
 ```
 
-> `triggerUrl` and `tags` are optional. Some entries are sparse (just `id` + `monitor`).
+> `id` format: `envId.flowId`. Split on first `.` to get the flow UUID.
+>
+> `triggerUrl` and `tags` are optional. Some entries are sparse (just `id` +
+> `monitor`) — skip entries without `displayName`.
+>
+> Tags are auto-extracted from the `description` field using `#hashtag`
+> format. Can also be set explicitly via `update_store_flow`.
 
 ### `get_store_flow`
 
-Raw Azure Table entity from `gFlows`. Contains **all** cached flow data
-including the full definition as a JSON string.
+Full cached record. Key fields:
 
-Selected fields (see Step 3 for full list):
-```json
-{
-  "name": "0f368466-b6b1-44ed-999c-94791124e402",
-  "displayName": "Flow Studio - Stripe subscription updated",
-  "state": "Started",
-  "tier": "Premium",
-  "triggerType": "Request",
-  "triggerKind": "Http",
-  "monitor": true,
-  "rule_notify_onfail": true,
-  "rule_notify_email": "catherine.han@flowstudio.app, john.liu@flowstudio.app",
-  "rule_notify_onmissingdays": 0,
-  "log_notify_onfail": "2026-02-06T02:04:28Z",
-  "runPeriodTotal": 82,
-  "runPeriodFails": 1,
-  "runPeriodFailRate": 0.012,
-  "runPeriodDurationAverage": 2877.01,
-  "runPeriodDurationMax": 9433,
-  "runError": "{\"errno\":-4092,\"code\":\"EACCES\"}",
-  "scanned": "2026-02-26T21:10:49Z",
-  "deleted": true,
-  "deletedTime": "2025-01-26T21:09:08Z",
-  "actions": "[{\"type\":\"Compose\"}, ...]",
-  "connections": "[{\"apiName\":\"shared_sharepointonline\", ...}]",
-  "owners": "[{\"principalId\":\"...\", \"principalType\":\"User\"}]",
-  "complexity": "{\"actions\":19, \"foreach\":0, ...}",
-  "definition": "{\"$schema\":\"...\", \"triggers\":{...}, \"actions\":{...}}"
-}
-```
+| Category | Fields |
+|---|---|
+| Identity | `name`, `displayName`, `environmentName`, `state`, `triggerType`, `triggerKind`, `tier`, `sharingType` |
+| Run stats | `runPeriodTotal`, `runPeriodFails`, `runPeriodSuccess`, `runPeriodFailRate`, `runPeriodSuccessRate`, `runPeriodDurationAverage`/`Max`/`Min` (milliseconds), `runTotal`, `runFails`, `runFirst`, `runLast`, `runToday` |
+| Governance | `monitor` (bool), `rule_notify_onfail` (bool), `rule_notify_onmissingdays` (number), `rule_notify_email` (string), `log_notify_onfail` (ISO), `description`, `tags` |
+| Freshness | `scanned` (ISO), `nextScan` (ISO) |
+| Lifecycle | `deleted` (bool), `deletedTime` (ISO) |
+| JSON strings | `actions`, `connections`, `owners`, `complexity`, `definition`, `createdBy`, `security`, `triggers`, `referencedResources`, `runError` — all require `json.loads()` to parse |
 
-> `runPeriodDurationAverage`/`Max`/`Min` are in **milliseconds**.
-> `actions`, `connections`, `owners`, `complexity`, `definition`, `createdBy`,
-> `security`, `triggers`, `runError` are **JSON strings** — parse with `json.loads()`.
+> Duration fields (`runPeriodDurationAverage`, `Max`, `Min`) are in
+> **milliseconds**. Divide by 1000 for seconds.
+>
+> `runError` contains the last run error as a JSON string. Parse it:
+> `json.loads(record["runError"])` — returns `{}` when no error.
 
 ### `get_store_flow_summary`
 
-Single object. Aggregated from `gRuns`.
+Aggregated stats over a time window (default: last 7 days).
 
 ```json
 {
@@ -737,33 +174,64 @@ Single object. Aggregated from `gRuns`.
 }
 ```
 
-> Returns all zeros when `gRuns` has no data for this flow.
+> Returns all zeros when no run data exists for this flow in the window.
+> Use `startTime` and `endTime` (ISO 8601) parameters to change the window.
 
 ### `get_store_flow_runs` / `get_store_flow_errors`
 
-Direct array from `gRuns`. `get_store_flow_errors` is a convenience wrapper
-that filters to `status=Failed` only. Both return `[]` when no run data exists.
+Direct array. `get_store_flow_errors` filters to `status=Failed` only.
+Parameters: `startTime`, `endTime`, `status` (array: `["Failed"]`,
+`["Succeeded"]`, etc.).
+
+> Both return `[]` when no run data exists.
 
 ### `get_store_flow_trigger_url`
 
 ```json
 {
   "flowKey": "Default-26e65220-....0f368466-...",
-  "displayName": "Flow Studio - Stripe subscription updated",
+  "displayName": "Stripe subscription updated",
   "triggerType": "Request",
   "triggerKind": "Http",
-  "triggerUrl": "https://default26e65220...paths/invoke?api-version=1&..."
+  "triggerUrl": "https://..."
 }
 ```
 
+> `triggerUrl` is null for non-HTTP triggers.
+
+### `set_store_flow_state`
+
+Calls the live PA API then syncs state to cache.
+
+```json
+{
+  "flowName": "0f368466-...",
+  "environmentName": "Default-26e65220-...",
+  "requestedState": "Stopped",
+  "actualState": "Stopped"
+}
+```
+
+### `update_store_flow`
+
+Updates governance metadata. Only provided fields are updated (merge).
+Returns the full updated record (same shape as `get_store_flow`).
+
+Settable fields: `monitor` (bool), `rule_notify_onfail` (bool),
+`rule_notify_onmissingdays` (number, 0=disabled),
+`rule_notify_email` (comma-separated), `description`, `tags`,
+`businessImpact`, `businessJustification`, `businessValue`,
+`ownerTeam`, `ownerBusinessUnit`, `supportGroup`, `supportEmail`,
+`critical` (bool), `tier`, `security`.
+
 ### `list_store_environments`
 
-Direct array from `gEnvs`.
+Direct array.
 
 ```json
 [
   {
-    "id": "Default-26e65220-5561-46ef-9783-ce5f20489241",
+    "id": "Default-26e65220-...",
     "displayName": "Flow Studio (default)",
     "sku": "Default",
     "type": "NotSpecified",
@@ -780,15 +248,15 @@ Direct array from `gEnvs`.
 
 ### `list_store_connections`
 
-Direct array from `gConnections`. Can be very large (1500+ items).
+Direct array. Can be very large (1500+ items).
 
 ```json
 [
   {
     "id": "envId.connectionId",
-    "displayName": "catherine.han@flowstudio.app",
-    "createdBy": "{\"id\":\"...\",\"displayName\":\"Catherine Han\",\"email\":\"...\"}",
-    "environmentName": "3991358a-...",
+    "displayName": "user@contoso.com",
+    "createdBy": "{\"id\":\"...\",\"displayName\":\"...\",\"email\":\"...\"}",
+    "environmentName": "...",
     "statuses": "[{\"status\":\"Connected\"}]"
   }
 ]
@@ -798,12 +266,12 @@ Direct array from `gConnections`. Can be very large (1500+ items).
 
 ### `list_store_makers`
 
-Direct array from `gMakers`.
+Direct array.
 
 ```json
 [
   {
-    "id": "09dbe02f-b15a-4c13-a905-700924ddf300",
+    "id": "09dbe02f-...",
     "displayName": "Catherine Han",
     "mail": "catherine.han@flowstudio.app",
     "deleted": false,
@@ -818,20 +286,22 @@ Direct array from `gMakers`.
 
 ### `get_store_maker`
 
-Raw Azure Table entity from `gMakers`. Includes `displayName`, `mail`,
-`ownerFlowCount`, `ownerAppCount`, `accountEnabled`, `country`,
-`licenses` (JSON string of M365 SKUs), `firstFlow`, `lastFlowCreatedTime`, etc.
+Full maker record. Key fields: `displayName`, `mail`, `userPrincipalName`,
+`ownerFlowCount`, `ownerAppCount`, `accountEnabled`, `deleted`, `country`,
+`firstFlow`, `firstFlowCreatedTime`, `lastFlowCreatedTime`,
+`firstPowerApp`, `lastPowerAppCreatedTime`,
+`licenses` (JSON string of M365 SKUs).
 
 ### `list_store_power_apps`
 
-Direct array from `gApps`.
+Direct array.
 
 ```json
 [
   {
     "id": "envId.appId",
-    "displayName": "SpinButton Page",
-    "environmentName": "3991358a-...",
+    "displayName": "My App",
+    "environmentName": "...",
     "ownerId": "09dbe02f-...",
     "ownerName": "Catherine Han",
     "appType": "Canvas",
@@ -843,17 +313,61 @@ Direct array from `gApps`.
 ]
 ```
 
-### `set_store_flow_state`
+---
 
-Calls live PA API then syncs to cache.
+## Common Workflows
 
-```json
-{
-  "flowName": "0f368466-...",
-  "environmentName": "Default-26e65220-...",
-  "requestedState": "Stopped",
-  "actualState": "Stopped"
-}
+### Find unhealthy flows
+
+```
+1. list_store_flows
+2. Filter where runPeriodFailRate > 0.1 and runPeriodTotal >= 5
+3. Sort by runPeriodFailRate descending
+4. For each: get_store_flow for full detail
+```
+
+### Check a specific flow's health
+
+```
+1. get_store_flow → check scanned (freshness), runPeriodFailRate, runPeriodTotal
+2. get_store_flow_summary → aggregated stats with optional time window
+3. get_store_flow_errors → per-run failure detail with remediation hints
+4. If deeper diagnosis needed → switch to live tools:
+   get_live_flow_runs → get_live_flow_run_action_outputs
+```
+
+### Enable monitoring on a flow
+
+```
+1. update_store_flow with monitor=true
+2. Optionally set rule_notify_onfail=true, rule_notify_email="user@domain.com"
+3. Run data will appear after the next daily scan
+```
+
+### Daily health check
+
+```
+1. list_store_flows
+2. Flag flows with runPeriodFailRate > 0.2 and runPeriodTotal >= 3
+3. Flag monitored flows with state="Stopped" (may indicate auto-suspension)
+4. For critical failures → get_store_flow_errors for remediation hints
+```
+
+### Maker audit
+
+```
+1. list_store_makers
+2. Identify deleted accounts still owning flows (deleted=true, ownerFlowCount > 0)
+3. get_store_maker for full detail on specific users
+```
+
+### Inventory
+
+```
+1. list_store_environments → environment count, SKUs, locations
+2. list_store_flows → flow count by state, trigger type, fail rate
+3. list_store_power_apps → app count, owners, sharing
+4. list_store_connections → connection count per environment
 ```
 
 ---
