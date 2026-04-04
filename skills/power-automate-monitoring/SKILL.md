@@ -61,19 +61,33 @@ enriched with governance metadata and remediation hints.
 ## How Monitoring Works
 
 Flow Studio has a scanning pipeline that runs daily for each FlowStudio for
-Teams subscriber:
+Teams subscriber. The pipeline scans the Power Automate API and writes
+results to per-workspace Azure Table Storage.
 
-1. **`clarityusers`** table (central) lists all subscribers with `license = 'teams'`
-2. A daily parent flow iterates each subscriber's tenant, calls a child flow
-3. The child flow scans the PA API for environments, flows, apps, connections,
-   makers — writes results to per-workspace `g*` Azure tables
-4. **Only flows with `monitor: true`** get their run history scanned into `gRuns`
-5. Notification rules in `grules` fire webhooks to email flows when failures
-   are detected
+### Two levels of scanning
+
+- **All flows** get their metadata scanned: definition, connections, owners,
+  trigger type, and aggregate run counts (`runPeriodTotal`,
+  `runPeriodFailRate`, etc. on the `gFlows` record). Environments, apps,
+  connections, and makers are also scanned.
+- **Monitored flows** (`monitor: true`) additionally get per-run detail
+  scanning: individual run records written to `gRuns` with status, duration,
+  failed action names, and remediation hints. This is what populates
+  `get_store_flow_runs`, `get_store_flow_errors`, and `get_store_flow_summary`.
+
+### Data freshness
+
+Check the `scanned` field on any `get_store_flow` response to see when a
+flow was last scanned. The `nextScan` field shows when the next scan is
+scheduled. If `scanned` is stale (days old), the scanning pipeline may not
+be running for that workspace.
+
+### Setting monitoring flags
 
 The `monitor` flag and notification settings (`rule_notify_onfail`,
 `rule_notify_onmissingdays`, `rule_notify_email`) can be set via:
 - The Flow Studio for Teams app in Microsoft Teams
+  ([how to select flows](https://learn.flowstudio.app/teams-monitoring))
 - The `update_store_flow` MCP tool (see `power-automate-governance` skill)
 
 ---
@@ -295,8 +309,15 @@ record = mcp("get_store_flow", environmentName=ENV, flowName=FLOW_ID)
 #   log_notify_onfail (ISO timestamp of last notification sent),
 #   description, tags
 #
+# Tags: in list_store_flows, tags are auto-extracted from the description
+# field using #hashtag regex (e.g. description "#operations #sensitive"
+# → tags: ["#operations", "#sensitive"]). Can also be set explicitly
+# via update_store_flow's tags parameter.
+#
 # Scan metadata:
-#   scanned (ISO), nextScan (ISO), clarityVersion, deleted, deletedTime
+#   scanned (ISO — when this flow was last scanned by the pipeline)
+#   nextScan (ISO — when next scan is scheduled)
+#   clarityVersion, deleted, deletedTime
 #
 # JSON-string fields (parse with json.loads()):
 #   actions, connections, owners, complexity, definition,
