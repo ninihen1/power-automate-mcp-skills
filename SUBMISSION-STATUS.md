@@ -34,7 +34,7 @@ OpenHands, Goose, Amp, and more.
 | **openai/openai-cookbook** | OpenAI cookbook (9.2k ⭐) | ❌ Internal-only repo — all merged PRs from `*-oai` accounts. Cookbook content lives in `examples/codex-mcp-power-automate-cookbook.md` and is linked from the community forum post | N/A | N/A |
 | **Docker MCP Registry** | Docker Desktop MCP Toolkit (461 ⭐, 702 forks) | ❌ Blocked — needs Streamable HTTP transport. Submit via [PR to docker/mcp-registry](https://github.com/docker/mcp-registry) once resolved | N/A (server listing) | N/A (server listing) |
 | **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | ⏳ Submitted 2026-04-04 via web form — awaiting approval | N/A (server listing) | N/A (server listing) |
-| **Glama** | 20.8k MCP servers | ⏳ Submitted 2026-04-04 via Add Server | N/A (server listing) | N/A (server listing) |
+| **Glama** | 20.8k MCP servers | ⚠️ Approved but needs Dockerfile for search visibility — claim server + provide Dockerfile via admin page | N/A (server listing) | N/A (server listing) |
 | **PulseMCP** | 11.1k+ servers + newsletter | ⏳ Auto-ingests from Official MCP Registry weekly — no action needed | N/A (server listing) | N/A (server listing) |
 | **VS Code Marketplace** (extension) | All VS Code users | ✅ [Published](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.2.0 — multi-tenant, guided setup | ✅ Bundled | ✅ Bundled |
 | **Open VSX** (extension) | VSCodium, Gitpod, Eclipse Theia | ✅ [Published](https://open-vsx.org/extension/FlowStudio/flowstudio-mcp) v0.2.0 | ✅ Bundled | ✅ Bundled |
@@ -555,7 +555,7 @@ This extension works with the current JSON-RPC over HTTP transport. It bypasses 
 | 18 | ⏳ Cursor Marketplace plugin | Submitted | ⏳ Submitted 2026-04-04 |
 | 19 | ⏳ Gemini CLI extension | Auto-indexing | ⏳ Topic + manifest in repo, crawler picks up within 24h |
 | 20 | ⏳ mcp.so | Submitted | ⏳ Submitted 2026-04-04 via web form |
-| 21 | ⏳ Glama | Submitted | ⏳ Submitted 2026-04-04 via Add Server |
+| 21 | ⚠️ Glama | Approved, needs Dockerfile | ⚠️ Claim server + provide Dockerfile for search listing |
 | 22 | ⏳ PulseMCP | Auto-ingesting | ⏳ Ingests from MCP Registry weekly |
 
 ### Streamable HTTP Transport — Upgrade Complete (2026-04-03)
