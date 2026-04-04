@@ -101,14 +101,24 @@ the CoE Starter Kit's Developer Compliance Center.
 2. For each flow (skip entries without displayName):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
-   - Check compliance rules (see table below)
+   - Check these compliance rules:
+     ALWAYS required for active flows (runPeriodTotal > 0):
+       - businessImpact must be set (Low / Medium / High / Critical)
+       - ownerTeam must be set
+       - description must be set
+     ADDITIONALLY required when businessImpact is High or Critical:
+       - businessJustification must be set
+       - supportEmail must be set
+       - monitor must be true
+     ADDITIONALLY required when critical is true:
+       - rule_notify_onfail must be true
 3. Report non-compliant flows with missing fields listed
 4. For each non-compliant flow:
    - Ask the user for values (businessImpact, ownerTeam, etc.)
    - update_store_flow(environmentName, flowName, ...provided fields)
 ```
 
-**Compliance rules:**
+**Compliance rules summary:**
 
 | Field | Required when |
 |---|---|
@@ -248,10 +258,15 @@ Auto-tag by connector:
      shared_office365 → #email
      Custom connectors → #custom-connector
      HTTP-related connectors → #http-external
+   - Read existing tags from get_store_flow response, append new tags
    - update_store_flow(environmentName, flowName,
-       tags="#sharepoint #teams")
+       tags="<existing tags> #sharepoint #teams")
 ```
 
+> **Tag merge:** `update_store_flow(tags=...)` overwrites the entire tags
+> field. To avoid losing tags from other workflows, always read the current
+> tags first, append new ones, then write back.
+>
 > `get_store_flow` already has a `tier` field (Standard/Premium) computed
 > by the scanning pipeline. Only use `update_store_flow(tier=...)` if you
 > need to override it.
@@ -277,7 +292,8 @@ When an employee leaves, identify and reassign their flows and apps.
        ownerTeam="NewTeam", supportEmail="new-owner@contoso.com")
    - If decommissioning:
      set_store_flow_state(environmentName, flowName, state="Stopped")
-     update_store_flow(environmentName, flowName, tags="#decommissioned")
+     Read existing tags, append #decommissioned
+     update_store_flow(environmentName, flowName, tags="<existing> #decommissioned")
 6. Report: flows reassigned, flows stopped, apps needing manual reassignment
 ```
 
@@ -303,7 +319,8 @@ Identify flows with potential security concerns.
    - connections contain HTTP connector (arbitrary outbound requests)
    - json.loads(referencedResources) points to external URLs
 4. For reviewed flows:
-   update_store_flow(environmentName, flowName, tags="#security-reviewed")
+   Read existing tags, append #security-reviewed
+   update_store_flow(environmentName, flowName, tags="<existing> #security-reviewed")
    Do NOT overwrite the security field — it contains structured auth data
 ```
 
@@ -320,7 +337,8 @@ Audit environments for compliance and sprawl.
      access to that environment, not that the environment has no admin
 3. list_store_flows → group by environmentName
    - Flow count per environment
-   - For failure rate analysis: get_store_flow per flow → runPeriodFailRate
+   - Failure rate analysis: runPeriodFailRate is on the list response —
+     no need for per-flow get_store_flow calls
 4. list_store_connections → group by environmentName
    - Connection count per environment
 ```
@@ -346,30 +364,34 @@ Compute from list data:
 - Monitoring %: monitored / total_flows
 - Notification %: with_onfail / monitored
 - Orphan count: from step 4
+- High-risk count: flows with runPeriodFailRate > 0.2 (on list response)
 
 Detailed metrics (require get_store_flow per flow — expensive for large tenants):
 - Compliance %: flows with businessImpact set / total active flows
-- High-risk count: flows with runPeriodFailRate > 0.2
 - Undocumented count: flows without description
 - Tier breakdown: group by tier field
 
 For detailed metrics, iterate all flows in a single pass:
   For each flow from list_store_flows (skip sparse entries):
+    Split id → environmentName, flowName
     get_store_flow(environmentName, flowName)
-    → accumulate businessImpact, runPeriodFailRate, description, tier
+    → accumulate businessImpact, description, tier
 ```
 
 ---
 
 ## Field Reference: `get_store_flow` Fields Used in Governance
 
+All fields below are confirmed present on the `get_store_flow` response.
+Fields marked with `*` are also available on `list_store_flows` (cheaper).
+
 | Field | Type | Governance use |
 |---|---|---|
-| `displayName` | string | Archive score (test/demo name detection) |
-| `state` | string | Archive score, lifecycle management |
+| `displayName` * | string | Archive score (test/demo name detection) |
+| `state` * | string | Archive score, lifecycle management |
 | `tier` | string | License audit (Standard vs Premium) |
-| `monitor` | bool | Is this flow being actively monitored? |
-| `critical` | bool | Business-critical designation |
+| `monitor` * | bool | Is this flow being actively monitored? |
+| `critical` | bool | Business-critical designation (settable via update_store_flow) |
 | `businessImpact` | string | Compliance classification |
 | `businessJustification` | string | Compliance attestation |
 | `ownerTeam` | string | Ownership accountability |
@@ -378,14 +400,14 @@ For detailed metrics, iterate all flows in a single pass:
 | `rule_notify_onmissingdays` | number | SLA monitoring configured? |
 | `rule_notify_email` | string | Alert recipients |
 | `description` | string | Documentation completeness |
-| `tags` | string | Classification |
-| `runPeriodTotal` | number | Activity level |
-| `runPeriodFailRate` | number | Health status |
+| `tags` * | string | Classification (overwrite semantics — read-merge-write to append) |
+| `runPeriodTotal` * | number | Activity level |
+| `runPeriodFailRate` * | number | Health status |
 | `runLast` | ISO string | Last run timestamp |
 | `scanned` | ISO string | Data freshness |
 | `deleted` | bool | Lifecycle tracking |
-| `createdTime` | ISO string | Archive score (age) |
-| `lastModifiedTime` | ISO string | Archive score (staleness) |
+| `createdTime` * | ISO string | Archive score (age) |
+| `lastModifiedTime` * | ISO string | Archive score (staleness) |
 | `owners` | JSON string | Orphan detection, ownership audit — parse with json.loads() |
 | `connections` | JSON string | Connector audit, tier — parse with json.loads() |
 | `complexity` | JSON string | Archive score (simplicity) — parse with json.loads() |
