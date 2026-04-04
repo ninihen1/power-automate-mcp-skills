@@ -34,7 +34,7 @@ OpenHands, Goose, Amp, and more.
 | **openai/openai-cookbook** | OpenAI cookbook (9.2k ⭐) | ❌ Internal-only repo — all merged PRs from `*-oai` accounts. Cookbook content lives in `examples/codex-mcp-power-automate-cookbook.md` and is linked from the community forum post | N/A | N/A |
 | **Docker MCP Registry** | Docker Desktop MCP Toolkit (461 ⭐, 702 forks) | ❌ Blocked — needs Streamable HTTP transport. Submit via [PR to docker/mcp-registry](https://github.com/docker/mcp-registry) once resolved | N/A (server listing) | N/A (server listing) |
 | **mcpservers.org** (wong2) | 3.8k ⭐ + web directory | ⏳ Submitted 2026-04-04 via web form — awaiting approval | N/A (server listing) | N/A (server listing) |
-| **Glama** | 20.8k MCP servers | ⚠️ Approved but needs Dockerfile for search visibility — claim server + provide Dockerfile via admin page | N/A (server listing) | N/A (server listing) |
+| **Glama** | 20.8k MCP servers | ⚠️ [Approved](https://glama.ai/mcp/servers/ninihen1/power-automate-mcp-skills) — listed but not in search results. Dockerfile required for search visibility but not applicable to remote servers. Ask on Discord if needed. | N/A (server listing) | N/A (server listing) |
 | **PulseMCP** | 11.1k+ servers + newsletter | ⏳ Auto-ingests from Official MCP Registry weekly — no action needed | N/A (server listing) | N/A (server listing) |
 | **VS Code Marketplace** (extension) | All VS Code users | ✅ [Published](https://marketplace.visualstudio.com/items?itemName=FlowStudio.flowstudio-mcp) v0.2.0 — multi-tenant, guided setup | ✅ Bundled | ✅ Bundled |
 | **Open VSX** (extension) | VSCodium, Gitpod, Eclipse Theia | ✅ [Published](https://open-vsx.org/extension/FlowStudio/flowstudio-mcp) v0.2.0 | ✅ Bundled | ✅ Bundled |
