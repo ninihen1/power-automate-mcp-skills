@@ -353,9 +353,18 @@ Response keys: `flowKey`, `triggerName`, `triggerUrl`, `requiresAadAuth`, `authT
 
 > **Only works for `Request` (HTTP) triggers.** Returns an error for Recurrence
 > and other trigger types: `"only HTTP Request triggers can be invoked via this tool"`.
+> `Button`-kind triggers return `ListCallbackUrlOperationBlocked`.
 >
 > `responseStatus` + `responseBody` contain the flow's Response action output.
 > AAD-authenticated triggers are handled automatically.
+>
+> **Content-type note**: The body is sent as `application/octet-stream` (raw),
+> not `application/json`. Flows with a trigger schema that has `required` fields
+> will reject the request with `InvalidRequestContent` (400) because PA validates
+> `Content-Type` before parsing against the schema. Flows without a schema, or
+> flows designed to accept raw input (e.g. Baker-pattern flows that parse the body
+> internally), will work fine. The flow receives the JSON as base64-encoded
+> `$content` with `$content-type: application/octet-stream`.
 
 ---
 

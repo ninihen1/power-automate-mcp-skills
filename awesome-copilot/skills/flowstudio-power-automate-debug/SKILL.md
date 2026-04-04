@@ -147,6 +147,13 @@ RUN_ID = next(r["name"] for r in runs if r["status"] == "Failed")
 
 ## Step 3 — Get the Top-Level Error
 
+> **CRITICAL**: `get_live_flow_run_error` tells you **which** action failed.
+> `get_live_flow_run_action_outputs` tells you **why**. You must call BOTH.
+> Never stop at the error alone — error codes like `ActionFailed`,
+> `NotSpecified`, and `InternalServerError` are generic wrappers. The actual
+> root cause (wrong field, null value, HTTP 500 body, stack trace) is only
+> visible in the action's inputs and outputs.
+
 ```python
 err = mcp("get_live_flow_run_error",
     environmentName=ENV, flowName=FLOW_ID, runName=RUN_ID)
@@ -177,7 +184,86 @@ print(f"Root action: {root['actionName']} → code: {root.get('code')}")
 
 ---
 
-## Step 4 — Read the Flow Definition
+## Step 4 — Inspect the Failing Action's Inputs and Outputs
+
+> **This is the most important step.** `get_live_flow_run_error` only gives
+> you a generic error code. The actual error detail — HTTP status codes,
+> response bodies, stack traces, null values — lives in the action's runtime
+> inputs and outputs. **Always inspect the failing action immediately after
+> identifying it.**
+
+```python
+# Get the root failing action's full inputs and outputs
+root_action = err["failedActions"][-1]["actionName"]
+detail = mcp("get_live_flow_run_action_outputs",
+    environmentName=ENV,
+    flowName=FLOW_ID,
+    runName=RUN_ID,
+    actionName=root_action)
+
+out = detail[0] if detail else {}
+print(f"Action: {out.get('actionName')}")
+print(f"Status: {out.get('status')}")
+
+# For HTTP actions, the real error is in outputs.body
+if isinstance(out.get("outputs"), dict):
+    status_code = out["outputs"].get("statusCode")
+    body = out["outputs"].get("body", {})
+    print(f"HTTP {status_code}")
+    print(json.dumps(body, indent=2)[:500])
+
+    # Error bodies are often nested JSON strings — parse them
+    if isinstance(body, dict) and "error" in body:
+        err_detail = body["error"]
+        if isinstance(err_detail, str):
+            err_detail = json.loads(err_detail)
+        print(f"Error: {err_detail.get('message', err_detail)}")
+
+# For expression errors, the error is in the error field
+if out.get("error"):
+    print(f"Error: {out['error']}")
+
+# Also check inputs — they show what expression/URL/body was used
+if out.get("inputs"):
+    print(f"Inputs: {json.dumps(out['inputs'], indent=2)[:500]}")
+```
+
+### What the action outputs reveal (that error codes don't)
+
+| Error code from `get_live_flow_run_error` | What `get_live_flow_run_action_outputs` reveals |
+|---|---|
+| `ActionFailed` | Which nested action actually failed and its HTTP response |
+| `NotSpecified` | The HTTP status code + response body with the real error |
+| `InternalServerError` | The server's error message, stack trace, or API error JSON |
+| `InvalidTemplate` | The exact expression that failed and the null/wrong-type value |
+| `BadRequest` | The request body that was sent and why the server rejected it |
+
+### Example: HTTP action returning 500
+
+```
+Error code: "InternalServerError" ← this tells you nothing
+
+Action outputs reveal:
+  HTTP 500
+  body: {"error": "Cannot read properties of undefined (reading 'toLowerCase')
+    at getClientParamsFromConnectionString (storage.js:20)"}
+  ← THIS tells you the Azure Function crashed because a connection string is undefined
+```
+
+### Example: Expression error on null
+
+```
+Error code: "BadRequest" ← generic
+
+Action outputs reveal:
+  inputs: "body('HTTP_GetTokenFromStore')?['token']?['access_token']"
+  outputs: ""   ← empty string, the path resolved to null
+  ← THIS tells you the response shape changed — token is at body.access_token, not body.token.access_token
+```
+
+---
+
+## Step 5 — Read the Flow Definition
 
 ```python
 defn = mcp("get_live_flow", environmentName=ENV, flowName=FLOW_ID)
@@ -190,41 +276,48 @@ to understand what data it expects.
 
 ---
 
-## Step 5 — Inspect Action Outputs (Walk Back from Failure)
+## Step 6 — Walk Back from the Failure
 
-For each action **leading up to** the failure, inspect its runtime output:
+When the failing action's inputs reference upstream actions, inspect those
+too. Walk backward through the chain until you find the source of the
+bad data:
 
 ```python
-for action_name in ["Compose_WeekEnd", "HTTP_Get_Data", "Parse_JSON"]:
+# Inspect multiple actions leading up to the failure
+for action_name in [root_action, "Compose_WeekEnd", "HTTP_Get_Data"]:
     result = mcp("get_live_flow_run_action_outputs",
         environmentName=ENV,
         flowName=FLOW_ID,
         runName=RUN_ID,
         actionName=action_name)
-    # Returns an array — single-element when actionName is provided
     out = result[0] if result else {}
-    print(action_name, out.get("status"))
-    print(json.dumps(out.get("outputs", {}), indent=2)[:500])
+    print(f"\n--- {action_name} ({out.get('status')}) ---")
+    print(f"Inputs:  {json.dumps(out.get('inputs', ''), indent=2)[:300]}")
+    print(f"Outputs: {json.dumps(out.get('outputs', ''), indent=2)[:300]}")
 ```
 
 > ⚠️ Output payloads from array-processing actions can be very large.
 > Always slice (e.g. `[:500]`) before printing.
 
+> **Tip**: Omit `actionName` to get ALL actions in a single call.
+> This returns every action's inputs/outputs — useful when you're not sure
+> which upstream action produced the bad data. But use 120s+ timeout as
+> the response can be very large.
+
 ---
 
-## Step 6 — Pinpoint the Root Cause
+## Step 7 — Pinpoint the Root Cause
 
 ### Expression Errors (e.g. `split` on null)
 If the error mentions `InvalidTemplate` or a function name:
 1. Find the action in the definition
 2. Check what upstream action/expression it reads
-3. Inspect that upstream action's output for null / missing fields
+3. **Inspect that upstream action's output** for null / missing fields
 
 ```python
 # Example: action uses split(item()?['Name'], ' ')
 # → null Name in the source data
 result = mcp("get_live_flow_run_action_outputs", ..., actionName="Compose_Names")
-# Returns a single-element array; index [0] to get the action object
 if not result:
     print("No outputs returned for Compose_Names")
     names = []
@@ -236,9 +329,20 @@ print(f"{len(nulls)} records with null Name")
 
 ### Wrong Field Path
 Expression `triggerBody()?['fieldName']` returns null → `fieldName` is wrong.
-Check the trigger output shape with:
+**Inspect the trigger output** to see the actual field names:
 ```python
-mcp("get_live_flow_run_action_outputs", ..., actionName="<trigger-action-name>")
+result = mcp("get_live_flow_run_action_outputs", ..., actionName="<trigger-action-name>")
+print(json.dumps(result[0].get("outputs"), indent=2)[:500])
+```
+
+### HTTP Actions Returning Errors
+The error code says `InternalServerError` or `NotSpecified` — **always inspect
+the action outputs** to get the actual HTTP status and response body:
+```python
+result = mcp("get_live_flow_run_action_outputs", ..., actionName="HTTP_Get_Data")
+out = result[0]
+print(f"HTTP {out['outputs']['statusCode']}")
+print(json.dumps(out['outputs']['body'], indent=2)[:500])
 ```
 
 ### Connection / Auth Failures
@@ -247,7 +351,7 @@ service account running the flow. Cannot fix via API; fix in PA designer.
 
 ---
 
-## Step 7 — Apply the Fix
+## Step 8 — Apply the Fix
 
 **For expression/data issues**:
 ```python
@@ -273,13 +377,23 @@ print(result.get("error"))  # None = success
 
 ---
 
-## Step 8 — Verify the Fix
+## Step 9 — Verify the Fix
+
+> **Use `resubmit_live_flow_run` to test ANY flow — not just HTTP triggers.**
+> `resubmit_live_flow_run` replays a previous run using its original trigger
+> payload. This works for **every trigger type**: Recurrence, SharePoint
+> "When an item is created", connector webhooks, Button triggers, and HTTP
+> triggers. You do NOT need to ask the user to manually trigger the flow or
+> wait for the next scheduled run.
+>
+> The only case where `resubmit` is not available is a **brand-new flow that
+> has never run** — it has no prior run to replay.
 
 ```python
-# Resubmit the failed run
+# Resubmit the failed run — works for ANY trigger type
 resubmit = mcp("resubmit_live_flow_run",
     environmentName=ENV, flowName=FLOW_ID, runName=RUN_ID)
-print(resubmit)
+print(resubmit)   # {"resubmitted": true, "triggerName": "..."}
 
 # Wait ~30 s then check
 import time; time.sleep(30)
@@ -287,16 +401,26 @@ new_runs = mcp("get_live_flow_runs", environmentName=ENV, flowName=FLOW_ID, top=
 print(new_runs[0]["status"])   # Succeeded = done
 ```
 
-### Testing HTTP-Triggered Flows
+### When to use resubmit vs trigger
 
-For flows with a `Request` (HTTP) trigger, use `trigger_live_flow` instead
-of `resubmit_live_flow_run` to test with custom payloads:
+| Scenario | Use | Why |
+|---|---|---|
+| **Testing a fix** on any flow | `resubmit_live_flow_run` | Replays the exact trigger payload that caused the failure — best way to verify |
+| Recurrence / scheduled flow | `resubmit_live_flow_run` | Cannot be triggered on demand any other way |
+| SharePoint / connector trigger | `resubmit_live_flow_run` | Cannot be triggered without creating a real SP item |
+| HTTP trigger with **custom** test payload | `trigger_live_flow` | When you need to send different data than the original run |
+| Brand-new flow, never run | `trigger_live_flow` (HTTP only) | No prior run exists to resubmit |
+
+### Testing HTTP-Triggered Flows with custom payloads
+
+For flows with a `Request` (HTTP) trigger, use `trigger_live_flow` when you
+need to send a **different** payload than the original run:
 
 ```python
 # First inspect what the trigger expects
 schema = mcp("get_live_flow_http_schema",
     environmentName=ENV, flowName=FLOW_ID)
-print("Expected body schema:", schema.get("triggerSchema"))
+print("Expected body schema:", schema.get("requestSchema"))
 print("Response schemas:", schema.get("responseSchemas"))
 
 # Trigger with a test payload
@@ -304,7 +428,7 @@ result = mcp("trigger_live_flow",
     environmentName=ENV,
     flowName=FLOW_ID,
     body={"name": "Test User", "value": 42})
-print(f"Status: {result['status']}, Body: {result.get('body')}")
+print(f"Status: {result['responseStatus']}, Body: {result.get('responseBody')}")
 ```
 
 > `trigger_live_flow` handles AAD-authenticated triggers automatically.
@@ -314,13 +438,19 @@ print(f"Status: {result['status']}, Body: {result.get('body')}")
 
 ## Quick-Reference Diagnostic Decision Tree
 
-| Symptom | First Tool to Call | What to Look For |
-|---|---|---|
-| Flow shows as Failed | `get_live_flow_run_error` | `failedActions[-1]["actionName"]` = root cause |
-| Expression crash | `get_live_flow_run_action_outputs` on prior action | null / wrong-type fields in output body |
-| Flow never starts | `get_live_flow` | check `properties.state` = "Started" |
-| Action returns wrong data | `get_live_flow_run_action_outputs` | actual output body vs expected |
-| Fix applied but still fails | `get_live_flow_runs` after resubmit | new run `status` field |
+| Symptom | First Tool | Then ALWAYS Call | What to Look For |
+|---|---|---|---|
+| Flow shows as Failed | `get_live_flow_run_error` | `get_live_flow_run_action_outputs` on the failing action | HTTP status + response body in `outputs` |
+| Error code is generic (`ActionFailed`, `NotSpecified`) | — | `get_live_flow_run_action_outputs` | The `outputs.body` contains the real error message, stack trace, or API error |
+| HTTP action returns 500 | — | `get_live_flow_run_action_outputs` | `outputs.statusCode` + `outputs.body` with server error detail |
+| Expression crash | — | `get_live_flow_run_action_outputs` on prior action | null / wrong-type fields in output body |
+| Flow never starts | `get_live_flow` | — | check `properties.state` = "Started" |
+| Action returns wrong data | `get_live_flow_run_action_outputs` | — | actual output body vs expected |
+| Fix applied but still fails | `get_live_flow_runs` after resubmit | — | new run `status` field |
+
+> **Rule: never diagnose from error codes alone.** `get_live_flow_run_error`
+> identifies the failing action. `get_live_flow_run_action_outputs` reveals
+> the actual cause. Always call both.
 
 ---
 

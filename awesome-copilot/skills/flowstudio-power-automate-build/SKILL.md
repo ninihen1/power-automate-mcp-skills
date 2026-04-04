@@ -305,38 +305,45 @@ print("Actions:", list(acts.keys()))
 > flow will do and wait for explicit approval before calling `trigger_live_flow`
 > or `resubmit_live_flow_run`.
 
-### Updated flows (have prior runs)
+### Updated flows (have prior runs) — ANY trigger type
 
-The fastest path — resubmit the most recent run:
+> **Use `resubmit_live_flow_run` first.** It works for EVERY trigger type —
+> Recurrence, SharePoint, connector webhooks, Button, and HTTP. It replays
+> the original trigger payload. Do NOT ask the user to manually trigger the
+> flow or wait for the next scheduled run.
 
 ```python
 runs = mcp("get_live_flow_runs", environmentName=ENV, flowName=FLOW_ID, top=1)
 if runs:
+    # Works for Recurrence, SharePoint, connector triggers — not just HTTP
     result = mcp("resubmit_live_flow_run",
         environmentName=ENV, flowName=FLOW_ID, runName=runs[0]["name"])
-    print(result)
+    print(result)   # {"resubmitted": true, "triggerName": "..."}
 ```
 
-### Flows already using an HTTP trigger
+### HTTP-triggered flows — custom test payload
 
-Fire directly with a test payload:
+Only use `trigger_live_flow` when you need to send a **different** payload
+than the original run. For verifying a fix, `resubmit_live_flow_run` is
+better because it uses the exact data that caused the failure.
 
 ```python
 schema = mcp("get_live_flow_http_schema",
     environmentName=ENV, flowName=FLOW_ID)
-print("Expected body:", schema.get("triggerSchema"))
+print("Expected body:", schema.get("requestSchema"))
 
 result = mcp("trigger_live_flow",
     environmentName=ENV, flowName=FLOW_ID,
     body={"name": "Test", "value": 1})
-print(f"Status: {result['status']}")
+print(f"Status: {result['responseStatus']}")
 ```
 
 ### Brand-new non-HTTP flows (Recurrence, connector triggers, etc.)
 
-A brand-new Recurrence or connector-triggered flow has no runs to resubmit
-and no HTTP endpoint to call. **Deploy with a temporary HTTP trigger first,
-test the actions, then swap to the production trigger.**
+A brand-new Recurrence or connector-triggered flow has **no prior runs** to
+resubmit and no HTTP endpoint to call. This is the ONLY scenario where you
+need the temporary HTTP trigger approach below. **Deploy with a temporary
+HTTP trigger first, test the actions, then swap to the production trigger.**
 
 #### 7a — Save the real trigger, deploy with a temporary HTTP trigger
 
