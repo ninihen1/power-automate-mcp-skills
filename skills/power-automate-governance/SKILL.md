@@ -8,9 +8,9 @@ description: >-
   Load this skill when asked to: tag or classify flows, set business impact,
   assign ownership, detect orphans, audit connectors, check compliance, compute
   archive scores, manage notification rules, run a governance review, generate
-  a compliance report, enforce DLP policies, offboard a maker, or any task
-  that involves writing governance metadata to flows. Requires a FlowStudio
-  for Teams or MCP Pro+ subscription — see https://mcp.flowstudio.app
+  a compliance report, offboard a maker, or any task that involves writing
+  governance metadata to flows. Requires a FlowStudio for Teams or MCP Pro+
+  subscription — see https://mcp.flowstudio.app
 metadata:
   openclaw:
     requires:
@@ -37,11 +37,29 @@ the `power-automate-monitoring` skill.
 
 ---
 
+## Critical: How to Extract Flow IDs
+
+`list_store_flows` returns `id` in format `envId.flowId`. **You must split
+on the first `.`** to get `environmentName` and `flowName` for all other tools:
+
+```
+id = "Default-26e65220-....0f368466-b6b1-44ed-999c-94791124e402"
+environmentName = "Default-26e65220-..."   (everything before first ".")
+flowName = "0f368466-b6b1-44ed-999c-94791124e402"  (everything after first ".")
+```
+
+Also: skip entries from `list_store_flows` that have no `displayName` —
+these are sparse/orphaned records.
+
+---
+
 ## The Write Tool: `update_store_flow`
 
 `update_store_flow` is the only tool that writes governance metadata. It uses
 merge semantics — only fields you provide are updated. Returns the full
 updated record (same shape as `get_store_flow`).
+
+Required parameters: `environmentName`, `flowName`. All other fields optional.
 
 ### Settable Fields
 
@@ -64,23 +82,10 @@ updated record (same shape as `get_store_flow`).
 | `tier` | string | Standard or Premium |
 | `security` | string | Security classification or notes |
 
-### Example
-
-```
-update_store_flow(
-    environmentName="Default-26e65220-...",
-    flowName="0f368466-...",
-    businessImpact="High",
-    businessJustification="Processes all Stripe subscription changes",
-    ownerTeam="Engineering",
-    supportEmail="support@contoso.com",
-    monitor=true,
-    rule_notify_onfail=true,
-    rule_notify_email="oncall@contoso.com",
-    critical=true,
-    tags="#operations #billing #critical"
-)
-```
+> **Caution with `security`:** The `security` field on `get_store_flow`
+> contains structured JSON (e.g. `{"triggerRequestAuthenticationType":"All"}`).
+> Writing a plain string like `"reviewed"` will overwrite this. To mark a
+> flow as security-reviewed, use `tags` instead.
 
 ---
 
@@ -93,23 +98,24 @@ the CoE Starter Kit's Developer Compliance Center.
 
 ```
 1. list_store_flows
-2. For each flow with runPeriodTotal > 0 (active flows):
-   - get_store_flow
-   - Check: has businessImpact? has businessJustification? has ownerTeam?
-     has description? has supportEmail?
-3. Report non-compliant flows
+2. For each flow (skip entries without displayName):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+   - Check compliance rules (see table below)
+3. Report non-compliant flows with missing fields listed
 4. For each non-compliant flow:
-   - update_store_flow with appropriate metadata
+   - Ask the user for values (businessImpact, ownerTeam, etc.)
+   - update_store_flow(environmentName, flowName, ...provided fields)
 ```
 
-**Compliance fields to check:**
+**Compliance rules:**
 
 | Field | Required when |
 |---|---|
-| `businessImpact` | Always for active flows |
-| `businessJustification` | When businessImpact is High or Critical |
+| `businessImpact` | Always for active flows (runPeriodTotal > 0) |
 | `ownerTeam` | Always for active flows |
 | `description` | Always |
+| `businessJustification` | When businessImpact is High or Critical |
 | `supportEmail` | When businessImpact is High or Critical |
 | `monitor` | When businessImpact is High or Critical |
 | `rule_notify_onfail` | When critical is true |
@@ -120,36 +126,53 @@ Find flows owned by deleted or disabled Azure AD accounts.
 
 ```
 1. list_store_makers
-2. Filter makers where deleted=true AND ownerFlowCount > 0
-3. For each orphaned maker:
-   - list_store_flows → filter by owner ID (parse owners JSON on each flow)
-   - Report: maker name, deletion status, flow count, flow names
-4. Decide: reassign ownership (update_store_flow with new ownerTeam/supportEmail)
-   or flag for decommission
+2. Filter where deleted=true AND ownerFlowCount > 0
+   Note: deleted makers have NO displayName/mail — record their id (AAD OID)
+3. list_store_flows → collect all flows
+4. For each flow (skip entries without displayName):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+   - Parse owners: json.loads(record["owners"])
+   - Check if any owner principalId matches an orphaned maker id
+5. Report orphaned flows: maker id, flow name, flow state
+6. For each orphaned flow:
+   - Reassign governance: update_store_flow(environmentName, flowName,
+       ownerTeam="NewTeam", supportEmail="new-owner@contoso.com")
+   - Or decommission: set_store_flow_state(environmentName, flowName,
+       state="Stopped")
 ```
 
-> Deleted makers have `deleted: true` and no `displayName`/`mail` fields.
-> Use the maker `id` (AAD object ID) to match against flow `owners` JSON.
+> `update_store_flow` updates governance metadata in the cache only. To
+> transfer actual PA ownership, an admin must use the Power Platform admin
+> center or PowerShell.
 
 ### 3. Archive Score Calculation
 
-Compute an inactivity score (0-7) per flow to identify safe cleanup candidates.
-Aligns with the CoE Starter Kit's archive scoring methodology.
+Compute an inactivity score (0-7) per flow to identify safe cleanup
+candidates. Aligns with the CoE Starter Kit's archive scoring.
 
 ```
-For each flow from get_store_flow, add 1 point for each:
-
-+1  Not modified since creation (lastModifiedTime ≈ createdTime)
-+1  Name contains "test", "demo", "copy", "temp", or "backup"
-+1  Created over 12 months ago
-+1  State is "Stopped" or "Suspended"
-+1  No owner (owners JSON is empty array)
-+1  Simple flow (parse complexity JSON → actions < 5)
-+1  No recent runs (runPeriodTotal = 0)
-
-Score 5-7: Safe to archive/delete (with confirmation)
-Score 3-4: Review with owner
-Score 0-2: Active, do not archive
+1. list_store_flows
+2. For each flow (skip entries without displayName):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+3. Compute archive score (0-7), add 1 point for each:
+   +1  lastModifiedTime within 24 hours of createdTime
+   +1  displayName contains "test", "demo", "copy", "temp", or "backup"
+       (case-insensitive)
+   +1  createdTime is more than 12 months ago
+   +1  state is "Stopped" or "Suspended"
+   +1  json.loads(owners) is empty array []
+   +1  runPeriodTotal = 0 (never ran or no recent runs)
+   +1  parse json.loads(complexity) → actions < 5
+4. Classify:
+   Score 5-7: Recommend archive — report to user for confirmation
+   Score 3-4: Flag for review →
+     update_store_flow(environmentName, flowName, tags="#archive-review")
+   Score 0-2: Active, no action
+5. For user-confirmed archives:
+   set_store_flow_state(environmentName, flowName, state="Stopped")
+   update_store_flow(environmentName, flowName, tags="#archived")
 ```
 
 ### 4. Connector Audit
@@ -159,19 +182,25 @@ analysis and premium license planning.
 
 ```
 1. list_store_flows
-2. For each flow: get_store_flow → parse connections JSON
+2. For each flow (skip entries without displayName):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+   - Parse connections: json.loads(record["connections"])
+     Returns array of objects with apiName, apiId, connectionName
+   - Note the flow-level tier field ("Standard" or "Premium")
 3. Build connector inventory:
-   - Which connectors are used and by how many flows
-   - Which flows use premium connectors (tier: "Premium")
-   - Which flows use HTTP connectors (potential data exfiltration)
-   - Which flows use custom connectors
-4. Cross-reference against DLP policy:
-   - Business connectors vs Non-Business connectors
-   - Flag flows mixing connectors across groups
+   - Which apiNames are used and by how many flows
+   - Which flows have tier="Premium" (premium connector detected)
+   - Which flows use HTTP connectors (apiName contains "http")
+   - Which flows use custom connectors (non-shared_ prefix apiNames)
+4. Report inventory to user
+   - For DLP analysis: user provides their DLP policy connector groups,
+     agent cross-references against the inventory
 ```
 
-> The `connections` field is a JSON string containing an array of objects
-> with `apiName`, `apiId`, `connectionName`, `tier`. Parse with `json.loads()`.
+> DLP policy definitions are not available via MCP. The agent builds the
+> connector inventory; the user provides the DLP classification to
+> cross-reference against.
 
 ### 5. Notification Rule Management
 
@@ -179,27 +208,28 @@ Configure monitoring and alerting for flows at scale.
 
 ```
 Enable failure alerts on all critical flows:
-1. list_store_flows(monitor=True)
-2. For each flow where critical=true but rule_notify_onfail is not set:
-   - update_store_flow(
+1. list_store_flows(monitor=true)
+2. For each flow (skip entries without displayName):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+   - If critical=true AND rule_notify_onfail is not true:
+     update_store_flow(environmentName, flowName,
        rule_notify_onfail=true,
-       rule_notify_email="oncall@contoso.com"
-     )
+       rule_notify_email="oncall@contoso.com")
 
 Enable missing-run detection for scheduled flows:
-1. list_store_flows(monitor=True)
-2. For each flow where triggerType="Recurrence" and rule_notify_onmissingdays=0:
-   - update_store_flow(rule_notify_onmissingdays=2)
+1. list_store_flows(monitor=true)
+2. For each flow where triggerType="Recurrence" (available on list response):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+   - If rule_notify_onmissingdays is 0 or not set:
+     update_store_flow(environmentName, flowName,
+       rule_notify_onmissingdays=2)
 ```
 
-> `rule_notify_onfail`: triggers the notification pipeline to email on any
-> failed run detected during the daily scan.
->
-> `rule_notify_onmissingdays`: triggers notification when a flow hasn't
-> run in N days — use for SLA monitoring on scheduled flows.
->
-> `rule_notify_email`: comma-separated recipient list. Falls back to the
-> flow creator's email if not set.
+> `critical`, `rule_notify_onfail`, and `rule_notify_onmissingdays` are only
+> available from `get_store_flow`, not from `list_store_flows`. The list call
+> pre-filters to monitored flows; the detail call checks the notification fields.
 
 ### 6. Classification and Tagging
 
@@ -208,23 +238,23 @@ Bulk-classify flows by connector type, business function, or risk level.
 ```
 Auto-tag by connector:
 1. list_store_flows
-2. For each flow: get_store_flow → parse connections
-3. Build tags from connector names:
-   - shared_sharepointonline → #sharepoint
-   - shared_teams → #teams
-   - shared_office365 → #email
-   - Custom connectors → #custom-connector
-   - HTTP actions → #http-external
-4. update_store_flow(tags="#sharepoint #teams")
-
-Auto-classify tier:
-1. For each flow: check connections for premium connectors
-2. update_store_flow(tier="Premium") or tier="Standard"
+2. For each flow (skip entries without displayName):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+   - Parse connections: json.loads(record["connections"])
+   - Build tags from apiName values:
+     shared_sharepointonline → #sharepoint
+     shared_teams → #teams
+     shared_office365 → #email
+     Custom connectors → #custom-connector
+     HTTP-related connectors → #http-external
+   - update_store_flow(environmentName, flowName,
+       tags="#sharepoint #teams")
 ```
 
-> Tags can be set two ways: (1) in the `description` field using `#hashtag`
-> format (auto-extracted by `list_store_flows`), or (2) explicitly via the
-> `tags` parameter on `update_store_flow`.
+> `get_store_flow` already has a `tier` field (Standard/Premium) computed
+> by the scanning pipeline. Only use `update_store_flow(tier=...)` if you
+> need to override it.
 
 ### 7. Maker Offboarding
 
@@ -232,15 +262,27 @@ When an employee leaves, identify and reassign their flows and apps.
 
 ```
 1. get_store_maker(makerKey="<departing-user-aad-oid>")
-   → confirms ownerFlowCount, ownerAppCount
-2. list_store_flows → filter where owners JSON contains the maker's OID
-3. list_store_power_apps → filter where ownerId matches
-4. For each flow:
-   - Assess: is it still needed? (check runPeriodTotal, last run date)
-   - If keeping: update_store_flow(ownerTeam="NewTeam", supportEmail="new-owner@...")
-   - If archiving: set_store_flow_state(state="Stopped")
-5. Report: flows reassigned, flows stopped, apps needing manual reassignment
+   → check ownerFlowCount, ownerAppCount, deleted status
+2. list_store_flows → collect all flows
+3. For each flow (skip entries without displayName):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+   - Parse owners: json.loads(record["owners"])
+   - If any principalId matches the departing user's OID → flag
+4. list_store_power_apps → filter where ownerId matches the OID
+5. For each flagged flow:
+   - Check runPeriodTotal and runLast — is it still active?
+   - If keeping:
+     update_store_flow(environmentName, flowName,
+       ownerTeam="NewTeam", supportEmail="new-owner@contoso.com")
+   - If decommissioning:
+     set_store_flow_state(environmentName, flowName, state="Stopped")
+     update_store_flow(environmentName, flowName, tags="#decommissioned")
+6. Report: flows reassigned, flows stopped, apps needing manual reassignment
 ```
+
+> Power Apps ownership cannot be changed via MCP tools. Report them for
+> manual reassignment in the Power Apps admin center.
 
 ### 8. Security Review
 
@@ -248,14 +290,21 @@ Identify flows with potential security concerns.
 
 ```
 1. list_store_flows
-2. For each flow: get_store_flow → parse security JSON
+2. For each flow (skip entries without displayName):
+   - Split id → environmentName, flowName
+   - get_store_flow(environmentName, flowName)
+   - Parse security: json.loads(record["security"])
+   - Parse connections: json.loads(record["connections"])
+   - Read sharingType directly (top-level field, NOT inside security JSON)
 3. Flag flows where:
-   - triggerAuthenticationType = "All" (no auth on HTTP trigger — open to internet)
-   - sharingType = "Coauthor" or shared broadly
-   - connections include HTTP connector (arbitrary outbound requests)
-   - referencedResources point to external URLs
-4. update_store_flow(security="reviewed", tags="#security-reviewed")
-   or escalate for manual review
+   - security.triggerRequestAuthenticationType = "All"
+     (no auth on HTTP trigger — open to internet)
+   - sharingType = "Coauthor" (shared with co-authors, broader access)
+   - connections contain HTTP connector (arbitrary outbound requests)
+   - json.loads(referencedResources) points to external URLs
+4. For reviewed flows:
+   update_store_flow(environmentName, flowName, tags="#security-reviewed")
+   Do NOT overwrite the security field — it contains structured auth data
 ```
 
 ### 9. Environment Governance
@@ -267,12 +316,13 @@ Audit environments for compliance and sprawl.
 2. Flag:
    - Developer environments (sku="Developer") — should be limited
    - Non-managed environments (isManagedEnvironment=false) — less governance
-   - Environments with no admin (isAdmin=false)
+   - Note: isAdmin=false means the current service account lacks admin
+     access to that environment, not that the environment has no admin
 3. list_store_flows → group by environmentName
-   - Which environments have the most flows?
-   - Which environments have the highest failure rates?
+   - Flow count per environment
+   - For failure rate analysis: get_store_flow per flow → runPeriodFailRate
 4. list_store_connections → group by environmentName
-   - Connection sprawl per environment
+   - Connection count per environment
 ```
 
 ### 10. Governance Dashboard
@@ -280,19 +330,33 @@ Audit environments for compliance and sprawl.
 Generate a tenant-wide governance summary.
 
 ```
-1. list_store_flows → total, by state, by tier
-2. list_store_makers → total active, deleted with orphaned flows
-3. list_store_power_apps → total, shared broadly
-4. list_store_environments → total, by SKU
-5. list_store_connections → total
+Efficient metrics (list calls only):
+1. total_flows = len(list_store_flows())
+2. monitored = len(list_store_flows(monitor=true))
+3. with_onfail = len(list_store_flows(rule_notify_onfail=true))
+4. makers = list_store_makers()
+   → active = count where deleted=false
+   → orphan_count = count where deleted=true AND ownerFlowCount > 0
+5. apps = list_store_power_apps()
+   → widely_shared = count where sharedUsersCount > 3
+6. envs = list_store_environments() → count, group by sku
+7. conns = list_store_connections() → count
 
-Compute governance metrics:
+Compute from list data:
+- Monitoring %: monitored / total_flows
+- Notification %: with_onfail / monitored
+- Orphan count: from step 4
+
+Detailed metrics (require get_store_flow per flow — expensive for large tenants):
 - Compliance %: flows with businessImpact set / total active flows
-- Monitoring %: flows with monitor=true / total active flows
-- Notification %: flows with rule_notify_onfail / monitored flows
-- Orphan count: deleted makers with ownerFlowCount > 0
 - High-risk count: flows with runPeriodFailRate > 0.2
 - Undocumented count: flows without description
+- Tier breakdown: group by tier field
+
+For detailed metrics, iterate all flows in a single pass:
+  For each flow from list_store_flows (skip sparse entries):
+    get_store_flow(environmentName, flowName)
+    → accumulate businessImpact, runPeriodFailRate, description, tier
 ```
 
 ---
@@ -317,16 +381,17 @@ Compute governance metrics:
 | `tags` | string | Classification |
 | `runPeriodTotal` | number | Activity level |
 | `runPeriodFailRate` | number | Health status |
+| `runLast` | ISO string | Last run timestamp |
 | `scanned` | ISO string | Data freshness |
 | `deleted` | bool | Lifecycle tracking |
 | `createdTime` | ISO string | Archive score (age) |
 | `lastModifiedTime` | ISO string | Archive score (staleness) |
-| `owners` | JSON string | Orphan detection, ownership audit |
-| `connections` | JSON string | Connector audit, DLP, tier classification |
-| `complexity` | JSON string | Archive score (simplicity) |
-| `security` | JSON string | Security review (auth type, sharing) |
-| `sharingType` | string | Oversharing detection |
-| `referencedResources` | JSON string | URL audit, external dependency tracking |
+| `owners` | JSON string | Orphan detection, ownership audit — parse with json.loads() |
+| `connections` | JSON string | Connector audit, tier — parse with json.loads() |
+| `complexity` | JSON string | Archive score (simplicity) — parse with json.loads() |
+| `security` | JSON string | Auth type audit — parse with json.loads(), contains `triggerRequestAuthenticationType` |
+| `sharingType` | string | Oversharing detection (top-level, NOT inside security) |
+| `referencedResources` | JSON string | URL audit — parse with json.loads() |
 
 ---
 
