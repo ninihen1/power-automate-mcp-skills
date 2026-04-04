@@ -1,6 +1,6 @@
 # Fix expression error in child flow
 
-Real production case: ArtsVision Timesheet child flow failing intermittently.
+Real production case: Contoso Timesheet child flow failing intermittently.
 
 ## What the portal showed
 
@@ -16,7 +16,7 @@ failed or what input caused it.
 ### 1. Listed recent runs of the parent flow
 
 ```
-Agent: list_live_flows → found "ArtsVision Timesheet" parent flow
+Agent: list_live_flows → found "Contoso Timesheet" parent flow
 Agent: get_live_flow_runs → found 2 recent runs: one succeeded, one failed
 ```
 
@@ -28,7 +28,7 @@ only shows one run at a time and hides action-level detail behind click-through.
 
 ### 3. Traced into the child flow
 
-The failed run showed the parent flow called a child flow ("ArtsVision
+The failed run showed the parent flow called a child flow ("Contoso
 Timesheet Child"). The agent followed the child flow's run ID and retrieved
 its action outputs.
 

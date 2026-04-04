@@ -33,6 +33,10 @@ Thumbs.db
 # AI agent worktrees
 .claude/
 
+# Internal docs (not for public repo)
+SUBMISSION-STATUS.md
+docs/streamable-http-upgrade-spec.md
+
 # Local experimentation
 Learn-Experiment/
 

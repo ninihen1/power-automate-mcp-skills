@@ -1,6 +1,6 @@
 # Null value crashes child flow
 
-Real production case: "ArtsVision Technical Roster for TOIL" parent + child
+Real production case: "Contoso Technical Roster for TOIL" parent + child
 flow. Child flow crashing on a subset of records.
 
 ## What the portal showed
@@ -35,7 +35,7 @@ Crashed when `Name` was **null**. `split()` cannot operate on null.
 ### 3. Measured the scope of the problem
 
 The agent scanned all loop iteration outputs at once and found that **38% of
-ArtsVision records had null Name fields**. This was not an edge case — it
+Contoso records had null Name fields**. This was not an edge case — it
 was a systemic data quality issue.
 
 In the portal, a human would need to click through each iteration one by one
