@@ -65,7 +65,7 @@ Required parameters: `environmentName`, `flowName`. All other fields optional.
 
 | Field | Type | Purpose |
 |---|---|---|
-| `monitor` | bool | Enable run-level scanning and per-run data collection |
+| `monitor` | bool | Enable run-level scanning (standard plan: 20 flows included) |
 | `rule_notify_onfail` | bool | Send email notification on any failed run |
 | `rule_notify_onmissingdays` | number | Send notification when flow hasn't run in N days (0 = disabled) |
 | `rule_notify_email` | string | Comma-separated notification recipients |
@@ -97,38 +97,36 @@ Identify flows missing required governance metadata — the equivalent of
 the CoE Starter Kit's Developer Compliance Center.
 
 ```
-1. list_store_flows
-2. For each flow (skip entries without displayName):
+1. Ask the user which compliance fields they require
+   (or use their organization's existing governance policy)
+2. list_store_flows
+3. For each flow (skip entries without displayName):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
-   - Check these compliance rules:
-     ALWAYS required for active flows (runPeriodTotal > 0):
-       - businessImpact must be set (Low / Medium / High / Critical)
-       - ownerTeam must be set
-       - description must be set
-     ADDITIONALLY required when businessImpact is High or Critical:
-       - businessJustification must be set
-       - supportEmail must be set
-       - monitor must be true
-     ADDITIONALLY required when critical is true:
-       - rule_notify_onfail must be true
-3. Report non-compliant flows with missing fields listed
-4. For each non-compliant flow:
-   - Ask the user for values (businessImpact, ownerTeam, etc.)
+   - Check which required fields are missing or empty
+4. Report non-compliant flows with missing fields listed
+5. For each non-compliant flow:
+   - Ask the user for values
    - update_store_flow(environmentName, flowName, ...provided fields)
 ```
 
-**Compliance rules summary:**
+**Fields available for compliance checks:**
 
-| Field | Required when |
+| Field | Example policy |
 |---|---|
-| `businessImpact` | Always for active flows (runPeriodTotal > 0) |
-| `ownerTeam` | Always for active flows |
-| `description` | Always |
-| `businessJustification` | When businessImpact is High or Critical |
-| `supportEmail` | When businessImpact is High or Critical |
-| `monitor` | When businessImpact is High or Critical |
-| `rule_notify_onfail` | When critical is true |
+| `description` | Every flow should be documented |
+| `businessImpact` | Classify as Low / Medium / High / Critical |
+| `businessJustification` | Required for High/Critical impact flows |
+| `ownerTeam` | Every flow should have an accountable team |
+| `supportEmail` | Required for production flows |
+| `monitor` | Required for critical flows (note: standard plan includes 20 monitored flows) |
+| `rule_notify_onfail` | Recommended for monitored flows |
+| `critical` | Designate business-critical flows |
+
+> Each organization defines their own compliance rules. The fields above are
+> suggestions based on common Power Platform governance patterns (CoE Starter
+> Kit). Ask the user what their requirements are before flagging flows as
+> non-compliant.
 
 ### 2. Orphaned Resource Detection
 
@@ -240,6 +238,11 @@ Enable missing-run detection for scheduled flows:
 > `critical`, `rule_notify_onfail`, and `rule_notify_onmissingdays` are only
 > available from `get_store_flow`, not from `list_store_flows`. The list call
 > pre-filters to monitored flows; the detail call checks the notification fields.
+>
+> **Monitoring limit:** The standard plan (FlowStudio for Teams / MCP Pro+)
+> includes 20 monitored flows. Before bulk-enabling `monitor=true`, check
+> how many flows are already monitored:
+> `len(list_store_flows(monitor=true))`
 
 ### 6. Classification and Tagging
 
