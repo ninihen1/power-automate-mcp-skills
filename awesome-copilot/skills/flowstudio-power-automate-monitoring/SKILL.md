@@ -61,7 +61,7 @@ enriched with governance metadata and remediation hints.
 ## How Monitoring Works
 
 Flow Studio has a scanning pipeline that runs daily for each FlowStudio for
-Teams subscriber. The pipeline scans the Power Automate API and writes
+Teams subscriber and MCP Pro+ subscriber. The pipeline scans the Power Automate API and writes
 results to per-workspace Azure Table Storage.
 
 ### Two levels of scanning
