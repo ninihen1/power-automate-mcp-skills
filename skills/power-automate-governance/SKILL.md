@@ -176,11 +176,13 @@ candidates. Aligns with the CoE Starter Kit's archive scoring.
 4. Classify:
    Score 5-7: Recommend archive — report to user for confirmation
    Score 3-4: Flag for review →
-     update_store_flow(environmentName, flowName, tags="#archive-review")
+     Read existing tags from get_store_flow response, append #archive-review
+     update_store_flow(environmentName, flowName, tags="<existing> #archive-review")
    Score 0-2: Active, no action
 5. For user-confirmed archives:
    set_store_flow_state(environmentName, flowName, state="Stopped")
-   update_store_flow(environmentName, flowName, tags="#archived")
+   Read existing tags, append #archived
+   update_store_flow(environmentName, flowName, tags="<existing> #archived")
 ```
 
 ### 4. Connector Audit
