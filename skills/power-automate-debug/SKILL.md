@@ -72,35 +72,6 @@ ENV = "<environment-id>"   # e.g. Default-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 ---
 
-## Optional: Fast-Path Diagnosis via Cached Store
-
-> **Requires** FlowStudio for Teams or MCP Pro+ subscription.
-> These are store tools from the `power-automate-monitoring` skill.
-> If unavailable, skip to Step 1 below — the live API workflow is
-> fully self-contained.
-
-If store tools are available, `get_store_flow_errors` returns per-run
-failure data including action names and remediation hints in a single
-call — no need to walk through live API steps 2–4.
-
-```python
-# Quick failure summary
-summary = mcp("get_store_flow_summary", environmentName=ENV, flowName=FLOW_ID)
-print(f"Fail rate: {summary['failRate']:.0%} over {summary['totalRuns']} runs")
-
-# Per-run error details (requires monitor=true on the flow)
-errors = mcp("get_store_flow_errors", environmentName=ENV, flowName=FLOW_ID)
-if errors:
-    for r in errors[:3]:
-        print(r["startTime"], "|", r.get("failedActions"), "|", r.get("remediationHint"))
-    # If errors confirms the failing action → jump to Step 6 (apply fix)
-else:
-    # No cached run data — fall through to live API workflow below
-    pass
-```
-
----
-
 ## Step 1 — Locate the Flow
 
 ```python
