@@ -110,7 +110,7 @@ Direct array. Filters: `monitor` (bool), `rule_notify_onfail` (bool),
 ```json
 [
   {
-    "id": "Default-26e65220-....0f368466-...",
+    "id": "Default-<envGuid>.<flowGuid>",
     "displayName": "Stripe subscription updated",
     "state": "Started",
     "triggerType": "Request",
@@ -126,7 +126,8 @@ Direct array. Filters: `monitor` (bool), `rule_notify_onfail` (bool),
 ]
 ```
 
-> `id` format: `envId.flowId`. Split on first `.` to get the flow UUID.
+> `id` format: `Default-<envGuid>.<flowGuid>`. Split on first `.` to get
+> `environmentName` and `flowName`.
 >
 > `triggerUrl` and `tags` are optional. Some entries are sparse (just `id` +
 > `monitor`) — skip entries without `displayName`.
@@ -159,7 +160,7 @@ Aggregated stats over a time window (default: last 7 days).
 
 ```json
 {
-  "flowKey": "Default-26e65220-....0f368466-...",
+  "flowKey": "Default-<envGuid>.<flowGuid>",
   "windowStart": null,
   "windowEnd": null,
   "totalRuns": 82,
@@ -189,7 +190,7 @@ Parameters: `startTime`, `endTime`, `status` (array: `["Failed"]`,
 
 ```json
 {
-  "flowKey": "Default-26e65220-....0f368466-...",
+  "flowKey": "Default-<envGuid>.<flowGuid>",
   "displayName": "Stripe subscription updated",
   "triggerType": "Request",
   "triggerKind": "Http",

@@ -43,9 +43,9 @@ the `power-automate-monitoring` skill.
 on the first `.`** to get `environmentName` and `flowName` for all other tools:
 
 ```
-id = "Default-26e65220-....0f368466-b6b1-44ed-999c-94791124e402"
-environmentName = "Default-26e65220-..."   (everything before first ".")
-flowName = "0f368466-b6b1-44ed-999c-94791124e402"  (everything after first ".")
+id = "Default-<envGuid>.<flowGuid>"
+environmentName = "Default-<envGuid>"    (everything before first ".")
+flowName = "<flowGuid>"                  (everything after first ".")
 ```
 
 Also: skip entries from `list_store_flows` that have no `displayName` —
