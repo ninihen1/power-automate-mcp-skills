@@ -73,14 +73,15 @@ ENV = "<environment-id>"  # e.g. Default-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 Always look before you build to avoid duplicates:
 
 ```python
-results = mcp("list_store_flows",
-    environmentName=ENV, searchTerm="My New Flow")
+results = mcp("list_live_flows", environmentName=ENV)
 
-# list_store_flows returns a direct array (no wrapper object)
-if len(results) > 0:
+# list_live_flows returns { "flows": [...] }
+matches = [f for f in results["flows"]
+           if "My New Flow".lower() in f["displayName"].lower()]
+
+if len(matches) > 0:
     # Flow exists — modify rather than create
-    # id format is "<environmentId>.<flowId>" — split to get the flow UUID
-    FLOW_ID = results[0]["id"].split(".", 1)[1]
+    FLOW_ID = matches[0]["id"]   # plain UUID from list_live_flows
     print(f"Existing flow: {FLOW_ID}")
     defn = mcp("get_live_flow", environmentName=ENV, flowName=FLOW_ID)
 else:
