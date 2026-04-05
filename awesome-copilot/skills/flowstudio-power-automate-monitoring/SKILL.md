@@ -374,7 +374,7 @@ Direct array.
 
 ## Related Skills
 
-- `power-automate-mcp` — Core connection setup, live tool reference
-- `power-automate-debug` — Deep diagnosis with action-level inputs/outputs (live API)
-- `power-automate-build` — Build and deploy flow definitions
-- `power-automate-governance` — Governance metadata, tagging, notification rules, CoE patterns
+- `flowstudio-power-automate-mcp` — Core connection setup, live tool reference
+- `flowstudio-power-automate-debug` — Deep diagnosis with action-level inputs/outputs (live API)
+- `flowstudio-power-automate-build` — Build and deploy flow definitions
+- `flowstudio-power-automate-governance` — Governance metadata, tagging, notification rules, CoE patterns

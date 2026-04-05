@@ -29,7 +29,7 @@ without the Power Automate portal.
 This skill uses `update_store_flow` to write governance metadata and the
 monitoring tools (`list_store_flows`, `get_store_flow`, `list_store_makers`,
 etc.) to read tenant state. For monitoring and health-check workflows, see
-the `power-automate-monitoring` skill.
+the `flowstudio-power-automate-monitoring` skill.
 
 > **Start every session with `tools/list`** to confirm tool names and parameters.
 > This skill covers workflows and patterns — things `tools/list` cannot tell you.
@@ -43,9 +43,9 @@ the `power-automate-monitoring` skill.
 on the first `.`** to get `environmentName` and `flowName` for all other tools:
 
 ```
-id = "Default-26e65220-....0f368466-b6b1-44ed-999c-94791124e402"
-environmentName = "Default-26e65220-..."   (everything before first ".")
-flowName = "0f368466-b6b1-44ed-999c-94791124e402"  (everything after first ".")
+id = "Default-<envGuid>.<flowGuid>"
+environmentName = "Default-<envGuid>"    (everything before first ".")
+flowName = "<flowGuid>"                  (everything after first ".")
 ```
 
 Also: skip entries from `list_store_flows` that have no `displayName` —
@@ -424,7 +424,7 @@ Fields marked with `*` are also available on `list_store_flows` (cheaper).
 
 ## Related Skills
 
-- `power-automate-monitoring` — Health checks, failure rates, inventory (read-only)
-- `power-automate-mcp` — Core connection setup, live tool reference
-- `power-automate-debug` — Deep diagnosis with action-level inputs/outputs
-- `power-automate-build` — Build and deploy flow definitions
+- `flowstudio-power-automate-monitoring` — Health checks, failure rates, inventory (read-only)
+- `flowstudio-power-automate-mcp` — Core connection setup, live tool reference
+- `flowstudio-power-automate-debug` — Deep diagnosis with action-level inputs/outputs
+- `flowstudio-power-automate-build` — Build and deploy flow definitions

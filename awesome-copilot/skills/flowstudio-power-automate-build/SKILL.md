@@ -24,7 +24,7 @@ Step-by-step guide for constructing and deploying Power Automate cloud flows
 programmatically through the FlowStudio MCP server.
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
-See the `power-automate-mcp` skill for connection setup.  
+See the `flowstudio-power-automate-mcp` skill for connection setup.  
 Subscribe at https://mcp.flowstudio.app
 
 ---
@@ -191,7 +191,7 @@ for connector in connectors_needed:
 > connection_references = ref_flow["properties"]["connectionReferences"]
 > ```
 
-See the `power-automate-mcp` skill's **connection-references.md** reference
+See the `flowstudio-power-automate-mcp` skill's **connection-references.md** reference
 for the full connection reference structure.
 
 ---
@@ -474,5 +474,5 @@ The `body/recipient` parameter format depends on the `location` value:
 
 ## Related Skills
 
-- `power-automate-mcp` — Core connection setup and tool reference
-- `power-automate-debug` — Debug failing flows after deployment
+- `flowstudio-power-automate-mcp` — Core connection setup and tool reference
+- `flowstudio-power-automate-debug` — Debug failing flows after deployment

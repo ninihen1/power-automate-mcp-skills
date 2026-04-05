@@ -28,7 +28,7 @@ cloud flows through the FlowStudio MCP server.
 > [Null value crashes child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/main/examples/null-child-flow.md)
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
-See the `power-automate-mcp` skill for connection setup.  
+See the `flowstudio-power-automate-mcp` skill for connection setup.  
 Subscribe at https://mcp.flowstudio.app
 
 ---
@@ -461,5 +461,5 @@ print(f"Status: {result['responseStatus']}, Body: {result.get('responseBody')}")
 
 ## Related Skills
 
-- `power-automate-mcp` — Core connection setup and operation reference
-- `power-automate-build` — Build and deploy new flows
+- `flowstudio-power-automate-mcp` — Core connection setup and operation reference
+- `flowstudio-power-automate-build` — Build and deploy new flows
