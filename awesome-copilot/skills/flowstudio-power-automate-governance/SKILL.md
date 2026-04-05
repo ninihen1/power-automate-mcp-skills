@@ -39,7 +39,7 @@ the `flowstudio-power-automate-monitoring` skill.
 
 ## Critical: How to Extract Flow IDs
 
-`list_store_flows` returns `id` in format `envId.flowId`. **You must split
+`list_store_flows` returns `id` in format `<environmentId>.<flowId>`. **You must split
 on the first `.`** to get `environmentName` and `flowName` for all other tools:
 
 ```

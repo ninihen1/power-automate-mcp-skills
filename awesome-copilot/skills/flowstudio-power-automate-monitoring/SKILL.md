@@ -254,7 +254,7 @@ Direct array. Can be very large (1500+ items).
 ```json
 [
   {
-    "id": "envId.connectionId",
+    "id": "<environmentId>.<connectionId>",
     "displayName": "user@contoso.com",
     "createdBy": "{\"id\":\"...\",\"displayName\":\"...\",\"email\":\"...\"}",
     "environmentName": "...",
@@ -300,7 +300,7 @@ Direct array.
 ```json
 [
   {
-    "id": "envId.appId",
+    "id": "<environmentId>.<appId>",
     "displayName": "My App",
     "environmentName": "...",
     "ownerId": "09dbe02f-...",
