@@ -71,9 +71,9 @@ Get your token at [mcp.flowstudio.app](https://mcp.flowstudio.app).
 
 Inside a Codex session, install skills directly:
 ```
-$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-mcp
-$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-debug
-$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-build
+$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/main/skills/power-automate-mcp
+$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/main/skills/power-automate-debug
+$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/main/skills/power-automate-build
 ```
 
 Then connect the MCP server in `~/.codex/config.toml`:

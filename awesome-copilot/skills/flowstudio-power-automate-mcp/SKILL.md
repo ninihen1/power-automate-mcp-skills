@@ -25,9 +25,9 @@ This skill lets AI agents read, monitor, and operate Microsoft Power Automate
 cloud flows programmatically through a **FlowStudio MCP server** — no browser,
 no UI, no manual steps.
 
-> **Real debugging examples**: [Expression error in child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/master/examples/fix-expression-error.md) |
-> [Data entry, not a flow bug](https://github.com/ninihen1/power-automate-mcp-skills/blob/master/examples/data-not-flow.md) |
-> [Null value crashes child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/master/examples/null-child-flow.md)
+> **Real debugging examples**: [Expression error in child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/main/examples/fix-expression-error.md) |
+> [Data entry, not a flow bug](https://github.com/ninihen1/power-automate-mcp-skills/blob/main/examples/data-not-flow.md) |
+> [Null value crashes child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/main/examples/null-child-flow.md)
 
 > **Requires:** A [FlowStudio](https://mcp.flowstudio.app) MCP subscription (or
 > compatible Power Automate MCP server). You will need:

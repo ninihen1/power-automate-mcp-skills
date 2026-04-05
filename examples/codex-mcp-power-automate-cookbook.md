@@ -49,8 +49,8 @@ Get your token at [mcp.flowstudio.app](https://mcp.flowstudio.app).
 Inside a Codex session:
 
 ```
-$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-mcp
-$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/master/skills/power-automate-debug
+$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/main/skills/power-automate-mcp
+$skill-installer install https://github.com/ninihen1/power-automate-mcp-skills/tree/main/skills/power-automate-debug
 ```
 
 ### 3. Verify the connection
@@ -149,4 +149,4 @@ Everything else (child flow tracing, loop iteration scanning, expression error c
 - [Flow Studio MCP](https://mcp.flowstudio.app) — subscription and token
 - [GitHub repo](https://github.com/ninihen1/power-automate-mcp-skills) — skills, examples, plugin manifests
 - [skills.sh](https://skills.sh/?q=flowstudio) — 3K+ installs
-- [More examples](https://github.com/ninihen1/power-automate-mcp-skills/tree/master/examples)
+- [More examples](https://github.com/ninihen1/power-automate-mcp-skills/tree/main/examples)
