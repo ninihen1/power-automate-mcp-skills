@@ -57,6 +57,10 @@ a flow was last scanned. If stale, the scanning pipeline may not be running.
 Flow Studio for Teams app
 ([how to select flows](https://learn.flowstudio.app/teams-monitoring)).
 
+**Designating critical flows:** Use `update_store_flow` with `critical=true`
+on business-critical flows. This enables the governance skill's notification
+rule management to auto-configure failure alerts on critical flows.
+
 ---
 
 ## Tools
@@ -132,8 +136,10 @@ Direct array. Filters: `monitor` (bool), `rule_notify_onfail` (bool),
 > `triggerUrl` and `tags` are optional. Some entries are sparse (just `id` +
 > `monitor`) — skip entries without `displayName`.
 >
-> Tags are auto-extracted from the `description` field using `#hashtag`
-> format. Can also be set explicitly via `update_store_flow`.
+> Tags on `list_store_flows` are auto-extracted from the flow's `description`
+> field (maker hashtags like `#operations`). Tags written via
+> `update_store_flow(tags=...)` are stored separately and only visible on
+> `get_store_flow` — they do NOT appear in the list response.
 
 ### `get_store_flow`
 

@@ -48,15 +48,31 @@ environmentName = "Default-<envGuid>"    (everything before first ".")
 flowName = "<flowGuid>"                  (everything after first ".")
 ```
 
-Also: skip entries from `list_store_flows` that have no `displayName` —
-these are sparse/orphaned records.
+Also: skip entries that have no `displayName` or have `state=Deleted` —
+these are sparse records or flows that no longer exist in Power Automate.
+If a deleted flow has `monitor=true`, suggest disabling monitoring
+(`update_store_flow` with `monitor=false`) to free up a monitoring slot
+(standard plan includes 20).
 
 ---
 
 ## The Write Tool: `update_store_flow`
 
-`update_store_flow` is the only tool that writes governance metadata. It uses
-merge semantics — only fields you provide are updated. Returns the full
+`update_store_flow` writes governance metadata to the **Flow Studio cache
+only** — it does NOT modify the flow in Power Automate. These fields are
+not visible via `get_live_flow` or the PA portal. They exist only in the
+Flow Studio store and are used by Flow Studio's scanning pipeline and
+notification rules.
+
+This means:
+- `ownerTeam` / `supportEmail` — sets who Flow Studio considers the
+  governance contact. Does NOT change the actual PA flow owner.
+- `rule_notify_email` — sets who receives Flow Studio failure/missing-run
+  notifications. Does NOT change Microsoft's built-in flow failure alerts.
+- `monitor` / `critical` / `businessImpact` — Flow Studio classification
+  only. Power Automate has no equivalent fields.
+
+Merge semantics — only fields you provide are updated. Returns the full
 updated record (same shape as `get_store_flow`).
 
 Required parameters: `environmentName`, `flowName`. All other fields optional.
@@ -100,7 +116,7 @@ the CoE Starter Kit's Developer Compliance Center.
 1. Ask the user which compliance fields they require
    (or use their organization's existing governance policy)
 2. list_store_flows
-3. For each flow (skip entries without displayName):
+3. For each flow (skip entries without displayName or state=Deleted):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
    - Check which required fields are missing or empty
@@ -127,6 +143,10 @@ the CoE Starter Kit's Developer Compliance Center.
 > suggestions based on common Power Platform governance patterns (CoE Starter
 > Kit). Ask the user what their requirements are before flagging flows as
 > non-compliant.
+>
+> **Tip:** Flows created or updated via MCP already have `description`
+> (auto-appended by `update_live_flow`). Flows created manually in the
+> Power Automate portal are the ones most likely missing governance metadata.
 
 ### 2. Orphaned Resource Detection
 
@@ -137,7 +157,7 @@ Find flows owned by deleted or disabled Azure AD accounts.
 2. Filter where deleted=true AND ownerFlowCount > 0
    Note: deleted makers have NO displayName/mail — record their id (AAD OID)
 3. list_store_flows → collect all flows
-4. For each flow (skip entries without displayName):
+4. For each flow (skip entries without displayName or state=Deleted):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
    - Parse owners: json.loads(record["owners"])
@@ -153,6 +173,14 @@ Find flows owned by deleted or disabled Azure AD accounts.
 > `update_store_flow` updates governance metadata in the cache only. To
 > transfer actual PA ownership, an admin must use the Power Platform admin
 > center or PowerShell.
+>
+> **Note:** Many orphaned flows are system-generated (created by
+> `DataverseSystemUser` accounts for SLA monitoring, knowledge articles,
+> etc.). These were never built by a person — consider tagging them
+> rather than reassigning.
+>
+> **Coverage:** This workflow searches the cached store only, not the
+> live PA API. Flows created after the last scan won't appear.
 
 ### 3. Archive Score Calculation
 
@@ -161,7 +189,7 @@ candidates. Aligns with the CoE Starter Kit's archive scoring.
 
 ```
 1. list_store_flows
-2. For each flow (skip entries without displayName):
+2. For each flow (skip entries without displayName or state=Deleted):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
 3. Compute archive score (0-7), add 1 point for each:
@@ -185,14 +213,21 @@ candidates. Aligns with the CoE Starter Kit's archive scoring.
    update_store_flow(environmentName, flowName, tags="<existing> #archived")
 ```
 
+> **What "archive" means:** Power Automate has no native archive feature.
+> Archiving via MCP means: (1) stop the flow so it can't run, and
+> (2) tag it `#archived` so it's discoverable for future cleanup.
+> Actual deletion requires the Power Automate portal or admin PowerShell
+> — it cannot be done via MCP tools.
+
 ### 4. Connector Audit
 
-Audit which connectors are in use across the tenant. Useful for DLP impact
-analysis and premium license planning.
+Audit which connectors are in use across monitored flows. Useful for DLP
+impact analysis and premium license planning.
 
 ```
-1. list_store_flows
-2. For each flow (skip entries without displayName):
+1. list_store_flows(monitor=true)
+   (scope to monitored flows — auditing all 1000+ flows is expensive)
+2. For each flow (skip entries without displayName or state=Deleted):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
    - Parse connections: json.loads(record["connections"])
@@ -208,6 +243,15 @@ analysis and premium license planning.
      agent cross-references against the inventory
 ```
 
+> **Scope to monitored flows.** Each flow requires a `get_store_flow` call
+> to read the `connections` JSON. Standard plans have ~20 monitored flows —
+> manageable. Auditing all flows in a large tenant (1000+) would be very
+> expensive in API calls.
+>
+> **`list_store_connections`** returns connection instances (who created
+> which connection) but NOT connector types per flow. Use it for connection
+> counts per environment, not for the connector audit.
+>
 > DLP policy definitions are not available via MCP. The agent builds the
 > connector inventory; the user provides the DLP classification to
 > cross-reference against.
@@ -219,17 +263,21 @@ Configure monitoring and alerting for flows at scale.
 ```
 Enable failure alerts on all critical flows:
 1. list_store_flows(monitor=true)
-2. For each flow (skip entries without displayName):
+2. For each flow (skip entries without displayName or state=Deleted):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
    - If critical=true AND rule_notify_onfail is not true:
      update_store_flow(environmentName, flowName,
        rule_notify_onfail=true,
        rule_notify_email="oncall@contoso.com")
+   - If NO flows have critical=true: this is a governance finding.
+     Recommend the user designate their most important flows as critical
+     using update_store_flow(critical=true) before configuring alerts.
 
 Enable missing-run detection for scheduled flows:
 1. list_store_flows(monitor=true)
 2. For each flow where triggerType="Recurrence" (available on list response):
+   - Skip flows with state="Stopped" or "Suspended" (not expected to run)
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
    - If rule_notify_onmissingdays is 0 or not set:
@@ -253,7 +301,7 @@ Bulk-classify flows by connector type, business function, or risk level.
 ```
 Auto-tag by connector:
 1. list_store_flows
-2. For each flow (skip entries without displayName):
+2. For each flow (skip entries without displayName or state=Deleted):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
    - Parse connections: json.loads(record["connections"])
@@ -268,9 +316,16 @@ Auto-tag by connector:
        tags="<existing tags> #sharepoint #teams")
 ```
 
-> **Tag merge:** `update_store_flow(tags=...)` overwrites the entire tags
-> field. To avoid losing tags from other workflows, always read the current
-> tags first, append new ones, then write back.
+> **Two tag systems:** Tags shown in `list_store_flows` are auto-extracted
+> from the flow's `description` field (e.g. a maker writes `#operations` in
+> the PA portal description). Tags set via `update_store_flow(tags=...)`
+> write to a separate field in the Azure Table cache. They are independent —
+> writing store tags does not touch the description, and editing the
+> description in the portal does not affect store tags.
+>
+> **Tag merge:** `update_store_flow(tags=...)` overwrites the store tags
+> field. To avoid losing tags from other workflows, read the current store
+> tags from `get_store_flow` first, append new ones, then write back.
 >
 > `get_store_flow` already has a `tier` field (Standard/Premium) computed
 > by the scanning pipeline. Only use `update_store_flow(tier=...)` if you
@@ -278,13 +333,14 @@ Auto-tag by connector:
 
 ### 7. Maker Offboarding
 
-When an employee leaves, identify and reassign their flows and apps.
+When an employee leaves, identify their flows and apps, and reassign
+Flow Studio governance contacts and notification recipients.
 
 ```
 1. get_store_maker(makerKey="<departing-user-aad-oid>")
    → check ownerFlowCount, ownerAppCount, deleted status
 2. list_store_flows → collect all flows
-3. For each flow (skip entries without displayName):
+3. For each flow (skip entries without displayName or state=Deleted):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
    - Parse owners: json.loads(record["owners"])
@@ -302,32 +358,49 @@ When an employee leaves, identify and reassign their flows and apps.
 6. Report: flows reassigned, flows stopped, apps needing manual reassignment
 ```
 
+> **What "reassign" means here:** `update_store_flow` changes who Flow
+> Studio considers the governance contact and who receives Flow Studio
+> notifications. It does NOT transfer the actual Power Automate flow
+> ownership — that requires the Power Platform admin center or PowerShell.
+> Also update `rule_notify_email` so failure notifications go to the new
+> team instead of the departing employee's email.
+>
 > Power Apps ownership cannot be changed via MCP tools. Report them for
 > manual reassignment in the Power Apps admin center.
 
 ### 8. Security Review
 
-Identify flows with potential security concerns.
+Review flows for potential security concerns using cached store data.
 
 ```
-1. list_store_flows
-2. For each flow (skip entries without displayName):
+1. list_store_flows(monitor=true)
+2. For each flow (skip entries without displayName or state=Deleted):
    - Split id → environmentName, flowName
    - get_store_flow(environmentName, flowName)
    - Parse security: json.loads(record["security"])
    - Parse connections: json.loads(record["connections"])
    - Read sharingType directly (top-level field, NOT inside security JSON)
-3. Flag flows where:
-   - security.triggerRequestAuthenticationType = "All"
-     (no auth on HTTP trigger — open to internet)
-   - sharingType = "Coauthor" (shared with co-authors, broader access)
-   - connections contain HTTP connector (arbitrary outbound requests)
-   - json.loads(referencedResources) points to external URLs
+3. Report findings to user for review
 4. For reviewed flows:
    Read existing tags, append #security-reviewed
    update_store_flow(environmentName, flowName, tags="<existing> #security-reviewed")
    Do NOT overwrite the security field — it contains structured auth data
 ```
+
+**Fields available for security review:**
+
+| Field | Where | What it tells you |
+|---|---|---|
+| `security.triggerRequestAuthenticationType` | security JSON | `"All"` = HTTP trigger accepts unauthenticated requests |
+| `sharingType` | top-level | `"Coauthor"` = shared with co-authors for editing |
+| `connections` | connections JSON | Which connectors the flow uses (check for HTTP, custom) |
+| `referencedResources` | JSON string | SharePoint sites, Teams channels, external URLs the flow accesses |
+| `tier` | top-level | `"Premium"` = uses premium connectors |
+
+> Each organization decides what constitutes a security concern. For example,
+> an unauthenticated HTTP trigger is expected for webhook receivers (Stripe,
+> GitHub) but may be a risk for internal flows. Review findings in context
+> before flagging.
 
 ### 9. Environment Governance
 
@@ -335,6 +408,7 @@ Audit environments for compliance and sprawl.
 
 ```
 1. list_store_environments
+   Skip entries without displayName (tenant-level metadata rows)
 2. Flag:
    - Developer environments (sku="Developer") — should be limited
    - Non-managed environments (isManagedEnvironment=false) — less governance
@@ -405,7 +479,7 @@ Fields marked with `*` are also available on `list_store_flows` (cheaper).
 | `rule_notify_onmissingdays` | number | SLA monitoring configured? |
 | `rule_notify_email` | string | Alert recipients |
 | `description` | string | Documentation completeness |
-| `tags` * | string | Classification (overwrite semantics — read-merge-write to append) |
+| `tags` | string | Classification — `list_store_flows` shows description-extracted hashtags only; store tags written by `update_store_flow` require `get_store_flow` to read back |
 | `runPeriodTotal` * | number | Activity level |
 | `runPeriodFailRate` * | number | Health status |
 | `runLast` | ISO string | Last run timestamp |
