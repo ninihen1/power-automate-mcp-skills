@@ -1,5 +1,5 @@
 ---
-name: flowstudio-power-automate-monitoring
+name: power-automate-monitoring
 description: >-
   Monitor Power Automate flow health, track failure rates, and inventory tenant
   assets using the FlowStudio MCP cached store. The live API only returns
@@ -56,6 +56,10 @@ a flow was last scanned. If stale, the scanning pipeline may not be running.
 **Enabling monitoring:** Set `monitor: true` via `update_store_flow` or the
 Flow Studio for Teams app
 ([how to select flows](https://learn.flowstudio.app/teams-monitoring)).
+
+**Designating critical flows:** Use `update_store_flow` with `critical=true`
+on business-critical flows. This enables the governance skill's notification
+rule management to auto-configure failure alerts on critical flows.
 
 ---
 
@@ -132,8 +136,10 @@ Direct array. Filters: `monitor` (bool), `rule_notify_onfail` (bool),
 > `triggerUrl` and `tags` are optional. Some entries are sparse (just `id` +
 > `monitor`) — skip entries without `displayName`.
 >
-> Tags are auto-extracted from the `description` field using `#hashtag`
-> format. Can also be set explicitly via `update_store_flow`.
+> Tags on `list_store_flows` are auto-extracted from the flow's `description`
+> field (maker hashtags like `#operations`). Tags written via
+> `update_store_flow(tags=...)` are stored separately and only visible on
+> `get_store_flow` — they do NOT appear in the list response.
 
 ### `get_store_flow`
 
@@ -202,16 +208,28 @@ Parameters: `startTime`, `endTime`, `status` (array: `["Failed"]`,
 
 ### `set_store_flow_state`
 
-Calls the live PA API then syncs state to cache.
+Calls the live PA API then syncs state to the cache and returns the
+full updated record.
 
 ```json
 {
-  "flowName": "0f368466-...",
-  "environmentName": "Default-26e65220-...",
+  "flowKey": "Default-<envGuid>.<flowGuid>",
   "requestedState": "Stopped",
-  "actualState": "Stopped"
+  "currentState": "Stopped",
+  "flow": { /* full gFlows record, same shape as get_store_flow */ }
 }
 ```
+
+> The embedded `flow` object reflects the new state immediately — no
+> follow-up `get_store_flow` call needed. Useful for governance workflows
+> that stop a flow and then read its tags/monitor/owner metadata in the
+> same turn.
+>
+> Functionally equivalent to `set_live_flow_state` for changing state,
+> but `set_live_flow_state` only returns `{flowName, environmentName,
+> requestedState, actualState}` and doesn't sync the cache. Prefer
+> `set_live_flow_state` when you only need to toggle state and don't
+> care about cache freshness.
 
 ### `update_store_flow`
 
@@ -375,7 +393,7 @@ Direct array.
 
 ## Related Skills
 
-- `flowstudio-power-automate-mcp` — Core connection setup, live tool reference
-- `flowstudio-power-automate-debug` — Deep diagnosis with action-level inputs/outputs (live API)
-- `flowstudio-power-automate-build` — Build and deploy flow definitions
-- `flowstudio-power-automate-governance` — Governance metadata, tagging, notification rules, CoE patterns
+- `power-automate-mcp` — Core connection setup, live tool reference
+- `power-automate-debug` — Deep diagnosis with action-level inputs/outputs (live API)
+- `power-automate-build` — Build and deploy flow definitions
+- `power-automate-governance` — Governance metadata, tagging, notification rules, CoE patterns

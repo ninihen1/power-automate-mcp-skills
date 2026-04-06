@@ -353,9 +353,18 @@ Response keys: `flowKey`, `triggerName`, `triggerUrl`, `requiresAadAuth`, `authT
 
 > **Only works for `Request` (HTTP) triggers.** Returns an error for Recurrence
 > and other trigger types: `"only HTTP Request triggers can be invoked via this tool"`.
+> `Button`-kind triggers return `ListCallbackUrlOperationBlocked`.
 >
 > `responseStatus` + `responseBody` contain the flow's Response action output.
 > AAD-authenticated triggers are handled automatically.
+>
+> **Content-type note**: The body is sent as `application/octet-stream` (raw),
+> not `application/json`. Flows with a trigger schema that has `required` fields
+> will reject the request with `InvalidRequestContent` (400) because PA validates
+> `Content-Type` before parsing against the schema. Flows without a schema, or
+> flows designed to accept raw input (e.g. Baker-pattern flows that parse the body
+> internally), will work fine. The flow receives the JSON as base64-encoded
+> `$content` with `$content-type: application/octet-stream`.
 
 ---
 
@@ -390,9 +399,23 @@ Start or stop a flow via the live PA API **and** persist the updated state back
 to the Power Clarity cache. Same parameters as `set_live_flow_state` but requires
 a Power Clarity workspace.
 
-> Prefer `set_live_flow_state` when you only need to toggle state.
-> Use `set_store_flow_state` when the flow is managed in the Power Clarity store
-> and you want the cache to stay in sync.
+Response (different shape from `set_live_flow_state`):
+```json
+{
+  "flowKey": "<environmentId>.<flowId>",
+  "requestedState": "Stopped",
+  "currentState": "Stopped",
+  "flow": { /* full gFlows record, same shape as get_store_flow */ }
+}
+```
+
+> Prefer `set_live_flow_state` when you only need to toggle state — it's
+> simpler and has no subscription requirement.
+>
+> Use `set_store_flow_state` when you need the cache updated immediately
+> (without waiting for the next daily scan) AND want the full updated
+> governance record back in the same call — useful for workflows that
+> stop a flow and immediately tag or inspect it.
 
 ---
 
