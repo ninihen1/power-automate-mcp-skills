@@ -208,16 +208,28 @@ Parameters: `startTime`, `endTime`, `status` (array: `["Failed"]`,
 
 ### `set_store_flow_state`
 
-Calls the live PA API then syncs state to cache.
+Calls the live PA API then syncs state to the cache and returns the
+full updated record.
 
 ```json
 {
-  "flowName": "0f368466-...",
-  "environmentName": "Default-26e65220-...",
+  "flowKey": "Default-<envGuid>.<flowGuid>",
   "requestedState": "Stopped",
-  "actualState": "Stopped"
+  "currentState": "Stopped",
+  "flow": { /* full gFlows record, same shape as get_store_flow */ }
 }
 ```
+
+> The embedded `flow` object reflects the new state immediately — no
+> follow-up `get_store_flow` call needed. Useful for governance workflows
+> that stop a flow and then read its tags/monitor/owner metadata in the
+> same turn.
+>
+> Functionally equivalent to `set_live_flow_state` for changing state,
+> but `set_live_flow_state` only returns `{flowName, environmentName,
+> requestedState, actualState}` and doesn't sync the cache. Prefer
+> `set_live_flow_state` when you only need to toggle state and don't
+> care about cache freshness.
 
 ### `update_store_flow`
 

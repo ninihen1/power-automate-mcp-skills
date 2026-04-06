@@ -399,9 +399,23 @@ Start or stop a flow via the live PA API **and** persist the updated state back
 to the Power Clarity cache. Same parameters as `set_live_flow_state` but requires
 a Power Clarity workspace.
 
-> Prefer `set_live_flow_state` when you only need to toggle state.
-> Use `set_store_flow_state` when the flow is managed in the Power Clarity store
-> and you want the cache to stay in sync.
+Response (different shape from `set_live_flow_state`):
+```json
+{
+  "flowKey": "<environmentId>.<flowId>",
+  "requestedState": "Stopped",
+  "currentState": "Stopped",
+  "flow": { /* full gFlows record, same shape as get_store_flow */ }
+}
+```
+
+> Prefer `set_live_flow_state` when you only need to toggle state — it's
+> simpler and has no subscription requirement.
+>
+> Use `set_store_flow_state` when you need the cache updated immediately
+> (without waiting for the next daily scan) AND want the full updated
+> governance record back in the same call — useful for workflows that
+> stop a flow and immediately tag or inspect it.
 
 ---
 
