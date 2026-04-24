@@ -228,4 +228,4 @@ required frontmatter. See the existing skills for the format.
 Keywords: Power Automate debugging, flow run history, expression evaluation failed,
 child flow failure, nested action errors, loop iteration output, agent automation MCP,
 Power Platform AI, flow definition deploy, resubmit failed run, flow monitoring,
-governance, CoE, orphan detection, connector audit, archive score, maker inventory.
+governance, CoE, orphan detection, connector audit, archive score, maker inventory
