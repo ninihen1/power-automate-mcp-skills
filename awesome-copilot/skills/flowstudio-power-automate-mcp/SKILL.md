@@ -436,6 +436,61 @@ print(new_runs[0]["status"])   # Succeeded = done
 
 ---
 
+## Handling Oversized Responses
+
+Some MCP tool responses are large enough to overflow the agent's context window:
+
+| Tool | Typical size | Cause |
+|---|---|---|
+| `get_live_connector` | 100-600 KB | Full Swagger spec for a connector |
+| `get_live_flow_run_action_outputs` (no `actionName`) | 50 KB – several MB | All actions × all foreach iterations |
+| `get_live_flow` (large flows) | 50-500 KB | Deeply nested branches |
+| `list_live_flows` (large tenants) | 50-200 KB | Hundreds of flow records |
+
+### When the harness spills to a file
+
+Agent harnesses (Claude Code, VS Code Copilot, etc.) save oversized responses
+to a temp file (e.g. `tool-results/mcp-flowstudio-get_live_connector-NNNN.txt`)
+and return the path instead of the inline JSON. The file is **double-wrapped** —
+the outer MCP envelope plus the inner JSON-escaped payload:
+
+```text
+[{"type":"text","text":"<JSON-escaped payload>"}]
+```
+
+Two parses to reach a usable object:
+
+```python
+import json
+with open(path) as f:
+    raw = json.loads(f.read())
+payload = json.loads(raw[0]["text"])
+```
+
+```powershell
+$payload = ((Get-Content $path -Raw | ConvertFrom-Json)[0].text) | ConvertFrom-Json
+```
+
+### Rules of thumb
+
+1. **Extract, don't echo.** Pull the specific field(s) you need (one `operationId`, one action's outputs) and discard the rest before reasoning about it.
+2. **Always pass `actionName` to `get_live_flow_run_action_outputs`.** Omitting it fetches every action × every iteration — fine for offline debug scripts, dangerous for an agent that ingests the whole response.
+3. **Reuse the spill file within a session.** Refetching the same connector swagger costs 30+ seconds and produces another spill — cache the path.
+4. **Don't grep the spill file for JSON keys directly.** Strings are JSON-escaped inside the file (`\"OperationId\":`), so a plain grep for `"OperationId":` will not match. Parse first, then filter.
+5. **Summarize tool output to the user.** Echo `name + state + trigger` for flow lists and `actionName + status + code` for run errors — not raw JSON, unless asked.
+
+```python
+# Good — drill into one operation in a connector swagger
+conn = mcp("get_live_connector", {"environmentName": ENV, "connectorName": "shared_sharepointonline"})
+op = conn["properties"]["swagger"]["paths"]["/datasets/{dataset}/tables/{table}/items"]["get"]
+print(op["operationId"], "—", op.get("summary"))
+
+# Bad — keeping the whole 500 KB swagger in context
+print(json.dumps(conn, indent=2))   # don't do this
+```
+
+---
+
 ## Auth & Connection Notes
 
 | Field | Value |
