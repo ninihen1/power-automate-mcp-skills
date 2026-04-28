@@ -37,6 +37,11 @@ Thumbs.db
 SUBMISSION-STATUS.md
 docs/streamable-http-upgrade-spec.md
 
+# Agent projects (environment-specific, may contain tokens)
+m365-declarative-agent/
+copilot-studio-agent/
+.token-cache.json
+
 # Local experimentation
 Learn-Experiment/
 
@@ -54,3 +59,9 @@ __pycache__/
 vscode-extension/*.vsix
 !vscode-extension/package.json
 !vscode-extension/LICENSE
+
+# VS Code extension (Claude variant)
+vscode-extension-claude/*.vsix
+!vscode-extension-claude/package.json
+!vscode-extension-claude/LICENSE
+vscode-extension-claude/skills/

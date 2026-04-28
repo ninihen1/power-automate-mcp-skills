@@ -1,0 +1,4 @@
+.vscode/**
+.gitignore
+sync-skills.js
+tests/**

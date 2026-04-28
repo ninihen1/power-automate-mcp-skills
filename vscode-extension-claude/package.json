@@ -1,0 +1,50 @@
+{
+  "name": "flowstudio-mcp-claude",
+  "displayName": "Power Automate MCP for Claude Code",
+  "description": "One-click Flow Studio MCP setup for Claude Code. Debug, build, monitor, and govern Power Automate cloud flows — no manual claude mcp add, no shell-pasted API keys.",
+  "version": "0.1.0",
+  "publisher": "flowstudio",
+  "license": "MIT",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ninihen1/power-automate-mcp-skills"
+  },
+  "homepage": "https://mcp.flowstudio.app",
+  "engines": {
+    "vscode": "^1.101.0"
+  },
+  "categories": ["AI", "Chat"],
+  "keywords": [
+    "mcp",
+    "model context protocol",
+    "claude code",
+    "claude",
+    "anthropic",
+    "power automate",
+    "power platform",
+    "microsoft",
+    "flow studio",
+    "flow debugging",
+    "cloud flows",
+    "ai agent",
+    "governance",
+    "monitoring",
+    "audit"
+  ],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "extensionDependencies": ["anthropic.claude-code"],
+  "scripts": {
+    "sync-skills": "node sync-skills.js",
+    "test": "node --test tests/",
+    "vscode:prepublish": "node sync-skills.js"
+  },
+  "contributes": {
+    "commands": [
+      { "command": "flowstudioClaude.addConnection", "title": "Flow Studio (Claude): Add Tenant Connection" },
+      { "command": "flowstudioClaude.removeConnection", "title": "Flow Studio (Claude): Remove Tenant Connection" },
+      { "command": "flowstudioClaude.listConnections", "title": "Flow Studio (Claude): List Connections" }
+    ]
+  }
+}
