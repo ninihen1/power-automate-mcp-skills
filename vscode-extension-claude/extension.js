@@ -29,9 +29,7 @@ async function activate(context) {
     context.subscriptions.push(
         vscode.commands.registerCommand('flowstudioClaude.addConnection', addConnectionCmd),
         vscode.commands.registerCommand('flowstudioClaude.removeConnection', removeConnectionCmd),
-        vscode.commands.registerCommand('flowstudioClaude.listConnections', () => {
-            vscode.window.showInformationMessage('List Connections: not implemented yet.');
-        }),
+        vscode.commands.registerCommand('flowstudioClaude.listConnections', listConnectionsCmd),
     );
 
     const shownVersion = context.globalState.get(WELCOME_SHOWN_KEY, '');
@@ -147,6 +145,29 @@ async function removeConnectionCmd() {
     if (reload === 'Reload Window') {
         vscode.commands.executeCommand('workbench.action.reloadWindow');
     }
+}
+
+async function listConnectionsCmd() {
+    const connections = listConnections(os.homedir());
+    if (connections.length === 0) {
+        const action = await vscode.window.showInformationMessage(
+            'No Flow Studio connections configured.',
+            'Add Connection',
+        );
+        if (action === 'Add Connection') {
+            vscode.commands.executeCommand('flowstudioClaude.addConnection');
+        }
+        return;
+    }
+
+    await vscode.window.showQuickPick(
+        connections.map((c) => ({
+            label: c.label,
+            description: c.url,
+            detail: c.hasKey ? 'API key configured' : 'No API key — re-add this connection',
+        })),
+        { title: `Flow Studio (Claude): ${connections.length} Connection(s)`, placeHolder: 'Your configured tenants' },
+    );
 }
 
 function deactivate() {}
