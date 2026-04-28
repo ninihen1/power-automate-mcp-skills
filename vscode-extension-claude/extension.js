@@ -28,9 +28,7 @@ async function activate(context) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('flowstudioClaude.addConnection', addConnectionCmd),
-        vscode.commands.registerCommand('flowstudioClaude.removeConnection', () => {
-            vscode.window.showInformationMessage('Remove Connection: not implemented yet.');
-        }),
+        vscode.commands.registerCommand('flowstudioClaude.removeConnection', removeConnectionCmd),
         vscode.commands.registerCommand('flowstudioClaude.listConnections', () => {
             vscode.window.showInformationMessage('List Connections: not implemented yet.');
         }),
@@ -111,6 +109,39 @@ async function addConnectionCmd() {
 
     const reload = await vscode.window.showInformationMessage(
         `Flow Studio: "${label.trim()}" connected. Reload Window to activate the MCP server in Claude Code.`,
+        'Reload Window',
+    );
+    if (reload === 'Reload Window') {
+        vscode.commands.executeCommand('workbench.action.reloadWindow');
+    }
+}
+
+async function removeConnectionCmd() {
+    const connections = listConnections(os.homedir());
+    if (connections.length === 0) {
+        vscode.window.showInformationMessage('No Flow Studio connections configured.');
+        return;
+    }
+
+    const picked = await vscode.window.showQuickPick(
+        connections.map((c) => ({ label: c.label, description: c.slug, slug: c.slug })),
+        { title: 'Flow Studio (Claude): Remove Connection', placeHolder: 'Select a connection to remove' },
+    );
+    if (!picked) return;
+
+    try {
+        const removed = removeConnection(os.homedir(), picked.slug);
+        if (!removed) {
+            vscode.window.showWarningMessage(`Flow Studio: "${picked.label}" was not found.`);
+            return;
+        }
+    } catch (err) {
+        vscode.window.showErrorMessage(`Flow Studio: failed to update ~/.claude.json — ${err.message}`);
+        return;
+    }
+
+    const reload = await vscode.window.showInformationMessage(
+        `Flow Studio: "${picked.label}" removed. Reload Window to deactivate.`,
         'Reload Window',
     );
     if (reload === 'Reload Window') {
