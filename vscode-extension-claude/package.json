@@ -37,7 +37,7 @@
   "extensionDependencies": ["anthropic.claude-code"],
   "scripts": {
     "sync-skills": "node sync-skills.js",
-    "test": "node --test tests/",
+    "test": "node --test tests/*.test.js",
     "vscode:prepublish": "node sync-skills.js"
   },
   "contributes": {
