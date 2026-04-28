@@ -1,14 +1,6 @@
 ---
 name: power-automate-debug
-description: >-
-  Debug failing Power Automate cloud flows using the FlowStudio MCP server.
-  The Graph API only shows top-level status codes. This skill gives your agent
-  action-level inputs and outputs to find the actual root cause.
-  Load this skill when asked to: debug a flow, investigate a failed run, why is
-  this flow failing, inspect action outputs, find the root cause of a flow error,
-  fix a broken Power Automate flow, diagnose a timeout, trace a DynamicOperationRequestFailure,
-  check connector auth errors, read error details from a run, or troubleshoot
-  expression failures. Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app
+description: "Debug failing Power Automate cloud flows using the FlowStudio MCP server. The Graph API only shows top-level status codes. This skill gives your agent action-level inputs and outputs to find the actual root cause. Load this skill when asked to: debug a flow, investigate a failed run, why is this flow failing, inspect action outputs, find the root cause of a flow error, fix a broken Power Automate flow, diagnose a timeout, trace a DynamicOperationRequestFailure, check connector auth errors, read error details from a run, or troubleshoot expression failures. Requires a FlowStudio MCP subscription — see https://mcp.flowstudio.app"
 metadata:
   openclaw:
     requires:

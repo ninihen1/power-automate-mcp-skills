@@ -1,17 +1,6 @@
 ---
 name: power-automate-monitoring
-description: >-
-  Monitor Power Automate flow health, track failure rates, and inventory tenant
-  assets using the FlowStudio MCP cached store. The live API only returns
-  top-level run status. Store tools surface aggregated stats, per-run failure
-  details with remediation hints, maker activity, and Power Apps inventory —
-  all from a fast cache with no rate-limit pressure on the PA API.
-  Load this skill when asked to: check flow health, find failing flows, get
-  failure rates, review error trends, list all flows with monitoring enabled,
-  check who built a flow, find inactive makers, inventory Power Apps, see
-  environment or connection counts, get a flow summary, or any tenant-wide
-  health overview. Requires a FlowStudio for Teams or MCP Pro+ subscription —
-  see https://mcp.flowstudio.app
+description: "Monitor Power Automate flow health, track failure rates, and inventory tenant assets using the FlowStudio MCP cached store. The live API only returns top-level run status. Store tools surface aggregated stats, per-run failure details with remediation hints, maker activity, and Power Apps inventory — all from a fast cache with no rate-limit pressure on the PA API. Load this skill when asked to: check flow health, find failing flows, get failure rates, review error trends, list all flows with monitoring enabled, check who built a flow, find inactive makers, inventory Power Apps, see environment or connection counts, get a flow summary, or any tenant-wide health overview. Requires a FlowStudio for Teams or MCP Pro+ subscription — see https://mcp.flowstudio.app"
 metadata:
   openclaw:
     requires:
@@ -208,28 +197,10 @@ Parameters: `startTime`, `endTime`, `status` (array: `["Failed"]`,
 
 ### `set_store_flow_state`
 
-Calls the live PA API then syncs state to the cache and returns the
-full updated record.
-
-```json
-{
-  "flowKey": "Default-<envGuid>.<flowGuid>",
-  "requestedState": "Stopped",
-  "currentState": "Stopped",
-  "flow": { /* full gFlows record, same shape as get_store_flow */ }
-}
-```
-
-> The embedded `flow` object reflects the new state immediately — no
-> follow-up `get_store_flow` call needed. Useful for governance workflows
-> that stop a flow and then read its tags/monitor/owner metadata in the
-> same turn.
->
-> Functionally equivalent to `set_live_flow_state` for changing state,
-> but `set_live_flow_state` only returns `{flowName, environmentName,
-> requestedState, actualState}` and doesn't sync the cache. Prefer
-> `set_live_flow_state` when you only need to toggle state and don't
-> care about cache freshness.
+Calls the live PA API then syncs state to the cache. Returns `flowKey`,
+`requestedState`, `currentState`, and embedded `flow` record (same shape
+as `get_store_flow`). The embedded record reflects the new state
+immediately — no follow-up call needed.
 
 ### `update_store_flow`
 
@@ -245,92 +216,20 @@ Settable fields: `monitor` (bool), `rule_notify_onfail` (bool),
 
 ### `list_store_environments`
 
-Direct array.
-
-```json
-[
-  {
-    "id": "Default-26e65220-...",
-    "displayName": "Flow Studio (default)",
-    "sku": "Default",
-    "type": "NotSpecified",
-    "location": "australia",
-    "isDefault": true,
-    "isAdmin": true,
-    "isManagedEnvironment": false,
-    "createdTime": "2017-01-18T01:06:46Z"
-  }
-]
-```
-
-> `sku` values: `Default`, `Production`, `Developer`, `Sandbox`, `Teams`.
+Direct array. `sku` values: `Default`, `Production`, `Developer`, `Sandbox`, `Teams`.
 
 ### `list_store_connections`
 
-Direct array. Can be very large (1500+ items).
+Direct array (can be 1500+ items). `createdBy` and `statuses` are **JSON strings** — parse with `json.loads()`.
 
-```json
-[
-  {
-    "id": "<environmentId>.<connectionId>",
-    "displayName": "user@contoso.com",
-    "createdBy": "{\"id\":\"...\",\"displayName\":\"...\",\"email\":\"...\"}",
-    "environmentName": "...",
-    "statuses": "[{\"status\":\"Connected\"}]"
-  }
-]
-```
+### `list_store_makers` / `get_store_maker`
 
-> `createdBy` and `statuses` are **JSON strings** — parse with `json.loads()`.
-
-### `list_store_makers`
-
-Direct array.
-
-```json
-[
-  {
-    "id": "09dbe02f-...",
-    "displayName": "Catherine Han",
-    "mail": "catherine.han@flowstudio.app",
-    "deleted": false,
-    "ownerFlowCount": 199,
-    "ownerAppCount": 209,
-    "userIsServicePrinciple": false
-  }
-]
-```
-
-> Deleted makers have `deleted: true` and no `displayName`/`mail` fields.
-
-### `get_store_maker`
-
-Full maker record. Key fields: `displayName`, `mail`, `userPrincipalName`,
-`ownerFlowCount`, `ownerAppCount`, `accountEnabled`, `deleted`, `country`,
-`firstFlow`, `firstFlowCreatedTime`, `lastFlowCreatedTime`,
-`firstPowerApp`, `lastPowerAppCreatedTime`,
-`licenses` (JSON string of M365 SKUs).
+`list_store_makers`: Direct array. Deleted makers have `deleted: true` and no `displayName`/`mail`.
+`get_store_maker`: Full record with `ownerFlowCount`, `ownerAppCount`, `accountEnabled`, `licenses` (JSON string).
 
 ### `list_store_power_apps`
 
-Direct array.
-
-```json
-[
-  {
-    "id": "<environmentId>.<appId>",
-    "displayName": "My App",
-    "environmentName": "...",
-    "ownerId": "09dbe02f-...",
-    "ownerName": "Catherine Han",
-    "appType": "Canvas",
-    "sharedUsersCount": 0,
-    "createdTime": "2023-08-18T01:06:22Z",
-    "lastModifiedTime": "2023-08-18T01:06:22Z",
-    "lastPublishTime": "2023-08-18T01:06:22Z"
-  }
-]
-```
+Direct array. Key fields: `displayName`, `ownerId`, `ownerName`, `appType`, `sharedUsersCount`.
 
 ---
 
@@ -342,7 +241,8 @@ Direct array.
 1. list_store_flows
 2. Filter where runPeriodFailRate > 0.1 and runPeriodTotal >= 5
 3. Sort by runPeriodFailRate descending
-4. For each: get_store_flow for full detail
+4. For each: get_store_flow → verify scanned is recent before trusting rates
+5. get_store_flow_errors for each to surface remediation hints
 ```
 
 ### Check a specific flow's health
@@ -359,17 +259,19 @@ Direct array.
 
 ```
 1. update_store_flow with monitor=true
-2. Optionally set rule_notify_onfail=true, rule_notify_email="user@domain.com"
-3. Run data will appear after the next daily scan
+2. Verify the returned record shows monitor=true
+3. Optionally set rule_notify_onfail=true, rule_notify_email="user@domain.com"
+4. Run data will appear after the next daily scan
 ```
 
 ### Daily health check
 
 ```
 1. list_store_flows
-2. Flag flows with runPeriodFailRate > 0.2 and runPeriodTotal >= 3
-3. Flag monitored flows with state="Stopped" (may indicate auto-suspension)
-4. For critical failures → get_store_flow_errors for remediation hints
+2. For each flow: check scanned freshness (> 24h stale = scanning issue)
+3. Flag flows with runPeriodFailRate > 0.2 and runPeriodTotal >= 3
+4. Flag monitored flows with state="Stopped" (may indicate auto-suspension)
+5. For critical failures → get_store_flow_errors for remediation hints
 ```
 
 ### Maker audit
