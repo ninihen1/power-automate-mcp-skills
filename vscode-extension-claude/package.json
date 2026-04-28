@@ -3,7 +3,7 @@
   "displayName": "Power Automate MCP for Claude Code",
   "description": "One-click Flow Studio MCP setup for Claude Code. Debug, build, monitor, and govern Power Automate cloud flows — no manual claude mcp add, no shell-pasted API keys.",
   "version": "0.1.0",
-  "publisher": "flowstudio",
+  "publisher": "FlowStudio",
   "license": "MIT",
   "icon": "icon.png",
   "repository": {
