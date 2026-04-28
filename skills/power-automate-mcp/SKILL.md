@@ -1,15 +1,6 @@
 ---
 name: power-automate-mcp
-description: >-
-  Give your AI agent the same visibility you have in the Power Automate portal — plus
-  a bit more. The Graph API only returns top-level run status. Flow Studio MCP exposes
-  action-level inputs, outputs, loop iterations, and nested child flow failures.
-  Use when asked to: list flows, read a flow definition, check run history, inspect
-  action outputs, resubmit a run, cancel a running flow, view connections, get a
-  trigger URL, validate a definition, monitor flow health, or any task that requires
-  talking to the Power Automate API through an MCP tool. Also use for Power Platform
-  environment discovery and connection management. Requires a FlowStudio MCP
-  subscription or compatible server — see https://mcp.flowstudio.app
+description: "Give your AI agent the same visibility you have in the Power Automate portal — plus a bit more. The Graph API only returns top-level run status. Flow Studio MCP exposes action-level inputs, outputs, loop iterations, and nested child flow failures. Use when asked to: list flows, read a flow definition, check run history, inspect action outputs, resubmit a run, cancel a running flow, view connections, get a trigger URL, validate a definition, monitor flow health, or any task that requires talking to the Power Automate API through an MCP tool. Also use for Power Platform environment discovery and connection management. Requires a FlowStudio MCP subscription or compatible server — see https://mcp.flowstudio.app"
 metadata:
   openclaw:
     requires:
@@ -55,24 +46,11 @@ no UI, no manual steps.
 
 ---
 
-## Recommended Language: Python or Node.js
+## Recommended Language
 
-All examples in this skill and the companion build / debug skills use **Python
-with `urllib.request`** (stdlib — no `pip install` needed). **Node.js** is an
-equally valid choice: `fetch` is built-in from Node 18+, JSON handling is
-native, and the async/await model maps cleanly onto the request-response pattern
-of MCP tool calls — making it a natural fit for teams already working in a
-JavaScript/TypeScript stack.
-
-| Language | Verdict | Notes |
-|---|---|---|
-| **Python** | ✅ Recommended | Clean JSON handling, no escaping issues, all skill examples use it |
-| **Node.js (≥ 18)** | ✅ Recommended | Native `fetch` + `JSON.stringify`/`JSON.parse`; async/await fits MCP call patterns well; no extra packages needed |
-| PowerShell | ⚠️ Avoid for flow operations | `ConvertTo-Json -Depth` silently truncates nested definitions; quoting and escaping break complex payloads. Acceptable for a quick `tools/list` discovery call but not for building or updating flows. |
-| cURL / Bash | ⚠️ Possible but fragile | Shell-escaping nested JSON is error-prone; no native JSON parser |
-
-> **TL;DR — use the Core MCP Helper (Python or Node.js) below.** Both handle
-> JSON-RPC framing, auth, and response parsing in a single reusable function.
+All examples use **Python** (`urllib.request` — stdlib, no install needed).
+**Node.js 18+** (native `fetch`) is equally valid. Avoid PowerShell for flow
+operations — `ConvertTo-Json -Depth` silently truncates nested definitions.
 
 ---
 
@@ -172,7 +150,7 @@ for t in raw["result"]["tools"]:
 
 ---
 
-## Core MCP Helper (Python)
+## Core MCP Helper
 
 Use this helper throughout all subsequent operations:
 
@@ -204,45 +182,6 @@ def mcp(tool, args, cid=1):
 > - HTTP 401/403 → token is missing, expired, or malformed. Get a fresh JWT from [mcp.flowstudio.app](https://mcp.flowstudio.app).
 > - HTTP 400 → malformed JSON-RPC payload. Check `Content-Type: application/json` and body structure.
 > - `MCP error: {"code": -32602, ...}` → wrong or missing tool arguments.
-
----
-
-## Core MCP Helper (Node.js)
-
-Equivalent helper for Node.js 18+ (built-in `fetch` — no packages required):
-
-```js
-const TOKEN = "<YOUR_JWT_TOKEN>";
-const MCP   = "https://mcp.flowstudio.app/mcp";
-
-async function mcp(tool, args, cid = 1) {
-  const payload = {
-    jsonrpc: "2.0",
-    method: "tools/call",
-    id: cid,
-    params: { name: tool, arguments: args },
-  };
-  const res = await fetch(MCP, {
-    method: "POST",
-    headers: {
-      "x-api-key": TOKEN,
-      "Content-Type": "application/json",
-      "User-Agent": "FlowStudio-MCP/1.0",
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`MCP HTTP ${res.status}: ${body.slice(0, 200)}`);
-  }
-  const raw = await res.json();
-  if (raw.error) throw new Error(`MCP error: ${JSON.stringify(raw.error)}`);
-  return JSON.parse(raw.result.content[0].text);
-}
-```
-
-> Requires Node.js 18+. For older Node, replace `fetch` with `https.request`
-> from the stdlib or install `node-fetch`.
 
 ---
 
