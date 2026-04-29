@@ -19,6 +19,18 @@ Ask Claude why a flow failed, build new flows from natural language, audit your 
 3. Run **Flow Studio (Claude): Add Tenant Connection** from the command palette and paste your API key.
 4. Reload the window when prompted. Claude Code will pick up the new MCP server and the 5 bundled skills.
 
+## Works everywhere Claude Code runs
+
+This extension is a one-time configurator, not a runtime broker. It writes the MCP server entry to `~/.claude.json` and the 5 skills to `~/.claude/skills/` — the same files Claude Code reads no matter how it's launched. So once you've added a connection from VS Code, you can use it everywhere:
+
+| Surface                              | MCP server | Skills |
+| ------------------------------------ | :--------: | :----: |
+| Claude Code in VS Code               | ✅         | ✅     |
+| Claude Code in terminal (`claude`)   | ✅         | ✅     |
+| Claude Code Desktop                  | ✅         | ✅     |
+
+The Add / Remove / List Tenant Connection commands themselves live in VS Code's command palette — but their effects are global to your machine's Claude Code installation.
+
 ## Usage
 
 In Claude Code, ask questions like:
