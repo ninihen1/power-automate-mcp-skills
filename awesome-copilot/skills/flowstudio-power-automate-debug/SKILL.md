@@ -28,7 +28,7 @@ cloud flows through the FlowStudio MCP server.
 > [Null value crashes child flow](https://github.com/ninihen1/power-automate-mcp-skills/blob/main/examples/null-child-flow.md)
 
 **Prerequisite**: A FlowStudio MCP server must be reachable with a valid JWT.
-See the `flowstudio-power-automate-mcp` skill for connection setup.  
+See the `power-automate-mcp` skill for connection setup.  
 Subscribe at https://mcp.flowstudio.app
 
 ---
@@ -68,46 +68,6 @@ def mcp(tool, **kwargs):
     return json.loads(raw["result"]["content"][0]["text"])
 
 ENV = "<environment-id>"   # e.g. Default-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-```
-
----
-
-## FlowStudio for Teams: Fast-Path Diagnosis (Skip Steps 2–4)
-
-If you have a FlowStudio for Teams subscription, `get_store_flow_errors`
-returns per-run failure data including action names and remediation hints
-in a single call — no need to walk through live API steps.
-
-```python
-# Quick failure summary
-summary = mcp("get_store_flow_summary", environmentName=ENV, flowName=FLOW_ID)
-# {"totalRuns": 100, "failRuns": 10, "failRate": 0.1,
-#  "averageDurationSeconds": 29.4, "maxDurationSeconds": 158.9,
-#  "firstFailRunRemediation": "<hint or null>"}
-print(f"Fail rate: {summary['failRate']:.0%} over {summary['totalRuns']} runs")
-
-# Per-run error details (requires active monitoring to be configured)
-errors = mcp("get_store_flow_errors", environmentName=ENV, flowName=FLOW_ID)
-if errors:
-    for r in errors[:3]:
-        print(r["startTime"], "|", r.get("failedActions"), "|", r.get("remediationHint"))
-    # If errors confirms the failing action → jump to Step 6 (apply fix)
-else:
-    # Store doesn't have run-level detail for this flow — use live tools (Steps 2–5)
-    pass
-```
-
-For the full governance record (description, complexity, tier, connector list):
-```python
-record = mcp("get_store_flow", environmentName=ENV, flowName=FLOW_ID)
-# {"displayName": "My Flow", "state": "Started",
-#  "runPeriodTotal": 100, "runPeriodFailRate": 0.1, "runPeriodFails": 10,
-#  "runPeriodDurationAverage": 29410.8,   ← milliseconds
-#  "runError": "{\"code\": \"EACCES\", ...}",  ← JSON string, parse it
-#  "description": "...", "tier": "Premium", "complexity": "{...}"}
-if record.get("runError"):
-    last_err = json.loads(record["runError"])
-    print("Last run error:", last_err)
 ```
 
 ---
@@ -349,6 +309,18 @@ print(json.dumps(out['outputs']['body'], indent=2)[:500])
 Look for `ConnectionAuthorizationFailed` — the connection owner must match the
 service account running the flow. Cannot fix via API; fix in PA designer.
 
+### Outlook user-picker failures (`DynamicListValuesUndefinedOrInvalid`)
+Outlook actions like `GetEmailsV3` use parameters (`mailboxAddress`, `to`, `cc`,
+`from`) whose dropdown is backed by `builtInOperation:AadGraph.GetUsers` — which
+is broken at the PA listEnum layer and always returns
+`DynamicListValuesUndefinedOrInvalid`. This shows up when an agent rebuilds or
+modifies an Outlook action via `update_live_flow` and tries to resolve a user
+through dynamic options. **Don't fix it by retrying AadGraph** — switch to
+`shared_office365users.SearchUserV2` instead (returns the same AAD user shape).
+See the `power-automate-build` skill, **Step 3a — Resolving Dynamic Connector
+Values**, for the working pattern. `describe_live_connector` (v1.1.6+) returns
+this fallback as a structured `fallback` field on the affected parameter.
+
 ---
 
 ## Step 8 — Apply the Fix
@@ -461,5 +433,5 @@ print(f"Status: {result['responseStatus']}, Body: {result.get('responseBody')}")
 
 ## Related Skills
 
-- `flowstudio-power-automate-mcp` — Core connection setup and operation reference
-- `flowstudio-power-automate-build` — Build and deploy new flows
+- `power-automate-mcp` — Foundation skill: connection setup, MCP helper, tool discovery
+- `power-automate-build` — Build and deploy new flows
