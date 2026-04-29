@@ -64,7 +64,7 @@ async function addConnectionCmd() {
     const label = await vscode.window.showInputBox({
         title: 'Flow Studio (Claude): Add Connection (1/2)',
         prompt: 'Name this connection (e.g. your tenant or client name)',
-        placeHolder: 'e.g. Contoso, Northwind, OA',
+        placeHolder: 'e.g. Contoso, Northwind, Fabrikam',
         ignoreFocusOut: true,
         validateInput(value) {
             if (!value || !value.trim()) return 'Name is required';
