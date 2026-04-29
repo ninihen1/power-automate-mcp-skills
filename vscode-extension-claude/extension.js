@@ -53,6 +53,14 @@ async function showWelcome() {
 }
 
 async function addConnectionCmd() {
+    let existing;
+    try {
+        existing = listConnections(os.homedir());
+    } catch (err) {
+        vscode.window.showErrorMessage(`Flow Studio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
+        return;
+    }
+
     const label = await vscode.window.showInputBox({
         title: 'Flow Studio (Claude): Add Connection (1/2)',
         prompt: 'Name this connection (e.g. your tenant or client name)',
@@ -62,7 +70,6 @@ async function addConnectionCmd() {
             if (!value || !value.trim()) return 'Name is required';
             const slug = makeSlug(value);
             if (slug === 'flowstudio-') return 'Name must contain at least one letter or digit';
-            const existing = listConnections(os.homedir());
             if (existing.some((c) => c.slug === slug)) {
                 return `"${value.trim()}" already exists. Use a different name.`;
             }
@@ -115,7 +122,13 @@ async function addConnectionCmd() {
 }
 
 async function removeConnectionCmd() {
-    const connections = listConnections(os.homedir());
+    let connections;
+    try {
+        connections = listConnections(os.homedir());
+    } catch (err) {
+        vscode.window.showErrorMessage(`Flow Studio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
+        return;
+    }
     if (connections.length === 0) {
         vscode.window.showInformationMessage('No Flow Studio connections configured.');
         return;
@@ -148,7 +161,13 @@ async function removeConnectionCmd() {
 }
 
 async function listConnectionsCmd() {
-    const connections = listConnections(os.homedir());
+    let connections;
+    try {
+        connections = listConnections(os.homedir());
+    } catch (err) {
+        vscode.window.showErrorMessage(`Flow Studio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
+        return;
+    }
     if (connections.length === 0) {
         const action = await vscode.window.showInformationMessage(
             'No Flow Studio connections configured.',
