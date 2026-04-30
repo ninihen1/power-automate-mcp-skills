@@ -2,7 +2,7 @@
   "name": "flowstudio-mcp",
   "displayName": "Power Automate MCP Server",
   "description": "Debug, build, manage, and govern Power Automate cloud flows with AI. Ask Copilot why a flow failed, build new flows, audit your tenant, or check run history — no portal needed.",
-  "version": "0.2.2",
+  "version": "0.4.0",
   "publisher": "FlowStudio",
   "license": "MIT",
   "icon": "icon.png",
@@ -39,12 +39,23 @@
     "onStartupFinished"
   ],
   "main": "./extension.js",
+  "scripts": {
+    "sync-skills": "node sync-skills.js",
+    "vscode:prepublish": "node sync-skills.js"
+  },
   "contributes": {
     "mcpServerDefinitionProviders": [
       {
         "id": "flowstudioMcp",
         "label": "Flow Studio MCP"
       }
+    ],
+    "chatSkills": [
+      { "path": "./skills/power-automate-mcp/SKILL.md" },
+      { "path": "./skills/power-automate-debug/SKILL.md" },
+      { "path": "./skills/power-automate-build/SKILL.md" },
+      { "path": "./skills/power-automate-monitoring/SKILL.md" },
+      { "path": "./skills/power-automate-governance/SKILL.md" }
     ],
     "commands": [
       {

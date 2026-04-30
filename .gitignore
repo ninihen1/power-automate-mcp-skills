@@ -59,6 +59,7 @@ __pycache__/
 vscode-extension/*.vsix
 !vscode-extension/package.json
 !vscode-extension/LICENSE
+vscode-extension/skills/
 
 # VS Code extension (Claude variant)
 vscode-extension-claude/*.vsix

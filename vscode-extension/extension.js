@@ -5,7 +5,7 @@ const DEFAULT_URL = 'https://mcp.flowstudio.app/mcp';
 const SIGNUP_URL = 'https://mcp.flowstudio.app';
 const SECRET_PREFIX = 'flowstudio.apiKey.';
 const WELCOME_SHOWN_KEY = 'flowstudio.welcomeShownVersion';
-const CURRENT_VERSION = '0.2.0';
+const CURRENT_VERSION = '0.3.0';
 
 /** @type {vscode.SecretStorage} */
 let secrets;

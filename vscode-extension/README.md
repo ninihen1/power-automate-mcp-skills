@@ -38,9 +38,9 @@ In GitHub Copilot Chat, ask questions like:
 
 Upgrade at [mcp.flowstudio.app/pricing](https://mcp.flowstudio.app/pricing).
 
-## Skills
+## Skills (included)
 
-This extension works with five Flow Studio skills that tell Copilot when and how to use the tools.
+This extension bundles all five Flow Studio skills. Copilot loads them automatically based on what you ask — no separate install needed.
 
 | Skill                       | Purpose                                                                | Tier     |
 | --------------------------- | ---------------------------------------------------------------------- | -------- |
@@ -50,7 +50,7 @@ This extension works with five Flow Studio skills that tell Copilot when and how
 | `power-automate-monitoring` | Tenant-wide flow health, failure rates, maker inventory                | **Pro+** |
 | `power-automate-governance` | Classify, tag, audit, and manage flow compliance metadata              | **Pro+** |
 
-Install skills via [skills.sh](https://skills.sh/?q=flowstudio) or browse them in [github/awesome-copilot](https://github.com/github/awesome-copilot).
+The Pro+ skills only call tools your subscription allows. If your tier doesn't include them, Copilot will tell you and suggest upgrading.
 
 ## Tools
 
