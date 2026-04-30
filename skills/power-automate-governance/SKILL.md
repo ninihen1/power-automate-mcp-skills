@@ -364,11 +364,18 @@ Flow Studio governance contacts and notification recipients.
    - If keeping:
      update_store_flow(environmentName, flowName,
        ownerTeam="NewTeam", supportEmail="new-owner@contoso.com")
+     # If the flow is not yet in a solution, migrate it for proper ALM
+     # before the maker's account is deleted (otherwise the flow can
+     # become orphaned). Check first via get_live_flow → look for
+     # properties.solutionId; if missing, migrate:
+     add_live_flow_to_solution(environmentName, flowName,
+       solutionName="<target-unmanaged-solution>")
    - If decommissioning:
      set_live_flow_state(environmentName, flowName, state="Stopped")
      Read existing tags, append #decommissioned
      update_store_flow(environmentName, flowName, tags="<existing> #decommissioned")
-6. Report: flows reassigned, flows stopped, apps needing manual reassignment
+6. Report: flows reassigned, flows migrated to solutions, flows stopped,
+   apps needing manual reassignment
 ```
 
 > **What "reassign" means here:** `update_store_flow` changes who Flow
