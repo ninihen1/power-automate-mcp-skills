@@ -30,8 +30,8 @@ Response: direct array of environments.
 ```json
 [
   {
-    "id": "Default-26e65220-5561-46ef-9783-ce5f20489241",
-    "displayName": "FlowStudio (default)",
+    "id": "Default-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "displayName": "Contoso (default)",
     "sku": "Production",
     "location": "australia",
     "state": "Enabled",
@@ -60,7 +60,7 @@ Response: wrapper object with `connections` array.
 {
   "connections": [
     {
-      "id": "shared-office365-9f9d2c8e-55f1-49c9-9f9c-1c45d1fbbdce",
+      "id": "shared-office365-ffffffff-ffff-ffff-ffff-ffffffffffff",
       "displayName": "user@contoso.com",
       "connectorName": "shared_office365",
       "createdBy": "User Name",
@@ -100,7 +100,7 @@ Response: wrapper object with `flows` array.
   "mode": "owner",
   "flows": [
     {
-      "id": "0757041a-8ef2-cf74-ef06-06881916f371",
+      "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
       "displayName": "My Flow",
       "state": "Started",
       "triggerType": "Request",
@@ -126,11 +126,11 @@ Response: **direct array** (no wrapper).
 ```json
 [
   {
-    "id": "3991358a-f603-e49d-b1ed-a9e4f72e2dcb.0757041a-8ef2-cf74-ef06-06881916f371",
+    "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb.cccccccc-cccc-cccc-cccc-cccccccccccc",
     "displayName": "Admin | Sync Template v3 (Solutions)",
     "state": "Started",
     "triggerType": "OpenApiConnectionWebhook",
-    "environmentName": "3991358a-f603-e49d-b1ed-a9e4f72e2dcb",
+    "environmentName": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
     "runPeriodTotal": 100,
     "createdTime": "2023-08-18T01:18:17Z",
     "lastModifiedTime": "2023-08-18T12:47:42Z"
@@ -379,8 +379,8 @@ Parameters: `environmentName`, `flowName`, `state` (`"Started"` | `"Stopped"`) â
 Response:
 ```json
 {
-  "flowName": "6321ab25-7eb0-42df-b977-e97d34bcb272",
-  "environmentName": "Default-26e65220-...",
+  "flowName": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+  "environmentName": "Default-aaaaaaaa-...",
   "requestedState": "Started",
   "actualState": "Started"
 }

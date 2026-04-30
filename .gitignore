@@ -66,3 +66,7 @@ vscode-extension-claude/*.vsix
 !vscode-extension-claude/package.json
 !vscode-extension-claude/LICENSE
 vscode-extension-claude/skills/
+
+# Credentials and per-user state
+.mcpregistry_*_token
+*.code-workspace

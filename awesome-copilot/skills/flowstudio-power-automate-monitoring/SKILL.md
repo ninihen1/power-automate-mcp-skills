@@ -137,7 +137,7 @@ Direct array. Filters: `monitor` (bool), `rule_notify_onfail` (bool),
     "triggerType": "Request",
     "triggerUrl": "https://...",
     "tags": ["#operations", "#sensitive"],
-    "environmentName": "Default-26e65220-...",
+    "environmentName": "Default-aaaaaaaa-...",
     "monitor": true,
     "runPeriodFailRate": 0.012,
     "runPeriodTotal": 82,
@@ -239,7 +239,7 @@ Direct array.
 ```json
 [
   {
-    "id": "Default-26e65220-...",
+    "id": "Default-aaaaaaaa-...",
     "displayName": "Flow Studio (default)",
     "sku": "Default",
     "type": "NotSpecified",
@@ -280,8 +280,8 @@ Direct array.
 [
   {
     "id": "09dbe02f-...",
-    "displayName": "Catherine Han",
-    "mail": "catherine.han@flowstudio.app",
+    "displayName": "Sample Maker",
+    "mail": "maker@contoso.com",
     "deleted": false,
     "ownerFlowCount": 199,
     "ownerAppCount": 209,
