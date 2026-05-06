@@ -52,6 +52,18 @@ This extension bundles all five Flow Studio skills. Copilot loads them automatic
 
 The Pro+ skills only call tools your subscription allows. If your tier doesn't include them, Copilot will tell you and suggest upgrading.
 
+### Want the skills in other AI agents?
+
+This extension wires the skills into **VS Code's Copilot Chat only** (via the `chatSkills` contribution point). It does not propagate to GitHub Copilot CLI (`gh copilot`) or other Copilot surfaces — that's a GitHub-side limitation, not something we can ship from here.
+
+If you also use Claude Code, Codex, Cursor, Antigravity, Gemini CLI, OpenHands, Goose, Amp, or any of 12+ other AI agents on your machine, install the same skills there in one command:
+
+```bash
+npx skills add ninihen1/power-automate-mcp-skills -g -y
+```
+
+This pulls the canonical skills directly from the Flow Studio repo and writes them into each agent's known skills directory. You still need to configure the Flow Studio MCP server in each agent separately — the command only installs skills, not server connections.
+
 ## Tools
 
 ### Live tools (Basic + Pro+)

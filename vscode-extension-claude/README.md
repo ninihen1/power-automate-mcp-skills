@@ -65,6 +65,18 @@ This extension bundles all five Flow Studio skills. Claude loads them automatica
 
 The Pro+ skills only call tools your subscription allows. If your tier doesn't include them, Claude will tell you and suggest upgrading.
 
+### Want the skills in other AI agents?
+
+This extension installs skills into `~/.claude/skills/`, which makes them available to Claude Code in **VS Code, the terminal CLI, and the Desktop app** — all on the same install.
+
+If you also use Codex, Cursor, Antigravity, Gemini CLI, OpenHands, Goose, Amp, GitHub Copilot, or any of 12+ other AI agents on your machine, install the same skills there in one command:
+
+```bash
+npx skills add ninihen1/power-automate-mcp-skills -g -y
+```
+
+This pulls the canonical skills directly from the Flow Studio repo and writes them into each agent's known skills directory. You still need to configure the Flow Studio MCP server in each agent separately — the command only installs skills, not server connections.
+
 ## Tools
 
 ### Live tools (Basic + Pro+)
