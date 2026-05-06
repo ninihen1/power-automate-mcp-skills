@@ -1,11 +1,14 @@
 const vscode = require('vscode');
 const crypto = require('crypto');
+const os = require('os');
+const path = require('path');
+const copilotCli = require('./lib/copilot-cli-bridge');
 
 const DEFAULT_URL = 'https://mcp.flowstudio.app/mcp';
 const SIGNUP_URL = 'https://mcp.flowstudio.app';
 const SECRET_PREFIX = 'flowstudio.apiKey.';
 const WELCOME_SHOWN_KEY = 'flowstudio.welcomeShownVersion';
-const CURRENT_VERSION = '0.3.0';
+const CURRENT_VERSION = '0.5.0';
 
 /** @type {vscode.SecretStorage} */
 let secrets;
@@ -27,6 +30,12 @@ async function activate(context) {
 
     // Backfill IDs on connections that don't have one
     await backfillIds();
+
+    // Bootstrap GitHub Copilot CLI (writes ~/.copilot/skills/ + mcp-config.json)
+    // when detected. Idempotent — version-stamped, skipped when current.
+    bootstrapCopilotCli(context).catch((err) => {
+        console.error('[flowstudio] Copilot CLI bootstrap failed:', err);
+    });
 
     const provider = vscode.lm.registerMcpServerDefinitionProvider(
         'flowstudioMcp',
@@ -121,6 +130,36 @@ function generateId() {
     return crypto.randomBytes(8).toString('hex');
 }
 
+async function bootstrapCopilotCli(context) {
+    const homeDir = os.homedir();
+    if (!copilotCli.isCopilotCliInstalled(homeDir)) {
+        return;
+    }
+
+    const bundledSkillsDir = path.join(context.extensionPath, 'skills');
+    const skillResult = copilotCli.installSkillsIfNeeded(homeDir, bundledSkillsDir, CURRENT_VERSION);
+    if (skillResult.installed) {
+        console.log(`[flowstudio] installed ${skillResult.skills.length} skills to ~/.copilot/skills/: ${skillResult.skills.join(', ')}`);
+    }
+
+    // Sync existing VS Code connections into ~/.copilot/mcp-config.json so a user
+    // who already added connections in VS Code gets them available in `gh copilot` too.
+    const servers = getServers();
+    for (const server of servers) {
+        const apiKey = await secrets.get(SECRET_PREFIX + server.id);
+        if (!apiKey) continue;
+        try {
+            copilotCli.upsertServer(homeDir, {
+                label: server.label,
+                url: server.serverUrl || DEFAULT_URL,
+                apiKey,
+            });
+        } catch (err) {
+            console.error(`[flowstudio] failed to sync "${server.label}" to Copilot CLI:`, err);
+        }
+    }
+}
+
 async function migrateKeys() {
     const config = vscode.workspace.getConfiguration('flowstudio.mcp');
     const servers = config.get('servers', []);
@@ -199,8 +238,23 @@ async function addConnection() {
     await saveServers(servers);
     await secrets.store(SECRET_PREFIX + id, apiKey);
 
+    // Mirror into Copilot CLI config if it's installed.
+    let cliMessage = '';
+    try {
+        const result = copilotCli.upsertServer(os.homedir(), {
+            label: label.trim(),
+            url: DEFAULT_URL,
+            apiKey,
+        });
+        if (result.written) {
+            cliMessage = ' Also wired into Copilot CLI.';
+        }
+    } catch (err) {
+        console.error('[flowstudio] Copilot CLI sync failed on add:', err);
+    }
+
     vscode.window.showInformationMessage(
-        `Flow Studio: "${label}" connected. Reload to activate.`,
+        `Flow Studio: "${label}" connected.${cliMessage} Reload to activate.`,
         'Reload Window',
     ).then((action) => {
         if (action === 'Reload Window') {
@@ -249,6 +303,13 @@ async function removeConnection() {
     await secrets.delete(SECRET_PREFIX + picked.id);
     servers.splice(picked.index, 1);
     await saveServers(servers);
+
+    // Mirror removal into Copilot CLI config if present.
+    try {
+        copilotCli.removeServer(os.homedir(), picked.label);
+    } catch (err) {
+        console.error('[flowstudio] Copilot CLI sync failed on remove:', err);
+    }
 
     vscode.window.showInformationMessage(
         `Flow Studio: "${picked.label}" removed. Reload to apply.`,

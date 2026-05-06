@@ -52,9 +52,16 @@ This extension bundles all five Flow Studio skills. Copilot loads them automatic
 
 The Pro+ skills only call tools your subscription allows. If your tier doesn't include them, Copilot will tell you and suggest upgrading.
 
-### Want the skills in other AI agents?
+### Reach: VS Code Copilot Chat **and** GitHub Copilot CLI
 
-This extension wires the skills into **VS Code's Copilot Chat only** (via the `chatSkills` contribution point). It does not propagate to GitHub Copilot CLI (`gh copilot`) or other Copilot surfaces — that's a GitHub-side limitation, not something we can ship from here.
+Installing this extension wires Flow Studio into both surfaces of GitHub Copilot:
+
+- **VS Code Copilot Chat** — via the `chatSkills` contribution point (in-process, no filesystem write)
+- **GitHub Copilot CLI (`gh copilot` / `copilot`)** — via filesystem bootstrap. On activation, the extension copies the bundled skills into `~/.copilot/skills/flowstudio-power-automate-*/` and adds a `flowstudio-<connection>` entry to `~/.copilot/mcp-config.json`. Detected automatically by the presence of `~/.copilot/`. Each connection you Add or Remove in VS Code is mirrored into the CLI config in the same step.
+
+If Copilot CLI isn't installed yet, that part is silently skipped. Install Copilot CLI later, then reload VS Code — the extension picks it up on next activation.
+
+### Want the skills in other AI agents?
 
 If you also use Claude Code, Codex, Cursor, Antigravity, Gemini CLI, OpenHands, Goose, Amp, or any of 12+ other AI agents on your machine, install the same skills there in one command:
 
