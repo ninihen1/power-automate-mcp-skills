@@ -21,8 +21,44 @@ function copilotDir(homeDir) {
     return path.join(homeDir, COPILOT_DIR);
 }
 
-function isCopilotCliInstalled(homeDir) {
-    return fs.existsSync(copilotDir(homeDir));
+// Cache the detection result for the lifetime of this Node process.
+let _detected;
+
+// Detect whether GitHub Copilot CLI is actually installed.
+//
+// Cannot rely on ~/.copilot/ existence — VS Code's Copilot extension
+// creates that directory (with `ide/` and `plugins/` subdirs) even when the
+// `copilot` CLI binary is not installed.
+//
+// Walk the PATH looking for the `copilot` binary directly. Avoids spawning
+// a child process at activate time, which is faster and dodges the
+// Windows `.cmd`/`.exe` resolution dance.
+function isCopilotCliInstalled() {
+    if (_detected !== undefined) return _detected;
+
+    const pathEnv = process.env.PATH || process.env.Path || '';
+    const sep = process.platform === 'win32' ? ';' : ':';
+    const dirs = pathEnv.split(sep).filter(Boolean);
+
+    const candidates = process.platform === 'win32'
+        ? ['copilot.cmd', 'copilot.exe', 'copilot.bat', 'copilot']
+        : ['copilot'];
+
+    for (const dir of dirs) {
+        for (const name of candidates) {
+            try {
+                if (fs.existsSync(path.join(dir, name))) {
+                    _detected = true;
+                    return true;
+                }
+            } catch {
+                // ignore unreadable PATH entries
+            }
+        }
+    }
+
+    _detected = false;
+    return false;
 }
 
 function copyDirSync(src, dest) {
@@ -39,7 +75,7 @@ function copyDirSync(src, dest) {
 }
 
 function installSkillsIfNeeded(homeDir, bundledSkillsDir, extensionVersion) {
-    if (!isCopilotCliInstalled(homeDir)) {
+    if (!isCopilotCliInstalled()) {
         return { installed: false, skipped: 'copilot-cli-not-detected', skills: [] };
     }
     if (!fs.existsSync(bundledSkillsDir)) {
@@ -109,7 +145,7 @@ function serverKey(label) {
 }
 
 function upsertServer(homeDir, { label, url, apiKey }) {
-    if (!isCopilotCliInstalled(homeDir)) {
+    if (!isCopilotCliInstalled()) {
         return { written: false, skipped: 'copilot-cli-not-detected' };
     }
     const config = readMcpConfig(homeDir);
@@ -128,7 +164,7 @@ function upsertServer(homeDir, { label, url, apiKey }) {
 }
 
 function removeServer(homeDir, label) {
-    if (!isCopilotCliInstalled(homeDir)) {
+    if (!isCopilotCliInstalled()) {
         return { written: false, skipped: 'copilot-cli-not-detected' };
     }
     const config = readMcpConfig(homeDir);
