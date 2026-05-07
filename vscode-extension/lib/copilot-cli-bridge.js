@@ -10,12 +10,17 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const http = require('node:http');
+const https = require('node:https');
+const { URL } = require('node:url');
 
 const SKILLS_STAMP = '.flowstudio-mcp-version';
 const COPILOT_DIR = '.copilot';
 const SKILLS_SUBDIR = 'skills';
 const MCP_CONFIG_FILE = 'mcp-config.json';
 const FLOWSTUDIO_KEY_PREFIX = 'flowstudio';
+const BRIDGE_VERSION = '0.6.0';
+const USER_AGENT = `FlowStudio-MCP/${BRIDGE_VERSION}`;
 
 function copilotDir(homeDir) {
     return path.join(homeDir, COPILOT_DIR);
@@ -177,10 +182,125 @@ function removeServer(homeDir, label) {
     return { written: true, key };
 }
 
+function isCancelled(cancellationToken) {
+    return Boolean(cancellationToken && cancellationToken.isCancellationRequested);
+}
+
+function onCancelled(cancellationToken, callback) {
+    if (!cancellationToken || typeof cancellationToken.onCancellationRequested !== 'function') {
+        return undefined;
+    }
+    return cancellationToken.onCancellationRequested(callback);
+}
+
+// Probe an MCP server with a short-timeout `initialize` call. Returns
+// { ok, status?, error? }. Used by the bootstrap to skip writing config
+// entries for servers that don't respond — a dead/slow entry in
+// ~/.copilot/mcp-config.json blocks Copilot CLI startup for ~30s while
+// it tries to handshake.
+function probeServer({ url, apiKey, timeoutMs = 3000, cancellationToken }) {
+    return new Promise((resolve) => {
+        let parsed;
+        try {
+            parsed = new URL(url);
+        } catch {
+            return resolve({ ok: false, error: 'invalid-url' });
+        }
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+            return resolve({ ok: false, error: 'unsupported-protocol' });
+        }
+
+        if (isCancelled(cancellationToken)) {
+            return resolve({ ok: false, error: 'cancelled' });
+        }
+
+        const lib = parsed.protocol === 'http:' ? http : https;
+        const body = JSON.stringify({
+            jsonrpc: '2.0',
+            id: 1,
+            method: 'initialize',
+            params: {
+                protocolVersion: '2024-11-05',
+                capabilities: {},
+                clientInfo: { name: 'FlowStudio-VSCodeBridge', version: BRIDGE_VERSION },
+            },
+        });
+
+        let settled = false;
+        let req;
+        let cancellationDisposable;
+        let hardTimeout;
+
+        const settle = (result) => {
+            if (settled) return;
+            settled = true;
+            if (hardTimeout) {
+                clearTimeout(hardTimeout);
+            }
+            if (cancellationDisposable) {
+                cancellationDisposable.dispose();
+            }
+            if (req) {
+                req.destroy();
+            }
+            resolve(result);
+        };
+
+        hardTimeout = setTimeout(() => {
+            settle({ ok: false, error: 'timeout' });
+        }, timeoutMs);
+        if (typeof hardTimeout.unref === 'function') {
+            hardTimeout.unref();
+        }
+
+        cancellationDisposable = onCancelled(cancellationToken, () => {
+            settle({ ok: false, error: 'cancelled' });
+        });
+
+        try {
+            req = lib.request({
+                hostname: parsed.hostname,
+                port: parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
+                path: parsed.pathname + parsed.search,
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json, text/event-stream',
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(body),
+                    'x-api-key': apiKey,
+                    'User-Agent': USER_AGENT,
+                },
+                timeout: timeoutMs,
+            }, (res) => {
+                const status = res.statusCode || 0;
+                res.on('error', (e) => settle({ ok: false, error: e.code || e.message || 'response-error' }));
+                res.resume();
+                if (status >= 200 && status < 300) {
+                    settle({ ok: true, status });
+                } else {
+                    settle({ ok: false, status, error: `http-${status}` });
+                }
+            });
+        } catch (err) {
+            settle({ ok: false, error: err.code || err.message || 'request-error' });
+            return;
+        }
+
+        req.on('error', (e) => settle({ ok: false, error: e.code || e.message || 'request-error' }));
+        req.on('timeout', () => {
+            settle({ ok: false, error: 'timeout' });
+        });
+
+        req.write(body);
+        req.end();
+    });
+}
+
 module.exports = {
     isCopilotCliInstalled,
     installSkillsIfNeeded,
     upsertServer,
     removeServer,
     serverKey,
+    probeServer,
 };

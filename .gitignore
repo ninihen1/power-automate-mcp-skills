@@ -70,3 +70,8 @@ vscode-extension-claude/skills/
 # Credentials and per-user state
 .mcpregistry_*_token
 *.code-workspace
+
+# GitHub Copilot CLI workspace config — may contain x-api-key headers per server.
+# Project-level Copilot CLI config can land at <repo>/.copilot/* if a user runs
+# the CLI from the repo root; user-level lives in ~/.copilot/ (not git-tracked).
+.copilot/
