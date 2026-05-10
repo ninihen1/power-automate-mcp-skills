@@ -80,3 +80,6 @@ vscode-extension-claude/skills/
 
 # M365 Cowork plugin build output (Convert-ClaudePluginToMOS3.ps1 staging + zips)
 dist/
+
+# Cowork API plugin proxy (in-development; promote to tracked when stable)
+cowork-proxy/
