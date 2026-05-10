@@ -26,12 +26,12 @@ Classify, tag, and govern Power Automate flows at scale through the FlowStudio
 MCP **cached store** — without Dataverse, without the CoE Starter Kit, and
 without the Power Automate portal.
 
-This skill uses the same `store_*` tool family as `power-automate-monitoring`,
+This skill uses the same `store_*` tool family as `flowstudio-power-automate-monitoring`,
 but with a different *intent*: governance writes metadata (`update_store_flow`)
 and reads for *audit and classification* outcomes. Monitoring reads the same
 tools for *operational health* outcomes. Don't try to memorize which skill
 "owns" which tool — pick by what the user is doing. For health checks and
-failure-rate dashboards, load `power-automate-monitoring` instead.
+failure-rate dashboards, load `flowstudio-power-automate-monitoring` instead.
 
 > **⚠️ Pro+ subscription required.** This skill calls `store_*` tools that
 > only work for FlowStudio for Teams or MCP Pro+ subscribers.
@@ -369,7 +369,7 @@ Flow Studio governance contacts and notification recipients.
      # become orphaned). Check first via get_live_flow → look for
      # properties.solutionId; if missing, migrate:
      add_live_flow_to_solution(environmentName, flowName,
-       solutionName="<target-unmanaged-solution>")
+       solutionId="<target-unmanaged-solution-id>")
    - If decommissioning:
      set_live_flow_state(environmentName, flowName, state="Stopped")
      Read existing tags, append #decommissioned
@@ -518,7 +518,7 @@ Fields marked with `*` are also available on `list_store_flows` (cheaper).
 
 ## Related Skills
 
-- `power-automate-monitoring` — Health checks, failure rates, inventory (read-only)
-- `power-automate-mcp` — Foundation skill: connection setup, MCP helper, tool discovery
-- `power-automate-debug` — Deep diagnosis with action-level inputs/outputs
-- `power-automate-build` — Build and deploy flow definitions
+- `flowstudio-power-automate-monitoring` — Health checks, failure rates, inventory (read-only)
+- `flowstudio-power-automate-mcp` — Foundation skill: connection setup, MCP helper, tool discovery
+- `flowstudio-power-automate-debug` — Deep diagnosis with action-level inputs/outputs
+- `flowstudio-power-automate-build` — Build and deploy flow definitions

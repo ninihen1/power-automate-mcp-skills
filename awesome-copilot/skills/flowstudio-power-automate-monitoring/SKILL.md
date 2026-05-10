@@ -5,7 +5,7 @@ description: >-
   monitoring, failure rate analytics, and asset inventory using the FlowStudio
   MCP cached store. Load this skill ONLY for tenant-wide aggregated views — not
   for listing flows in a single environment or debugging a specific run (use
-  power-automate-mcp or power-automate-debug for those). Not the same as the
+  flowstudio-power-automate-mcp or flowstudio-power-automate-debug for those). Not the same as the
   server's `monitor-flow` tool bundle (`tool_search query: "skill:monitor-flow"`)
   — that bundle is for runtime control of a single flow (start/stop/trigger/
   cancel/resubmit); this skill is for tenant-wide health analytics over the
@@ -39,13 +39,13 @@ enriched with governance metadata and remediation hints.
 > 2. Tell the user this feature requires a Pro+ subscription
 > 3. Link them to https://mcp.flowstudio.app/pricing
 > 4. If their question can be answered with live tools (e.g. "list flows in
->    one environment"), offer to use the `power-automate-mcp` skill instead
+>    one environment"), offer to use the `flowstudio-power-automate-mcp` skill instead
 >
 > **Discovery:** load tool schemas via `tool_search` rather than `tools/list` —
 > call with `query: "select:list_store_flows,get_store_flow_summary"` for the
 > common monitoring tools, or load the full set with `query: "skill:governance"`
 > (the server's governance bundle covers most monitoring reads too — this skill
-> and `power-automate-governance` share the underlying tool family). This skill
+> and `flowstudio-power-automate-governance` share the underlying tool family). This skill
 > covers response shapes, behavioral notes, and workflow patterns — things
 > `tool_search` cannot tell you. If this document disagrees with a real API
 > response, the API wins.
@@ -382,7 +382,7 @@ Direct array.
 
 ## Related Skills
 
-- `power-automate-mcp` — Foundation skill: connection setup, MCP helper, tool discovery
-- `power-automate-debug` — Deep diagnosis with action-level inputs/outputs (live API)
-- `power-automate-build` — Build and deploy flow definitions
-- `power-automate-governance` — Governance metadata, tagging, notification rules, CoE patterns
+- `flowstudio-power-automate-mcp` — Foundation skill: connection setup, MCP helper, tool discovery
+- `flowstudio-power-automate-debug` — Deep diagnosis with action-level inputs/outputs (live API)
+- `flowstudio-power-automate-build` — Build and deploy flow definitions
+- `flowstudio-power-automate-governance` — Governance metadata, tagging, notification rules, CoE patterns

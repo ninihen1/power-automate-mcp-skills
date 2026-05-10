@@ -369,7 +369,7 @@ Flow Studio governance contacts and notification recipients.
      # become orphaned). Check first via get_live_flow → look for
      # properties.solutionId; if missing, migrate:
      add_live_flow_to_solution(environmentName, flowName,
-       solutionName="<target-unmanaged-solution>")
+       solutionId="<target-unmanaged-solution-id>")
    - If decommissioning:
      set_live_flow_state(environmentName, flowName, state="Stopped")
      Read existing tags, append #decommissioned

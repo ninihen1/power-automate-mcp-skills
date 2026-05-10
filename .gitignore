@@ -36,6 +36,8 @@ Thumbs.db
 # Internal docs (not for public repo)
 SUBMISSION-STATUS.md
 docs/streamable-http-upgrade-spec.md
+docs/skill-table-catalog/
+docs/superpowers/
 
 # Agent projects (environment-specific, may contain tokens)
 m365-declarative-agent/
@@ -75,3 +77,6 @@ vscode-extension-claude/skills/
 # Project-level Copilot CLI config can land at <repo>/.copilot/* if a user runs
 # the CLI from the repo root; user-level lives in ~/.copilot/ (not git-tracked).
 .copilot/
+
+# M365 Cowork plugin build output (Convert-ClaudePluginToMOS3.ps1 staging + zips)
+dist/
