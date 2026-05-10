@@ -2,9 +2,10 @@
 
 Response shapes and behavioral notes for the FlowStudio Power Automate MCP server.
 
-> **For tool names and parameters**: Always call `tools/list` on the server.
-> It returns the authoritative, up-to-date schema for every tool.
-> This document covers what `tools/list` does NOT tell you: **response shapes**
+> **For tool names and parameters**: Prefer `list_skills` and `tool_search`.
+> They return focused, up-to-date schemas without loading every MCP tool at once.
+> Use `tools/list` only as a low-level fallback when the meta-tools are not available.
+> This document covers what tool schemas do NOT tell you: **response shapes**
 > and **non-obvious behaviors** discovered through real usage.
 
 ---
@@ -14,11 +15,11 @@ Response shapes and behavioral notes for the FlowStudio Power Automate MCP serve
 | Priority | Source | Covers |
 |----------|--------|--------|
 | 1 | **Real API response** | Always trust what the server actually returns |
-| 2 | **`tools/list`** | Tool names, parameter names, types, required flags |
+| 2 | **`list_skills` / `tool_search`** | Tool names, parameter names, types, required flags |
 | 3 | **This document** | Response shapes, behavioral notes, gotchas |
 
-> If this document disagrees with `tools/list` or real API behavior,
-> the API wins. Update this document accordingly.
+> If this document disagrees with `tool_search`, `tools/list`, or real API
+> behavior, the API wins. Update this document accordingly.
 
 ---
 
@@ -80,8 +81,8 @@ Response: wrapper object with `connections` array.
 >
 > Filter by status: `statuses[0].status == "Connected"`.
 >
-> **Note**: `tools/list` marks `environmentName` as optional, but the server
-> returns `MissingEnvironmentFilter` (HTTP 400) if you omit it. Always pass
+> **Note**: Older schemas marked `environmentName` as optional, but the server
+> can return `MissingEnvironmentFilter` (HTTP 400) if you omit it. Always pass
 > `environmentName`.
 
 ### `list_store_connections`
@@ -217,7 +218,10 @@ Response:
 >
 > On create: `created` is the new flow GUID (string). On update: `created` is `false`.
 >
-> `description` is **always required** (create and update).
+> Required fields can vary by server version. Use `tool_search` with
+> `select:update_live_flow` before creating or patching a flow; if a description
+> is required, include either the new description or the existing one from
+> `get_live_flow`.
 
 ### `add_live_flow_to_solution`
 
@@ -473,7 +477,7 @@ List all Power Apps canvas apps from the cache.
 ## Behavioral Notes
 
 Non-obvious behaviors discovered through real API usage. These are things
-`tools/list` cannot tell you.
+tool schemas cannot tell you.
 
 ### `get_live_flow_run_action_outputs`
 - **`actionName` is optional**: omit to get all actions, provide to get one.
@@ -481,7 +485,9 @@ Non-obvious behaviors discovered through real API usage. These are things
 - Outputs can be 50 MB+ for bulk-data actions --- always use 120s+ timeout.
 
 ### `update_live_flow`
-- `description` is **always required** (create and update modes).
+- Required fields can vary by server version; confirm with `tool_search`
+  (`select:update_live_flow`) before create/update. If `description` is required,
+  preserve the existing description when patching.
 - `error` key is **always present** in response --- `null` means success.
   Do NOT check `if "error" in result`; check `result.get("error") is not None`.
 - On create, `created` = new flow GUID (string). On update, `created` = `false`.
