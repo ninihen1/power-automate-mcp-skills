@@ -11,13 +11,6 @@ description: >-
   a compliance report, offboard a maker, or any task that involves writing
   governance metadata to flows. Requires a FlowStudio for Teams or MCP Pro+
   subscription — see https://mcp.flowstudio.app
-metadata:
-  openclaw:
-    requires:
-      env:
-        - FLOWSTUDIO_MCP_TOKEN
-    primaryEnv: FLOWSTUDIO_MCP_TOKEN
-    homepage: https://mcp.flowstudio.app
 ---
 
 # Power Automate Governance with FlowStudio MCP
