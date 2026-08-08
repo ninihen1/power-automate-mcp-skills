@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ninihen1/flowstudio-mcp",
-  "title": "Power Automate MCP Server by Flow Studio",
+  "title": "Power Automate MCP Server by FlowStudio",
   "description": "Debug, build, and manage Power Automate cloud flows with AI agents",
   "version": "1.0.0",
   "repository": {
@@ -16,7 +16,7 @@
       "headers": [
         {
           "name": "x-api-key",
-          "description": "Flow Studio MCP API key (get one at https://mcp.flowstudio.app)",
+          "description": "FlowStudio MCP API key (get one at https://mcp.flowstudio.app)",
           "isRequired": true,
           "isSecret": true
         }

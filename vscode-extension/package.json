@@ -47,7 +47,7 @@
     "mcpServerDefinitionProviders": [
       {
         "id": "flowstudioMcp",
-        "label": "Flow Studio MCP"
+        "label": "FlowStudio MCP"
       }
     ],
     "chatSkills": [
@@ -80,12 +80,12 @@
       }
     ],
     "configuration": {
-      "title": "Flow Studio MCP",
+      "title": "FlowStudio MCP",
       "properties": {
         "flowstudio.mcp.servers": {
           "type": "array",
           "default": [],
-          "description": "Flow Studio MCP server connections. Each entry creates a separate MCP server for a different tenant.",
+          "description": "FlowStudio MCP server connections. Each entry creates a separate MCP server for a different tenant.",
           "items": {
             "type": "object",
             "required": ["label"],
