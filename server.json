@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ninihen1/flowstudio-mcp",
   "title": "Power Automate MCP Server by FlowStudio",
-  "description": "Debug, build, and manage Power Automate cloud flows with AI agents",
+  "description": "Debug, build, and manage Power Automate cloud flows with AI agents. ChatGPT and claude.ai connect with a Microsoft sign-in at https://mcp.flowstudio.app/mcp/oauth; other agents use an API key.",
   "version": "1.0.0",
   "repository": {
     "url": "https://github.com/ninihen1/power-automate-mcp-skills",

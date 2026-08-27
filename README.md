@@ -59,7 +59,25 @@ and works with any compatible agent.
 
 Copilot, Claude Code, ChatGPT, Codex, OpenClaw, Gemini CLI, Cursor, Goose, Amp, OpenHands
 
+## Guides
+
+Full walkthroughs on [learn.flowstudio.app](https://learn.flowstudio.app):
+
+- [Getting started](https://learn.flowstudio.app/mcp-getting-started) — install FlowStudio MCP for any agent
+- [Build flows with AI agents](https://learn.flowstudio.app/build-power-automate-flows-with-ai-agents) — a worked 3-step example
+- [Vibe code Power Automate](https://learn.flowstudio.app/vibe-code-power-automate) — describe the flow, the agent builds it
+- [Power Automate in VS Code](https://learn.flowstudio.app/power-automate-ide) — work on flows from your editor
+- [Debug a failing flow](https://learn.flowstudio.app/mcp-debug) — find the root cause from action-level data
+- By agent: [ChatGPT](https://learn.flowstudio.app/chatgpt-power-automate) · [Claude](https://learn.flowstudio.app/claude-power-automate) · [GitHub Copilot](https://learn.flowstudio.app/github-copilot-power-automate) · [Copilot Studio](https://learn.flowstudio.app/copilot-studio-power-automate) · [Codex](https://learn.flowstudio.app/codex-power-automate)
+
 ## Quick Start
+
+### Connect from ChatGPT or claude.ai
+
+Sign in with your Microsoft account instead of pasting a key. Add
+`https://mcp.flowstudio.app/mcp/oauth` as a connector in ChatGPT (Developer mode
+on) or at claude.ai, then follow the sign-in prompt. Walkthrough:
+[ChatGPT for Power Automate](https://learn.flowstudio.app/chatgpt-power-automate).
 
 ### Install as Claude Code plugin
 
