@@ -21,7 +21,7 @@ Debug, build, and manage Power Automate cloud flows with AI — no portal needed
 | `get_live_flow_run_action_outputs` | Inspect inputs/outputs of any action |
 | `get_live_flow_http_schema` | Inspect HTTP trigger schema |
 | `get_live_flow_trigger_url` | Get signed callback URL |
-| `trigger_live_flow` | Trigger an HTTP-triggered flow |
+| `trigger_live_flow` | Run an HTTP, Button, or PowerApps flow |
 | `update_live_flow` | Create or update a flow definition |
 | `resubmit_live_flow_run` | Replay a failed run |
 | `cancel_live_flow_run` | Cancel a running execution |

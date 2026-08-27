@@ -94,7 +94,7 @@ Real-time calls to the Power Automate API:
 | `get_live_flow_run_action_outputs` | Inspect inputs/outputs of any action, including loop iterations |
 | `get_live_flow_http_schema`        | Inspect the request/response schema of HTTP-triggered flows     |
 | `get_live_flow_trigger_url`        | Get the signed callback URL for HTTP-triggered flows            |
-| `trigger_live_flow`                | Trigger an HTTP-triggered flow with a JSON payload              |
+| `trigger_live_flow`                | Run an HTTP, Button, or PowerApps flow with a JSON payload      |
 | `update_live_flow`                 | Create a new flow or update an existing definition              |
 | `resubmit_live_flow_run`           | Replay a failed run using its original trigger data             |
 | `cancel_live_flow_run`             | Cancel a currently running flow execution                       |

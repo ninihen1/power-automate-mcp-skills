@@ -57,7 +57,7 @@ and works with any compatible agent.
 
 ### Supported agents
 
-Copilot, Claude Code, Codex, OpenClaw, Gemini CLI, Cursor, Goose, Amp, OpenHands
+Copilot, Claude Code, ChatGPT, Codex, OpenClaw, Gemini CLI, Cursor, Goose, Amp, OpenHands
 
 ## Quick Start
 
@@ -207,7 +207,7 @@ LICENSE                        MIT
 
 ## Available on GitHub
 
-Works with Copilot, Claude, and any MCP-compatible agent.
+Works with Copilot, Claude, ChatGPT, and any MCP-compatible agent.
 
 - [awesome-copilot](https://github.com/github/awesome-copilot) (merged)
 - [skills.sh](https://skills.sh/?q=flowstudio) (3K+ installs)
