@@ -20,7 +20,7 @@ That's not enough to diagnose anything. A human would open the portal, click int
 
 ## The solution: MCP server for Power Automate
 
-[Flow Studio MCP](https://mcp.flowstudio.app) is a remote MCP server that exposes Power Automate action-level data to AI agents. With it, your Codex agent can:
+[FlowStudio MCP](https://mcp.flowstudio.app) is a remote MCP server that exposes Power Automate action-level data to AI agents. With it, your Codex agent can:
 
 - Retrieve inputs and outputs for every action in a flow run
 - Trace failures through parent flows, child flows, and loop iterations
@@ -146,7 +146,7 @@ Everything else (child flow tracing, loop iteration scanning, expression error c
 
 ## Resources
 
-- [Flow Studio MCP](https://mcp.flowstudio.app) — subscription and token
+- [FlowStudio MCP](https://mcp.flowstudio.app) — subscription and token
 - [GitHub repo](https://github.com/ninihen1/power-automate-mcp-skills) — skills, examples, plugin manifests
 - [skills.sh](https://skills.sh/?q=flowstudio) — 3K+ installs
 - [More examples](https://github.com/ninihen1/power-automate-mcp-skills/tree/main/examples)

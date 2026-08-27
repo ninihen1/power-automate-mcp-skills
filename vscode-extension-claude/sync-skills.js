@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Sync the 5 Flow Studio skills from ../skills/ into ./skills/
+// Sync the 5 FlowStudio skills from ../skills/ into ./skills/
 // so the VS Code extension bundles them. On user activation, the
 // extension copies them to ~/.claude/skills/flowstudio-power-automate-*/
 //

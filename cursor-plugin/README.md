@@ -1,4 +1,4 @@
-# Power Automate MCP Server by Flow Studio
+# Power Automate MCP Server by FlowStudio
 
 Debug, build, and manage Power Automate cloud flows with AI — no portal needed.
 
@@ -30,7 +30,7 @@ Debug, build, and manage Power Automate cloud flows with AI — no portal needed
 
 ## Links
 
-- [Flow Studio](https://flowstudio.app)
+- [FlowStudio](https://flowstudio.app)
 - [MCP Server](https://mcp.flowstudio.app)
 - [Getting Started](https://learn.flowstudio.app/mcp-getting-started)
 - [GitHub](https://github.com/ninihen1/power-automate-mcp-skills)

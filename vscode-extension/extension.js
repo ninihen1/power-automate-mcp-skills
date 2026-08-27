@@ -28,10 +28,10 @@ async function saveServers(servers) {
 
 async function activate(context) {
     secrets = context.secrets;
-    output = vscode.window.createOutputChannel('Flow Studio MCP');
+    output = vscode.window.createOutputChannel('FlowStudio MCP');
     context.subscriptions.push(output);
 
-    output.appendLine(`[activate] Flow Studio MCP v${CURRENT_VERSION} starting`);
+    output.appendLine(`[activate] FlowStudio MCP v${CURRENT_VERSION} starting`);
 
     await migrateKeys();
     await backfillIds();
@@ -54,7 +54,7 @@ async function activate(context) {
                 if (servers.length === 0) {
                     return [
                         new vscode.McpHttpServerDefinition(
-                            'Flow Studio MCP',
+                            'FlowStudio MCP',
                             vscode.Uri.parse(DEFAULT_URL),
                             { 'User-Agent': 'FlowStudio-MCP/1.0' },
                         ),
@@ -63,7 +63,7 @@ async function activate(context) {
                 return servers.map((server) => {
                     const url = server.serverUrl || DEFAULT_URL;
                     return new vscode.McpHttpServerDefinition(
-                        server.label || 'Flow Studio MCP',
+                        server.label || 'FlowStudio MCP',
                         vscode.Uri.parse(url),
                         { 'User-Agent': 'FlowStudio-MCP/1.0', 'x-flowstudio-id': server.id },
                     );
@@ -105,7 +105,7 @@ async function activate(context) {
                 }
 
                 const action = await vscode.window.showInformationMessage(
-                    `Flow Studio MCP needs an API key for "${definition.label}".`,
+                    `FlowStudio MCP needs an API key for "${definition.label}".`,
                     'Add API Key',
                     'Get API Key',
                 );
@@ -251,11 +251,11 @@ function buildCliStatusMessage(result) {
     const failedCount = result.failedServers ? result.failedServers.length : 0;
     if (failedCount > 0) {
         const connectionWord = failedCount === 1 ? 'connection' : 'connections';
-        return `Flow Studio set up Copilot CLI skills (${result.skillsInstalled}). ${failedCount} saved tenant ${connectionWord} need attention before CLI sync: ${formatServerLabels(result.failedServers)}. They were left out of ~/.copilot/mcp-config.json. Restart \`copilot\` if a session is open.`;
+        return `FlowStudio set up Copilot CLI skills (${result.skillsInstalled}). ${failedCount} saved tenant ${connectionWord} need attention before CLI sync: ${formatServerLabels(result.failedServers)}. They were left out of ~/.copilot/mcp-config.json. Restart \`copilot\` if a session is open.`;
     }
 
     const serverWord = result.serversWritten === 1 ? 'server' : 'servers';
-    return `Flow Studio: wired into Copilot CLI (${result.skillsInstalled} skills, ${result.serversWritten} ${serverWord} in ~/.copilot/). Restart \`copilot\` if a session is open.`;
+    return `FlowStudio: wired into Copilot CLI (${result.skillsInstalled} skills, ${result.serversWritten} ${serverWord} in ~/.copilot/). Restart \`copilot\` if a session is open.`;
 }
 
 function formatServerLabels(servers, limit = 3) {
@@ -306,7 +306,7 @@ async function showSetupStatus(context) {
         items.push({
             label: '$(circle-slash) GitHub Copilot CLI',
             description: 'not detected on PATH',
-            detail: 'Install: npm install -g @github/copilot — then run "Flow Studio: Sync to Copilot CLI"',
+            detail: 'Install: npm install -g @github/copilot — then run "FlowStudio: Sync to Copilot CLI"',
         });
     }
 
@@ -327,13 +327,13 @@ async function showSetupStatus(context) {
         items.push({ label: '$(list-unordered) List connections', action: 'list' });
     }
     items.push({ label: '$(sync) Sync to Copilot CLI now', action: 'sync' });
-    items.push({ label: '$(output) Open Flow Studio output log', action: 'output' });
+    items.push({ label: '$(output) Open FlowStudio output log', action: 'output' });
     if (cliInstalled) {
         items.push({ label: '$(file-code) Open ~/.copilot/mcp-config.json', action: 'open-config' });
     }
 
     const picked = await vscode.window.showQuickPick(items, {
-        title: 'Flow Studio Setup Status',
+        title: 'FlowStudio Setup Status',
         placeHolder: 'Surface state — pick an action',
     });
 
@@ -422,7 +422,7 @@ async function backfillIds() {
 
 async function showWelcome() {
     const action = await vscode.window.showInformationMessage(
-        'Flow Studio MCP installed. Connect your AI agent to Power Automate cloud flows.',
+        'FlowStudio MCP installed. Connect your AI agent to Power Automate cloud flows.',
         'Add Connection',
         'Get API Key',
     );
@@ -435,7 +435,7 @@ async function showWelcome() {
 
 async function addConnection(context) {
     const label = await vscode.window.showInputBox({
-        title: 'Flow Studio: Add Connection (1/2)',
+        title: 'FlowStudio: Add Connection (1/2)',
         prompt: 'Name this connection (e.g. your tenant or client name)',
         placeHolder: 'e.g. Contoso, Northwind',
         ignoreFocusOut: true,
@@ -464,7 +464,7 @@ async function addConnection(context) {
         // Probe first — don't mirror dead endpoints, they'd hang Copilot CLI startup.
         const probe = await copilotCli.probeServer({ url: DEFAULT_URL, apiKey, timeoutMs: 3000 });
         if (!probe.ok) {
-            cliMessage = ` Skipped Copilot CLI mirror — server probe failed (${probe.error}). Fix and run "Flow Studio: Sync to Copilot CLI" to retry.`;
+            cliMessage = ` Skipped Copilot CLI mirror — server probe failed (${probe.error}). Fix and run "FlowStudio: Sync to Copilot CLI" to retry.`;
             output && output.appendLine(`[add] probe FAIL "${label.trim()}" → ${probe.error}; not mirroring`);
         } else {
             const r = copilotCli.upsertServer(os.homedir(), {
@@ -482,7 +482,7 @@ async function addConnection(context) {
     }
 
     vscode.window.showInformationMessage(
-        `Flow Studio: "${label}" connected.${cliMessage} Reload to activate.`,
+        `FlowStudio: "${label}" connected.${cliMessage} Reload to activate.`,
         'Reload Window',
     ).then((action) => {
         if (action === 'Reload Window') {
@@ -495,7 +495,7 @@ async function addConnection(context) {
 
 async function promptForApiKey(label) {
     const result = await vscode.window.showInputBox({
-        title: `Flow Studio: Add Connection (2/2) — ${label}`,
+        title: `FlowStudio: Add Connection (2/2) — ${label}`,
         prompt: 'Paste the API key for this tenant',
         placeHolder: 'API key from https://mcp.flowstudio.app',
         password: true,
@@ -516,12 +516,12 @@ async function promptForApiKey(label) {
 async function removeConnection(context) {
     const servers = getServers();
     if (servers.length === 0) {
-        vscode.window.showInformationMessage('No Flow Studio connections configured.');
+        vscode.window.showInformationMessage('No FlowStudio connections configured.');
         return;
     }
     const picked = await vscode.window.showQuickPick(
-        servers.map((s, i) => ({ label: s.label, description: 'Flow Studio MCP', index: i, id: s.id })),
-        { title: 'Flow Studio: Remove Connection', placeHolder: 'Select a connection to remove' },
+        servers.map((s, i) => ({ label: s.label, description: 'FlowStudio MCP', index: i, id: s.id })),
+        { title: 'FlowStudio: Remove Connection', placeHolder: 'Select a connection to remove' },
     );
     if (!picked) return;
 
@@ -539,7 +539,7 @@ async function removeConnection(context) {
     }
 
     vscode.window.showInformationMessage(
-        `Flow Studio: "${picked.label}" removed. Reload to apply.`,
+        `FlowStudio: "${picked.label}" removed. Reload to apply.`,
         'Reload Window',
     ).then((action) => {
         if (action === 'Reload Window') {
@@ -552,7 +552,7 @@ async function listConnections(context) {
     const servers = getServers();
     if (servers.length === 0) {
         const action = await vscode.window.showInformationMessage(
-            'No Flow Studio connections configured.',
+            'No FlowStudio connections configured.',
             'Add Connection',
         );
         if (action === 'Add Connection') {
@@ -566,7 +566,7 @@ async function listConnections(context) {
             description: s.serverUrl || DEFAULT_URL,
             detail: 'API key stored securely',
         })),
-        { title: `Flow Studio: ${servers.length} Connection(s)`, placeHolder: 'Your configured tenants' },
+        { title: `FlowStudio: ${servers.length} Connection(s)`, placeHolder: 'Your configured tenants' },
     );
 }
 

@@ -2,7 +2,7 @@
 
 Debug, build, manage, and govern Power Automate cloud flows with AI — no portal needed.
 
-Ask Copilot why a flow failed, build new flows from natural language, audit your tenant, or check run history across environments. This extension connects the [Flow Studio](https://mcp.flowstudio.app) MCP server to GitHub Copilot Chat, giving your AI agent direct access to the Power Automate API and — with Pro+ — your tenant-wide governance and monitoring data.
+Ask Copilot why a flow failed, build new flows from natural language, audit your tenant, or check run history across environments. This extension connects the [FlowStudio](https://mcp.flowstudio.app) MCP server to GitHub Copilot Chat, giving your AI agent direct access to the Power Automate API and — with Pro+ — your tenant-wide governance and monitoring data.
 
 ## Why install this?
 
@@ -16,7 +16,7 @@ Ask Copilot why a flow failed, build new flows from natural language, audit your
 
 1. Install this extension
 2. Get an API key at [mcp.flowstudio.app](https://mcp.flowstudio.app) — **free to start, 100 calls included**
-3. When prompted, paste your API key — or use **Flow Studio: Add Tenant Connection** from the command palette
+3. When prompted, paste your API key — or use **FlowStudio: Add Tenant Connection** from the command palette
 
 ## Usage
 
@@ -40,7 +40,7 @@ Upgrade at [mcp.flowstudio.app/pricing](https://mcp.flowstudio.app/pricing).
 
 ## Skills (included)
 
-This extension bundles all five Flow Studio skills. Copilot loads them automatically based on what you ask — no separate install needed.
+This extension bundles all five FlowStudio skills. Copilot loads them automatically based on what you ask — no separate install needed.
 
 | Skill                       | Purpose                                                                | Tier     |
 | --------------------------- | ---------------------------------------------------------------------- | -------- |
@@ -54,7 +54,7 @@ The Pro+ skills only call tools your subscription allows. If your tier doesn't i
 
 ### Reach: VS Code Copilot Chat **and** GitHub Copilot CLI
 
-Installing this extension wires Flow Studio into both surfaces of GitHub Copilot:
+Installing this extension wires FlowStudio into both surfaces of GitHub Copilot:
 
 - **VS Code Copilot Chat** — via the `chatSkills` contribution point (in-process, no filesystem write)
 - **GitHub Copilot CLI (`gh copilot` / `copilot`)** — via filesystem bootstrap. On activation, the extension copies the bundled skills into `~/.copilot/skills/flowstudio-power-automate-*/` and adds a `flowstudio-<connection>` entry to `~/.copilot/mcp-config.json`. Detected automatically by the presence of `~/.copilot/`. Each connection you Add or Remove in VS Code is mirrored into the CLI config in the same step.
@@ -69,7 +69,7 @@ If you also use Claude Code, Codex, Cursor, Antigravity, Gemini CLI, OpenHands, 
 npx skills add ninihen1/power-automate-mcp-skills -g -y
 ```
 
-This pulls the canonical skills directly from the Flow Studio repo and writes them into each agent's known skills directory. You still need to configure the Flow Studio MCP server in each agent separately — the command only installs skills, not server connections.
+This pulls the canonical skills directly from the FlowStudio repo and writes them into each agent's known skills directory. You still need to configure the FlowStudio MCP server in each agent separately — the command only installs skills, not server connections.
 
 ## Tools
 
@@ -121,9 +121,9 @@ Requires a [FlowStudio for Teams or MCP Pro+ subscription](https://mcp.flowstudi
 
 Connect to multiple tenants from the command palette:
 
-- **Flow Studio: Add Tenant Connection** — add a new tenant
-- **Flow Studio: Remove Tenant Connection** — remove a tenant
-- **Flow Studio: List Connections** — view all configured tenants
+- **FlowStudio: Add Tenant Connection** — add a new tenant
+- **FlowStudio: Remove Tenant Connection** — remove a tenant
+- **FlowStudio: List Connections** — view all configured tenants
 
 Each tenant appears as a separate MCP server in Copilot Chat. API keys are stored securely in the OS keychain (Windows Credential Manager / macOS Keychain) — not in settings files.
 
@@ -131,11 +131,11 @@ Each tenant appears as a separate MCP server in Copilot Chat. API keys are store
 
 - VS Code 1.101.0 or later
 - GitHub Copilot Chat extension
-- A [Flow Studio MCP](https://mcp.flowstudio.app) subscription (Basic or Pro+)
+- A [FlowStudio MCP](https://mcp.flowstudio.app) subscription (Basic or Pro+)
 
 ## Links
 
-- [Flow Studio](https://flowstudio.app)
+- [FlowStudio](https://flowstudio.app)
 - [MCP Server](https://mcp.flowstudio.app)
 - [Pricing](https://mcp.flowstudio.app/pricing)
 - [Getting Started](https://learn.flowstudio.app/mcp-getting-started)

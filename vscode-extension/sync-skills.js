@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Sync the 5 Flow Studio skills from ../skills/ into ./skills/
+// Sync the 5 FlowStudio skills from ../skills/ into ./skills/
 // so the VS Code extension bundles them via the chatSkills contribution point.
 //
 // Runs automatically before vsce package via the vscode:prepublish npm script.

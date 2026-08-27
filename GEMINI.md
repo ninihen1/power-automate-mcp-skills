@@ -1,11 +1,11 @@
-# Flow Studio Power Automate MCP Extension
+# FlowStudio Power Automate MCP Extension
 
-Debug, build, and manage Microsoft Power Automate cloud flows via the Flow Studio MCP server.
+Debug, build, and manage Microsoft Power Automate cloud flows via the FlowStudio MCP server.
 
 ## Requirements
 
 - **Node.js 18+** and **npm** — required at runtime for `npx mcp-remote`
-- A Flow Studio MCP API key — get one at https://mcp.flowstudio.app
+- A FlowStudio MCP API key — get one at https://mcp.flowstudio.app
 
 ## Setup
 
@@ -22,6 +22,6 @@ When you install this extension, Gemini CLI will prompt you for your
 
 ## Links
 
-- [Flow Studio](https://flowstudio.app)
+- [FlowStudio](https://flowstudio.app)
 - [MCP Server](https://mcp.flowstudio.app)
 - [Getting Started](https://learn.flowstudio.app/mcp-getting-started)

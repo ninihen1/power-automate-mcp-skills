@@ -60,23 +60,23 @@
     "commands": [
       {
         "command": "flowstudio.addConnection",
-        "title": "Flow Studio: Add Tenant Connection"
+        "title": "FlowStudio: Add Tenant Connection"
       },
       {
         "command": "flowstudio.removeConnection",
-        "title": "Flow Studio: Remove Tenant Connection"
+        "title": "FlowStudio: Remove Tenant Connection"
       },
       {
         "command": "flowstudio.listConnections",
-        "title": "Flow Studio: List Connections"
+        "title": "FlowStudio: List Connections"
       },
       {
         "command": "flowstudio.showStatus",
-        "title": "Flow Studio: Show Setup Status"
+        "title": "FlowStudio: Show Setup Status"
       },
       {
         "command": "flowstudio.syncToCopilotCli",
-        "title": "Flow Studio: Sync to Copilot CLI"
+        "title": "FlowStudio: Sync to Copilot CLI"
       }
     ],
     "configuration": {

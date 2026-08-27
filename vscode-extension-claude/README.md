@@ -2,7 +2,7 @@
 
 Debug, build, manage, and govern Power Automate cloud flows from Claude Code — no portal, no manual `claude mcp add`, no shell-pasted API keys.
 
-Ask Claude why a flow failed, build new flows from natural language, audit your tenant, or check run history across environments. This extension connects the [Flow Studio](https://mcp.flowstudio.app) MCP server to [Claude Code](https://www.anthropic.com/claude-code), giving your AI agent direct access to the Power Automate API and — with Pro+ — your tenant-wide governance and monitoring data.
+Ask Claude why a flow failed, build new flows from natural language, audit your tenant, or check run history across environments. This extension connects the [FlowStudio](https://mcp.flowstudio.app) MCP server to [Claude Code](https://www.anthropic.com/claude-code), giving your AI agent direct access to the Power Automate API and — with Pro+ — your tenant-wide governance and monitoring data.
 
 ## Why install this?
 
@@ -16,7 +16,7 @@ Ask Claude why a flow failed, build new flows from natural language, audit your 
 
 1. Install this extension. (VS Code will prompt to also install Claude Code — accept.)
 2. Get an API key at [mcp.flowstudio.app](https://mcp.flowstudio.app) — **free to start, 100 calls included**.
-3. Run **Flow Studio (Claude): Add Tenant Connection** from the command palette and paste your API key.
+3. Run **FlowStudio (Claude): Add Tenant Connection** from the command palette and paste your API key.
 4. Reload the window when prompted. Claude Code will pick up the new MCP server and the 5 bundled skills.
 
 ## Works everywhere Claude Code runs
@@ -53,7 +53,7 @@ Upgrade at [mcp.flowstudio.app/pricing](https://mcp.flowstudio.app/pricing).
 
 ## Skills (included)
 
-This extension bundles all five Flow Studio skills. Claude loads them automatically based on what you ask — no separate install needed.
+This extension bundles all five FlowStudio skills. Claude loads them automatically based on what you ask — no separate install needed.
 
 | Skill                                  | Purpose                                                                | Tier     |
 | -------------------------------------- | ---------------------------------------------------------------------- | -------- |
@@ -75,7 +75,7 @@ If you also use Codex, Cursor, Antigravity, Gemini CLI, OpenHands, Goose, Amp, G
 npx skills add ninihen1/power-automate-mcp-skills -g -y
 ```
 
-This pulls the canonical skills directly from the Flow Studio repo and writes them into each agent's known skills directory. You still need to configure the Flow Studio MCP server in each agent separately — the command only installs skills, not server connections.
+This pulls the canonical skills directly from the FlowStudio repo and writes them into each agent's known skills directory. You still need to configure the FlowStudio MCP server in each agent separately — the command only installs skills, not server connections.
 
 ## Tools
 
@@ -127,9 +127,9 @@ Requires a [FlowStudio for Teams or MCP Pro+ subscription](https://mcp.flowstudi
 
 Connect to multiple tenants from the command palette:
 
-- **Flow Studio (Claude): Add Tenant Connection** — add a new tenant
-- **Flow Studio (Claude): Remove Tenant Connection** — remove a tenant
-- **Flow Studio (Claude): List Connections** — view all configured tenants
+- **FlowStudio (Claude): Add Tenant Connection** — add a new tenant
+- **FlowStudio (Claude): Remove Tenant Connection** — remove a tenant
+- **FlowStudio (Claude): List Connections** — view all configured tenants
 
 Each tenant becomes a separate MCP server entry in `~/.claude.json` under the name `flowstudio-<slug>`.
 
@@ -143,11 +143,11 @@ If you prefer a stricter security posture (key in OS keychain, not on disk), kee
 
 - VS Code 1.101.0 or later
 - [Claude Code extension](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code) (auto-installed as a dependency)
-- A [Flow Studio MCP](https://mcp.flowstudio.app) subscription (Basic or Pro+)
+- A [FlowStudio MCP](https://mcp.flowstudio.app) subscription (Basic or Pro+)
 
 ## Links
 
-- [Flow Studio](https://flowstudio.app)
+- [FlowStudio](https://flowstudio.app)
 - [MCP Server](https://mcp.flowstudio.app)
 - [Pricing](https://mcp.flowstudio.app/pricing)
 - [Getting Started](https://learn.flowstudio.app/mcp-getting-started)

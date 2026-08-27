@@ -23,7 +23,7 @@ async function activate(context) {
             console.log(`[flowstudio-claude] installed ${result.skills.length} skills: ${result.skills.join(', ')}`);
         }
     } catch (err) {
-        vscode.window.showErrorMessage(`Flow Studio: failed to install skills — ${err.message}`);
+        vscode.window.showErrorMessage(`FlowStudio: failed to install skills — ${err.message}`);
     }
 
     context.subscriptions.push(
@@ -41,7 +41,7 @@ async function activate(context) {
 
 async function showWelcome() {
     const action = await vscode.window.showInformationMessage(
-        'Flow Studio MCP for Claude Code installed. Connect your tenant to start using Power Automate flows from Claude.',
+        'FlowStudio MCP for Claude Code installed. Connect your tenant to start using Power Automate flows from Claude.',
         'Add Connection',
         'Get API Key',
     );
@@ -57,12 +57,12 @@ async function addConnectionCmd() {
     try {
         existing = listConnections(os.homedir());
     } catch (err) {
-        vscode.window.showErrorMessage(`Flow Studio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
+        vscode.window.showErrorMessage(`FlowStudio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
         return;
     }
 
     const label = await vscode.window.showInputBox({
-        title: 'Flow Studio (Claude): Add Connection (1/2)',
+        title: 'FlowStudio (Claude): Add Connection (1/2)',
         prompt: 'Name this connection (e.g. your tenant or client name)',
         placeHolder: 'e.g. Contoso, Northwind, Fabrikam',
         ignoreFocusOut: true,
@@ -79,7 +79,7 @@ async function addConnectionCmd() {
     if (!label) return;
 
     const apiKey = await vscode.window.showInputBox({
-        title: `Flow Studio (Claude): Add Connection (2/2) — ${label.trim()}`,
+        title: `FlowStudio (Claude): Add Connection (2/2) — ${label.trim()}`,
         prompt: 'Paste the API key for this tenant',
         placeHolder: 'API key from https://mcp.flowstudio.app',
         password: true,
@@ -108,12 +108,12 @@ async function addConnectionCmd() {
             apiKey: apiKey.trim(),
         });
     } catch (err) {
-        vscode.window.showErrorMessage(`Flow Studio: failed to write ~/.claude.json — ${err.message}`);
+        vscode.window.showErrorMessage(`FlowStudio: failed to write ~/.claude.json — ${err.message}`);
         return;
     }
 
     const reload = await vscode.window.showInformationMessage(
-        `Flow Studio: "${label.trim()}" connected. Reload Window to activate the MCP server in Claude Code.`,
+        `FlowStudio: "${label.trim()}" connected. Reload Window to activate the MCP server in Claude Code.`,
         'Reload Window',
     );
     if (reload === 'Reload Window') {
@@ -126,33 +126,33 @@ async function removeConnectionCmd() {
     try {
         connections = listConnections(os.homedir());
     } catch (err) {
-        vscode.window.showErrorMessage(`Flow Studio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
+        vscode.window.showErrorMessage(`FlowStudio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
         return;
     }
     if (connections.length === 0) {
-        vscode.window.showInformationMessage('No Flow Studio connections configured.');
+        vscode.window.showInformationMessage('No FlowStudio connections configured.');
         return;
     }
 
     const picked = await vscode.window.showQuickPick(
         connections.map((c) => ({ label: c.label, description: c.slug, slug: c.slug })),
-        { title: 'Flow Studio (Claude): Remove Connection', placeHolder: 'Select a connection to remove' },
+        { title: 'FlowStudio (Claude): Remove Connection', placeHolder: 'Select a connection to remove' },
     );
     if (!picked) return;
 
     try {
         const removed = removeConnection(os.homedir(), picked.slug);
         if (!removed) {
-            vscode.window.showWarningMessage(`Flow Studio: "${picked.label}" was not found.`);
+            vscode.window.showWarningMessage(`FlowStudio: "${picked.label}" was not found.`);
             return;
         }
     } catch (err) {
-        vscode.window.showErrorMessage(`Flow Studio: failed to update ~/.claude.json — ${err.message}`);
+        vscode.window.showErrorMessage(`FlowStudio: failed to update ~/.claude.json — ${err.message}`);
         return;
     }
 
     const reload = await vscode.window.showInformationMessage(
-        `Flow Studio: "${picked.label}" removed. Reload Window to deactivate.`,
+        `FlowStudio: "${picked.label}" removed. Reload Window to deactivate.`,
         'Reload Window',
     );
     if (reload === 'Reload Window') {
@@ -165,12 +165,12 @@ async function listConnectionsCmd() {
     try {
         connections = listConnections(os.homedir());
     } catch (err) {
-        vscode.window.showErrorMessage(`Flow Studio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
+        vscode.window.showErrorMessage(`FlowStudio: ~/.claude.json could not be parsed — ${err.message}. Open the file to fix it manually, then retry.`);
         return;
     }
     if (connections.length === 0) {
         const action = await vscode.window.showInformationMessage(
-            'No Flow Studio connections configured.',
+            'No FlowStudio connections configured.',
             'Add Connection',
         );
         if (action === 'Add Connection') {
@@ -185,7 +185,7 @@ async function listConnectionsCmd() {
             description: c.url,
             detail: c.hasKey ? 'API key configured' : 'No API key — re-add this connection',
         })),
-        { title: `Flow Studio (Claude): ${connections.length} Connection(s)`, placeHolder: 'Your configured tenants' },
+        { title: `FlowStudio (Claude): ${connections.length} Connection(s)`, placeHolder: 'Your configured tenants' },
     );
 }
 
