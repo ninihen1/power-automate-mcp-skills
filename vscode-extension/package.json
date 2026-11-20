@@ -1,8 +1,8 @@
 {
   "name": "flowstudio-mcp",
   "displayName": "Power Automate MCP Server",
-  "description": "Debug, build, manage, and govern Power Automate cloud flows with AI. Ask Copilot why a flow failed, build new flows, audit your tenant, or check run history — no portal needed.",
-  "version": "0.6.0",
+  "description": "Debug, build, manage, and govern Power Automate cloud flows with AI, and read, edit, and publish Power Apps canvas apps (preview). Ask Copilot why a flow failed, build new flows, audit your tenant, or check run history — no portal needed.",
+  "version": "0.6.4",
   "publisher": "FlowStudio",
   "license": "MIT",
   "icon": "icon.png",
@@ -33,7 +33,9 @@
     "governance",
     "monitoring",
     "audit",
-    "compliance"
+    "compliance",
+    "power apps",
+    "canvas apps"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -55,7 +57,11 @@
       { "path": "./skills/power-automate-debug/SKILL.md" },
       { "path": "./skills/power-automate-build/SKILL.md" },
       { "path": "./skills/power-automate-monitoring/SKILL.md" },
-      { "path": "./skills/power-automate-governance/SKILL.md" }
+      { "path": "./skills/power-automate-governance/SKILL.md" },
+      { "path": "./skills/power-apps-canvas-mcp/SKILL.md" },
+      { "path": "./skills/power-apps-canvas-read/SKILL.md" },
+      { "path": "./skills/power-apps-canvas-edit/SKILL.md" },
+      { "path": "./skills/power-apps-canvas-ship/SKILL.md" }
     ],
     "commands": [
       {

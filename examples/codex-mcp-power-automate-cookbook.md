@@ -104,7 +104,7 @@ The expression `contains(string(item()?['serviceExceptionJson']), 'error')` cras
 
 ## Example 3: Null values crash a child flow
 
-**Scenario:** "ArtsVision Technical Roster for TOIL" parent + child flow. Child flow crashes on a subset of records.
+**Scenario:** "Contoso Technical Roster for TOIL" parent + child flow. Child flow crashes on a subset of records.
 
 **What the agent does:**
 
@@ -114,7 +114,7 @@ The expression `contains(string(item()?['serviceExceptionJson']), 'error')` cras
 
 **What the agent finds:**
 
-38% of ArtsVision records have null Name fields. This isn't an edge case — it's a systemic data quality issue. The agent also finds a `CostCentre` vs `CostCenter` spelling mismatch causing silent data loss.
+38% of Contoso records have null Name fields. This isn't an edge case — it's a systemic data quality issue. The agent also finds a `CostCentre` vs `CostCenter` spelling mismatch causing silent data loss.
 
 **The fix:** The agent uses `update_live_flow` to change the `union()` operation order so new data takes priority over archive data, ensuring records with populated Name fields are preferred.
 
@@ -129,14 +129,14 @@ The expression `contains(string(item()?['serviceExceptionJson']), 'error')` cras
 | `get_live_flow` | Read full flow definition |
 | `get_live_flow_runs` | Get recent run history |
 | `get_live_flow_run_action_outputs` | Retrieve action-level inputs and outputs |
-| `get_live_flow_run_error` | Get top-level error (use action outputs for detail) |
+| `get_live_flow_run_error` | List the failed actions in a run, with error codes (use action outputs for the full message) |
 | `update_live_flow` | Modify flow definition |
 | `trigger_live_flow` | Trigger a flow run |
 | `resubmit_live_flow_run` | Resubmit a failed run |
 | `cancel_live_flow_run` | Cancel a running flow |
 | `set_live_flow_state` | Turn a flow on or off |
 | `list_live_connections` | List API connections |
-| `get_live_flow_trigger_url` | Get the HTTP trigger URL |
+| `get_live_flow` with `includeTriggerUrl: true` | Get the HTTP trigger URL |
 
 ## Key insight
 

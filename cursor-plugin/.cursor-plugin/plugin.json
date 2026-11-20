@@ -2,7 +2,7 @@
   "name": "flowstudio-power-automate",
   "displayName": "Power Automate MCP Server by FlowStudio",
   "version": "1.0.0",
-  "description": "Debug, build, and manage Power Automate cloud flows with AI. 15 tools for action-level error details, flow creation, run history, and multi-tenant operations.",
+  "description": "Debug, build, and manage Power Automate cloud flows with AI: action-level error details, flow creation and versions, run history, and multi-tenant operations.",
   "author": {
     "name": "Flow Studio Solutions",
     "email": "support@flowstudio.app"

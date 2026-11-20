@@ -8,7 +8,7 @@ Run this before each marketplace publish. Three platforms; Windows first.
 - [ ] Install the .vsix: `code --install-extension flowstudio-mcp-claude-0.1.0.vsix`
 - [ ] Reload window if prompted.
 - [ ] Welcome notification appears on activation.
-- [ ] `~/.claude/skills/` contains 5 `flowstudio-power-automate-*` directories and `.flowstudio-mcp-version` matches `0.1.0`.
+- [ ] `~/.claude/skills/` contains 9 `flowstudio-*` directories and `.flowstudio-mcp-version` matches the extension version.
 - [ ] Run `FlowStudio (Claude): Add Tenant Connection`. Use a real API key for a real tenant.
 - [ ] `~/.claude.json` contains `mcpServers.flowstudio-<slug>` with the URL and headers.
 - [ ] Click "Reload Window".

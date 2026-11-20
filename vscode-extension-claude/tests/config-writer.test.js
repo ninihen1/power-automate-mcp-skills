@@ -42,13 +42,13 @@ test('listConnections returns only flowstudio-* entries', () => {
 
 test('addConnection creates config and entry when file missing', () => {
     const home = makeTempHome();
-    addConnection(home, { slug: 'flowstudio-oa', label: 'OA', url: 'https://mcp.flowstudio.app/mcp', apiKey: 'secret123' });
+    addConnection(home, { slug: 'flowstudio-fabrikam', label: 'Fabrikam', url: 'https://mcp.flowstudio.app/mcp', apiKey: 'secret123' });
     const cfg = JSON.parse(fs.readFileSync(path.join(home, '.claude.json'), 'utf8'));
-    assert.deepStrictEqual(cfg.mcpServers['flowstudio-oa'], {
+    assert.deepStrictEqual(cfg.mcpServers['flowstudio-fabrikam'], {
         type: 'http',
         url: 'https://mcp.flowstudio.app/mcp',
         headers: { 'x-api-key': 'secret123' },
-        _flowstudioLabel: 'OA',
+        _flowstudioLabel: 'Fabrikam',
     });
 });
 
@@ -58,7 +58,7 @@ test('addConnection preserves existing non-flowstudio entries', () => {
         mcpServers: { 'other': { type: 'stdio', command: 'foo' } },
         otherTopLevel: { keep: true },
     }));
-    addConnection(home, { slug: 'flowstudio-oa', label: 'OA', url: 'https://x', apiKey: 'k' });
+    addConnection(home, { slug: 'flowstudio-fabrikam', label: 'Fabrikam', url: 'https://x', apiKey: 'k' });
     const cfg = JSON.parse(fs.readFileSync(path.join(home, '.claude.json'), 'utf8'));
     assert.deepStrictEqual(cfg.mcpServers['other'], { type: 'stdio', command: 'foo' });
     assert.deepStrictEqual(cfg.otherTopLevel, { keep: true });
@@ -66,26 +66,26 @@ test('addConnection preserves existing non-flowstudio entries', () => {
 
 test('addConnection overwrites existing entry with same slug', () => {
     const home = makeTempHome();
-    addConnection(home, { slug: 'flowstudio-oa', label: 'OA', url: 'https://x', apiKey: 'old' });
-    addConnection(home, { slug: 'flowstudio-oa', label: 'OA', url: 'https://x', apiKey: 'new' });
+    addConnection(home, { slug: 'flowstudio-fabrikam', label: 'Fabrikam', url: 'https://x', apiKey: 'old' });
+    addConnection(home, { slug: 'flowstudio-fabrikam', label: 'Fabrikam', url: 'https://x', apiKey: 'new' });
     const cfg = JSON.parse(fs.readFileSync(path.join(home, '.claude.json'), 'utf8'));
-    assert.strictEqual(cfg.mcpServers['flowstudio-oa'].headers['x-api-key'], 'new');
+    assert.strictEqual(cfg.mcpServers['flowstudio-fabrikam'].headers['x-api-key'], 'new');
 });
 
 test('addConnection chmods file to 600 on non-Windows', { skip: process.platform === 'win32' }, () => {
     const home = makeTempHome();
-    addConnection(home, { slug: 'flowstudio-oa', label: 'OA', url: 'https://x', apiKey: 'k' });
+    addConnection(home, { slug: 'flowstudio-fabrikam', label: 'Fabrikam', url: 'https://x', apiKey: 'k' });
     const stat = fs.statSync(path.join(home, '.claude.json'));
     assert.strictEqual(stat.mode & 0o777, 0o600);
 });
 
 test('removeConnection returns true and removes entry when present', () => {
     const home = makeTempHome();
-    addConnection(home, { slug: 'flowstudio-oa', label: 'OA', url: 'https://x', apiKey: 'k' });
-    const removed = removeConnection(home, 'flowstudio-oa');
+    addConnection(home, { slug: 'flowstudio-fabrikam', label: 'Fabrikam', url: 'https://x', apiKey: 'k' });
+    const removed = removeConnection(home, 'flowstudio-fabrikam');
     assert.strictEqual(removed, true);
     const cfg = JSON.parse(fs.readFileSync(path.join(home, '.claude.json'), 'utf8'));
-    assert.strictEqual(cfg.mcpServers['flowstudio-oa'], undefined);
+    assert.strictEqual(cfg.mcpServers['flowstudio-fabrikam'], undefined);
 });
 
 test('removeConnection returns false when entry absent', () => {

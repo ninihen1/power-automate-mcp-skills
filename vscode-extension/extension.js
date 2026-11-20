@@ -10,7 +10,7 @@ const SIGNUP_URL = 'https://mcp.flowstudio.app';
 const SECRET_PREFIX = 'flowstudio.apiKey.';
 const WELCOME_SHOWN_KEY = 'flowstudio.welcomeShownVersion';
 const BOOTSTRAP_NOTIFIED_KEY = 'flowstudio.cliBootstrapNotifiedVersion';
-const CURRENT_VERSION = '0.6.0';
+const CURRENT_VERSION = '0.6.4';
 
 /** @type {vscode.SecretStorage} */
 let secrets;
@@ -272,7 +272,7 @@ async function showSetupStatus(context) {
 
     items.push({
         label: '$(check) VS Code Copilot Chat',
-        description: 'wired (5 skills via chatSkills)',
+        description: 'wired (9 skills via chatSkills)',
         detail: 'Runs inside VS Code — no filesystem write needed. Skills available to Copilot Chat.',
     });
 

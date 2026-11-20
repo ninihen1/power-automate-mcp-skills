@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Sync the 5 FlowStudio skills from ../skills/ into ./skills/
+// Sync the 9 FlowStudio skills from ../skills/ into ./skills/
 // so the VS Code extension bundles them via the chatSkills contribution point.
 //
 // Runs automatically before vsce package via the vscode:prepublish npm script.
@@ -14,6 +14,10 @@ const SKILLS = [
     'power-automate-build',
     'power-automate-monitoring',
     'power-automate-governance',
+    'power-apps-canvas-mcp',
+    'power-apps-canvas-read',
+    'power-apps-canvas-edit',
+    'power-apps-canvas-ship',
 ];
 
 const sourceRoot = path.resolve(__dirname, '..', 'skills');

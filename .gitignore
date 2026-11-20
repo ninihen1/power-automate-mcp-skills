@@ -35,9 +35,34 @@ Thumbs.db
 
 # Internal docs (not for public repo)
 SUBMISSION-STATUS.md
-docs/streamable-http-upgrade-spec.md
-docs/skill-table-catalog/
-docs/superpowers/
+/docs/
+
+# Internal notes, plans, reviews and listing drafts: never public.
+# Put new internal material in /internal/ instead of the repo root.
+/internal/
+/BENCHMARK-*.md
+/BRAND-RENAME-PLAN.md
+/*-PLAN.md
+claude-directory/
+*handover*
+
+# Secrets: listed by name so they stay ignored if the *.json rule changes
+/.mcp.json
+.mcp.*.json
+chatgpt-app-submission.json
+mcp_flows.json
+local.settings.json
+*.pem
+*.pfx
+*.key
+id_rsa*
+
+# Dependencies and build output
+node_modules/
+*.vsix
+
+# Tracked JSON that the *.json rule would otherwise hide
+!awesome-copilot/plugins/flowstudio-power-automate/.github/plugin/plugin.json
 
 # Agent projects (environment-specific, may contain tokens)
 m365-declarative-agent/
@@ -83,3 +108,18 @@ dist/
 
 # Cowork API plugin proxy (in-development; promote to tracked when stable)
 cowork-proxy/
+
+# ChatGPT app submission staging — skill copies generated for the OpenAI
+# directory submission. The canonical skills live in skills/; these are
+# derived. Ignore rather than track a second copy that will drift.
+chatgpt-skills/
+
+# Cowork plugin staging — derived skill copies for the M365 Cowork conversion.
+# Canonical skills live in skills/; sibling of the ignored cowork-proxy/.
+cowork-skills/
+
+# Submission build output
+flowstudio-chatgpt-skills.zip
+
+# Windows crash dumps from Git Bash
+*.stackdump

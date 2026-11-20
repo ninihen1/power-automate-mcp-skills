@@ -68,4 +68,4 @@ but the agent had no way to:
 - `list_live_flows` — find the flow
 - `get_live_flow_runs` — get recent run history
 - `get_live_flow_run_action_outputs` — retrieve action-level inputs and outputs
-- `get_live_flow_run_error` — top-level error (insufficient on its own)
+- `get_live_flow_run_error` — lists the failed actions and their error codes (insufficient on its own)

@@ -3,7 +3,7 @@
   "properties": {
     "apiKey": {
       "type": "string",
-      "description": "FlowStudio workspace JWT token. Get yours at https://flowstudio.app",
+      "description": "FlowStudio MCP API key. Get yours at https://mcp.flowstudio.app/dashboard",
       "x-from": "header:x-api-key"
     }
   },

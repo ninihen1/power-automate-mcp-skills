@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// Sync the 5 FlowStudio skills from ../skills/ into ./skills/
+// Sync the 9 FlowStudio skills from ../skills/ into ./skills/
 // so the VS Code extension bundles them. On user activation, the
-// extension copies them to ~/.claude/skills/flowstudio-power-automate-*/
+// extension copies them to ~/.claude/skills/flowstudio-*/
 //
 // Runs automatically before vsce package via vscode:prepublish.
 // Manual: npm run sync-skills
@@ -15,6 +15,10 @@ const SKILLS = [
     'power-automate-build',
     'power-automate-monitoring',
     'power-automate-governance',
+    'power-apps-canvas-mcp',
+    'power-apps-canvas-read',
+    'power-apps-canvas-edit',
+    'power-apps-canvas-ship',
 ];
 
 const sourceRoot = path.resolve(__dirname, '..', 'skills');
