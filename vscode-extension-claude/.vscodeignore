@@ -4,3 +4,4 @@ sync-skills.js
 tests/**
 PUBLISH.md
 SMOKE-TEST.md
+*.txt
