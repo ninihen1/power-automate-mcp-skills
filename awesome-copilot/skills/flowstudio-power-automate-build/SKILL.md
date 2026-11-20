@@ -440,7 +440,7 @@ representative `body` shaped like the production trigger payload.
 | Flow deployed but state is "Stopped" | Flow won't run on schedule | Call `set_live_flow_state` with `state: "Started"` — do **not** use `update_live_flow` for state changes |
 | Teams "Chat with Flow bot" recipient as object | 400 `GraphUserDetailNotFound` | Use `"user@contoso.com;"` (string, trailing semicolon) |
 | Copilot/Skills flow not in a solution | Copilot Studio may not discover it as an agent tool | After deploy, call `add_to_solution` with `flowName` and `solution` |
-| Button/Skills trigger used for MCP testing | Runs even when a required input is missing (null) | Pass inputs in `trigger_live_flow` `body`; on `warning`, cancel and retry with the full body |
+| Button/PowerApps/Skills trigger used for MCP testing | Runs even when a required input is missing (null) | Pass inputs in `trigger_live_flow` `body`; on `warning`, cancel and retry with the full body |
 | Connector action missing `metadata.operationMetadataId` | Designer/run-only UI can behave inconsistently | Preserve existing IDs; add stable GUIDs for new connector actions |
 | Placeholder Excel `scriptId` | Dynamic validation fails at save time | Resolve the real Office Script ID before deploying |
 | SharePoint `PatchItem` omits required fields | Save can fail even if the field is not changing | Echo unchanged required fields such as `item/Title` |
